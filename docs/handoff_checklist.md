@@ -181,6 +181,16 @@
 
 ## 目前續接點
 
+### 2026-07-13 Session Close
+
+- **已完成**：PR #6 `Test SQLite migration matrix` 已合併至 GitHub `main`，merge commit `612d024`；本機已 fast-forward 同步。
+- **已完成**：本日完成 provider-neutral notification launch coordinator、手動 mailbox sync、SQLite/ACK 跨重啟完整性與 v1～v5 升級至 v6 migration matrix。
+- **已完成**：目前非 Windows-native Flutter suite 79 tests 全通過，`flutter analyze` 零問題；V1.5～V5 已依使用者指示暫停於 backlog。
+- **已實作未驗證**：真實 FCM/APNs、iPhone Keychain/libsodium/WebRTC、兩台真機 E2E、通知權限與資源量測仍需要 credentials、相容 Xcode 或實機環境。
+- **未完成**：V1-02 安全與隱私總稽核、真機斷網／kill process、V1 資源量測與 release candidate 文件。
+- 本次收尾未啟動、停止或修改 Docker、AVD 與其他外部程序；既有 runtime 狀態未重新檢查。
+- 下次第一步：從 `main` 建立新分支，執行 V1-02 安全與隱私稽核；發現問題時依風險分級修復並補測試。
+
 ### 2026-07-13 V1 Scope And SQLite Migration Matrix
 
 - Git 狀態：branch `codex/sqlite-migration-matrix`，功能 commit `a6f5ac1`，Draft PR [#6 Test SQLite migration matrix](https://github.com/leezxt/p2p-chat/pull/6)。
