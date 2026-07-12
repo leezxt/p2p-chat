@@ -94,7 +94,7 @@
 - [ ] Mailbox 新訊息觸發不含明文或敏感 metadata 的推播（安全 outbox 已完成，FCM worker 待 credentials）
 - [ ] 驗證 cold start、warm start 可開啟正確聊天室並冪等同步 mailbox（provider-neutral parser/coordinator 與單元測試已完成；真實 FCM 待 credentials）
 - [x] 實作前景低頻 Presence、lastSeen 與背景停止更新（Android 雙 AVD 驗證）
-- [ ] 驗證通知權限拒絕、App 生命週期、背景連線與耗電行為
+- [ ] 驗證通知權限拒絕、App 生命週期、背景連線與耗電行為（無 provider／後端離線時的手動同步 fallback 與 tests 已完成）
 
 ### V1 發布門檻
 
@@ -178,6 +178,17 @@
 - `flutter analyze`：S7-01 修改後通過，No issues found。
 
 ## 目前續接點
+
+### 2026-07-12 Sprint 8 Manual Mailbox Refresh
+
+- Git 狀態：branch `codex/manual-mailbox-refresh`，功能 commit `f2acdd4`，Draft PR [#4 Add manual mailbox refresh](https://github.com/leezxt/p2p-chat/pull/4)。
+- **已完成**：PR #3 `Add push launch mailbox coordinator` 已合併至 `main`，本機同步至 merge commit `eaca2ec`。
+- **已完成**：聊天列表 AppBar 新增「同步訊息」控制；沒有 push provider 或通知權限時，使用者仍可手動執行 contact sync、mailbox pull 與 sender status sync。
+- **已完成**：同步期間按鈕停用並顯示固定尺寸進度，避免重複網路請求；成功顯示「訊息已同步」，失敗顯示「無法同步訊息，本機聊天仍可使用」。
+- **已完成**：3 個 widget tests 驗證初始離線後重試、失敗時本機功能保留、連續點擊防重入；非 Windows-native Flutter suite 73 tests 全通過，`flutter analyze` 零問題，format 通過。
+- **已實作未驗證**：Android/iOS 系統通知權限拒絕的實機操作、背景推播 cold/warm launch 與耗電量測；仍需 Firebase/APNs credentials 與真機。
+- 本輪未啟動或停止 Docker、AVD 或其他長時間程序；既有 runtime 狀態未重新檢查。
+- 下一步：取得 Firebase credentials 時接真實 adapter；credentials 尚不可用時，可轉做 V1-04 的 App 重啟、重複同步與資料完整性測試腳本。
 
 ### 2026-07-12 Sprint 8 Notification Launch Coordinator
 
