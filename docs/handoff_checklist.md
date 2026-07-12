@@ -3,6 +3,8 @@
 本文件是接手開發與驗收進度的單一清單。完整依賴與驗收條件仍以
 [`project_tasks.md`](project_tasks.md) 為準。
 
+目前依使用者指示只實作 v1.2 藍圖的 V1；V1.5～V5 暫停於 backlog。
+
 ## 勾選規則
 
 - `[ ]`：尚未完成，或已有程式但尚未通過指定驗證。
@@ -103,7 +105,7 @@
 - [ ] 建立兩台真機的完整 E2E 測試腳本並通過
 - [ ] 完成安全與隱私稽核，確認私鑰、明文與敏感資料不上傳且不進 log
 - [ ] 量測並記錄冷啟動、閒置記憶體、背景連線、網路與電量
-- [ ] 完成斷網、殺程序、DB migration、重複訊息與 ACK 遺失的恢復測試（SQLite 重啟 + ACK 遺失重投資料完整性已通過）
+- [ ] 完成斷網、殺程序、DB migration、重複訊息與 ACK 遺失的恢復測試（SQLite 重啟、ACK 遺失重投、v1～v5 migration matrix 已通過）
 - [ ] 更新 README、架構、安全、成本、操作說明與已知限制
 - [ ] 完成 V1 release candidate 驗收
 
@@ -178,6 +180,17 @@
 - `flutter analyze`：S7-01 修改後通過，No issues found。
 
 ## 目前續接點
+
+### 2026-07-13 V1 Scope And SQLite Migration Matrix
+
+- **已完成**：依使用者指示將目前開發範圍鎖定為 v1.2 藍圖的 V1 核心可用版；V1.5～V5 只保留 backlog。
+- **已完成**：PR #5 `Test mailbox integrity across restart` 已合併至 `main`，本機同步至 merge commit `cfc7d41`。
+- **已完成**：新增 v1、v2、v3、v4、v5 五種舊版 SQLite fixture，全部使用 production `kMigrations` 建立與升級至 v6。
+- **已完成**：驗證 conversation/message、identity/device/contact、crypto replay、remote key trust 與 pending queue 依其版本保留；v2/v3 contact public key 可在 v4 migration 正確 backfill 至 trust table。
+- **已完成**：migration matrix 5 tests 全通過；非 Windows-native Flutter suite 79 tests 全通過，`flutter analyze` 零問題，format 通過。
+- **已實作未驗證**：V1-04 剩餘 Android/iOS 真機 kill process 與實際網路切換；SQLite migration matrix 已完成。
+- 本輪未啟動或停止 Docker、AVD 或其他長時間程序；既有 runtime 狀態未重新檢查。
+- 下一步：在沒有 Firebase credentials 時進行 V1-02 安全與隱私稽核；取得 credentials 後優先完成 S8-01～S8-05 真實推播。
 
 ### 2026-07-13 V1-04 Mailbox Restart Integrity
 
