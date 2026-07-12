@@ -69,8 +69,8 @@
 
 ### iPhone / iOS 平台驗收（Android 完成後立即執行）
 
-- [ ] 在 macOS + Xcode 環境驗證並提交 Flutter `ios/` runner（Windows 已產生 runner，待 macOS build）
-- [ ] 設定 Bundle ID、Development Team、簽章、最低 iOS 版本與 CocoaPods（Bundle ID/iOS 13 已設定，Team/pods 待 macOS）
+- [x] 在 macOS + Xcode 環境驗證並提交 Flutter `ios/` runner、workspace 與 Podfile.lock
+- [x] 設定 Bundle ID、Development Team、automatic signing、最低 iOS 版本與 CocoaPods
 - [x] 設定 Keychain entitlements、網路、相機與麥克風用途說明
 - [ ] 驗證 `flutter_secure_storage` Keychain 資料跨重啟保存，移除 App 後行為符合安全政策
 - [ ] 驗證 iOS libsodium 真實 round-trip、竄改、錯 key、replay 與 inner/outer mismatch
@@ -178,6 +178,15 @@
 - `flutter analyze`：S7-01 修改後通過，No issues found。
 
 ## 目前續接點
+
+### 2026-07-12 Mac iOS 同步結果
+
+- **已完成**：Mac branch `agent/add-tests-and-ios-setup` 經 PR #1 合併至 `main`，merge commit `d5710ad`；Windows 已 fast-forward 同步。
+- **已完成**：CocoaPods workspace、`Podfile.lock`、Runner/RunnerTests Pods xcconfig、automatic signing 與 Development Team `6S3F74Y3QN` 已提交。
+- **已完成**：Mac `flutter analyze` 零問題、完整 `flutter test` 71 tests、`mvn test` 與 `git diff --check` 通過；Windows 回歸 `mvn test` 19 tests、`flutter pub get`、`flutter analyze` 通過。
+- **已實作未驗證**：Intel Mac 的 Xcode 16.4 可辨識並配對 iPhone，但目標 iPhone 為 iOS 26.5.2，需要 Xcode 26.x；目前硬體/工具鏈無法完成 `flutter build ios`、簽章安裝與 native integration test。
+- **未完成**：iPhone Keychain 跨重啟、真實 libsodium failure paths、WebRTC encrypted DataChannel、背景 sleep，以及 iPhone+Android E2E。
+- 下一步：使用可安裝 Xcode 26.x 的 Mac，或將 iPhone 降至 Xcode 16.4 支援版本，再設定 `IOS_DEVICE_ID` 執行 `bash tool/verify_ios.sh`。
 
 ### 2026-07-12 Private GitHub 同步
 
