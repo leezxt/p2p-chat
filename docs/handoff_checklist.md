@@ -181,11 +181,13 @@
 
 ### 2026-07-12 Private GitHub 同步
 
-- **已實作未驗證**：準備將 `p2p-chat` 初始化為獨立 Git repository，目標 private repo 為 `leezxt/p2p-chat`。
+- **已完成**：`p2p-chat` 已初始化為獨立 Git repository，branch `main`；初始 commit `87f5798`。
 - **已完成**：GitHub CLI 已登入 `leezxt`，具 `repo` 權限；目標 repo 名稱尚未存在。
 - **已完成**：敏感檔案掃描未發現私鑰、Firebase 設定或未忽略 `.env`；`google-services.json`、`GoogleService-Info.plist`、keystore 均在 ignore 規則內。
 - **已完成**：`dist/`、APK、`.tools/`、build、Pods、Gradle cache 與本機設定不納入版本庫；Android Gradle wrapper 腳本與 jar 改為納入，確保 Mac 可重現建置。
-- 下一步：初始化 `main`、建立初始 commit、用 `gh repo create --private` 建立並推送，完成後在本段記錄 URL/commit 與 Mac clone 指令。
+- **已完成**：private GitHub repo `https://github.com/leezxt/p2p-chat` 已建立，`origin/main` 推送成功並設定 tracking。
+- Mac clone：`git clone https://github.com/leezxt/p2p-chat.git`，之後進入 `p2p-chat/mobile_desktop_app` 執行 `bash tool/verify_ios.sh`。
+- 下一步：Mac 登入具 repo 權限的 GitHub 帳號、clone 專案，安裝 Xcode/Flutter/CocoaPods，從 iOS no-codesign build 開始驗收。
 
 ### 2026-07-12 Sprint 8 Push 基礎進行中
 
