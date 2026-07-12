@@ -103,7 +103,7 @@
 - [ ] 建立兩台真機的完整 E2E 測試腳本並通過
 - [ ] 完成安全與隱私稽核，確認私鑰、明文與敏感資料不上傳且不進 log
 - [ ] 量測並記錄冷啟動、閒置記憶體、背景連線、網路與電量
-- [ ] 完成斷網、殺程序、DB migration、重複訊息與 ACK 遺失的恢復測試
+- [ ] 完成斷網、殺程序、DB migration、重複訊息與 ACK 遺失的恢復測試（SQLite 重啟 + ACK 遺失重投資料完整性已通過）
 - [ ] 更新 README、架構、安全、成本、操作說明與已知限制
 - [ ] 完成 V1 release candidate 驗收
 
@@ -178,6 +178,16 @@
 - `flutter analyze`：S7-01 修改後通過，No issues found。
 
 ## 目前續接點
+
+### 2026-07-13 V1-04 Mailbox Restart Integrity
+
+- **已完成**：PR #4 `Add manual mailbox refresh` 已合併至 `main`，本機同步至 merge commit `6fc3e5e`。
+- **已完成**：新增使用 production SQLite migration、`ChatSqfliteDao`、`SqliteReplayProtection`、`SqliteMailboxReceipts` 與 `MailboxSyncService` 的跨重啟整合測試。
+- **已完成**：模擬首次 DELIVERED ACK 遺失後關閉 DB，再以新 service instance 重開同一 DB；server 重投後 conversation、message、replay record、receipt 均維持一筆，且 ACK 成功補送。
+- **已完成**：`mailbox_restart_integrity_test.dart` 通過；非 Windows-native Flutter suite 74 tests 全通過，`flutter analyze` 零問題，format 通過。
+- **已實作未驗證**：V1-04 的 Android/iOS 真機 kill process、實際斷網切換與舊版 DB migration upgrade matrix 尚未執行。
+- 本輪未啟動或停止 Docker、AVD 或其他長時間程序；既有 runtime 狀態未重新檢查。
+- 下一步：建立舊 schema fixture，逐版驗證 v1→v6 migration 後 identity、conversation、message、replay、queue 與 receipt 資料仍完整。
 
 ### 2026-07-12 Sprint 8 Manual Mailbox Refresh
 
