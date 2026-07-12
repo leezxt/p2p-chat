@@ -76,6 +76,10 @@ flutter test test/modules/two_device_p2p_test.dart
 
 `device_key_service_test.dart` 會載入原生 libsodium；Windows 執行測試需要 Visual Studio 的 Desktop development with C++ workload。缺少該 workload 時仍可建置 Android，但不可把 Windows 測試標記為通過。
 
+`mailbox_restart_integrity_test.dart` 會在首次 ACK 遺失後關閉並重開同一個
+SQLite DB，驗證 server 重投不會重複建立 conversation/message/replay/receipt，
+且 App 重啟後仍會補送 DELIVERED ACK。
+
 `p2p_session_lifecycle_test.dart` 驗證連線完成前禁止傳訊、offer 有限重試、timeout/error 釋放資源、close 與 sleep 後重新連線。
 
 `logging_sensitive_data_test.dart` 驗證統一 logger 不輸出 bearer/JWT、token、secret/private key、plaintext、ciphertext 或 payload；Crypto 測試另驗證連續加密 nonce 不重用。
