@@ -80,6 +80,10 @@ flutter test test/modules/two_device_p2p_test.dart
 SQLite DB，驗證 server 重投不會重複建立 conversation/message/replay/receipt，
 且 App 重啟後仍會補送 DELIVERED ACK。
 
+`database_migration_matrix_test.dart` 會建立 v1～v5 舊版 SQLite fixtures，逐一
+升級至目前 v6，驗證聊天、身份、聯絡人、replay、key trust 與 mailbox queue
+資料保留，以及 contact key trust backfill。
+
 `p2p_session_lifecycle_test.dart` 驗證連線完成前禁止傳訊、offer 有限重試、timeout/error 釋放資源、close 與 sleep 後重新連線。
 
 `logging_sensitive_data_test.dart` 驗證統一 logger 不輸出 bearer/JWT、token、secret/private key、plaintext、ciphertext 或 payload；Crypto 測試另驗證連續加密 nonce 不重用。
