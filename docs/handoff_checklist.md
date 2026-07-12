@@ -183,6 +183,7 @@
 
 ### 2026-07-13 V1 Scope And SQLite Migration Matrix
 
+- Git 狀態：branch `codex/sqlite-migration-matrix`，功能 commit `a6f5ac1`，Draft PR [#6 Test SQLite migration matrix](https://github.com/leezxt/p2p-chat/pull/6)。
 - **已完成**：依使用者指示將目前開發範圍鎖定為 v1.2 藍圖的 V1 核心可用版；V1.5～V5 只保留 backlog。
 - **已完成**：PR #5 `Test mailbox integrity across restart` 已合併至 `main`，本機同步至 merge commit `cfc7d41`。
 - **已完成**：新增 v1、v2、v3、v4、v5 五種舊版 SQLite fixture，全部使用 production `kMigrations` 建立與升級至 v6。
