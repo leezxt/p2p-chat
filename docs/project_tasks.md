@@ -83,7 +83,7 @@
 | S6-04 | ✅ P2P 改傳密文並驗證完整性 | S5-05,S6-02,S6-03 | Android 真實 libsodium failure paths、SQLite replay、encrypted-only DataChannel 與兩個 AVD/App process authenticated E2E 通過；iOS 由 S6-IOS tasks 驗收 |
 | S6-05 | ✅ 建立 key fingerprint 與變更偵測 | S6-02 | App 本機重算 fingerprint；同裝置 key 變更保存 pending、發出安全事件並阻斷傳送，明確重新信任後才啟用 |
 | S6-06 | ✅ Crypto 測試與敏感資訊日誌稽核 | S6-03..05 | round-trip、竄改、nonce 唯一性、版本、錯 key、replay 與 key change 測試通過；統一 logger 遮蔽 token/key/plaintext/ciphertext/payload |
-| S6-IOS-01 | 🚧 建立 iOS runner 與 Xcode 簽章設定 | Android S6-02,S6-04 驗收 | Windows 已產生 `ios/`、iOS 13 target、Bundle ID、Info.plist 與 Keychain entitlements；macOS pods、Team、Xcode build 待驗 |
+| S6-IOS-01 | 🚧 建立 iOS runner 與 Xcode 簽章設定 | Android S6-02,S6-04 驗收 | macOS Pods/workspace、Podfile.lock、Team 與 automatic signing 已完成；Xcode 16.4 不支援 iOS 26.5.2，build/安裝待 Xcode 26.x |
 | S6-IOS-02 | iPhone Keychain、libsodium 與 WebRTC 實機驗收 | S6-IOS-01 | secure storage 跨重啟、真實 crypto failure paths、encrypted DataChannel 與背景 sleep 通過 |
 | S6-IOS-03 | iPhone 跨平台雙裝置 E2E 與文件 | S6-IOS-02 | 兩台 iPhone 或 iPhone+Android 完成 E2E、資源檢查與文件更新；S6-05 已因 Windows/macOS 環境阻塞先行完成，但本項仍是關閉 Sprint 6 的必要條件 |
 

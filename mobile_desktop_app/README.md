@@ -30,6 +30,8 @@ flutter build ios --debug --no-codesign
 
 接著在 Xcode 設定唯一 Bundle ID、Development Team 與 signing profile，再以 iPhone 實機驗證 Keychain、libsodium 與 WebRTC。Windows Flutter 不提供 `build ios`。
 
+2026-07-12 Mac 驗證已完成 CocoaPods workspace、Podfile.lock、Development Team 與 automatic signing；`flutter analyze` 與完整 71 tests 通過。現有 Intel Mac 的 Xcode 16.4 無法為 iOS 26.5.2 建置或安裝，實機驗收仍需 Xcode 26.x 相容環境。
+
 ```bash
 flutter test integration_test/ios_crypto_runtime_test.dart \
   -d <iphone-device-id> \
