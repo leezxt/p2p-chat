@@ -13,6 +13,8 @@ import 'domain/mailbox_sync_service.dart';
 import 'domain/mailbox_uploader.dart';
 import 'domain/message_transport_coordinator.dart';
 import '../identity/domain/identity_session.dart';
+import '../contacts/domain/contact_service.dart';
+import 'domain/mailbox_refresh_service.dart';
 
 class MailboxModule extends AppModule {
   MailboxSyncService? _sync;
@@ -64,6 +66,14 @@ class MailboxModule extends AppModule {
     );
     context.services.registerSingleton<SqliteMailboxReceipts>(receipts);
     context.services.registerSingleton<MailboxSyncService>(_sync!);
+    context.services.registerSingleton<MailboxRefreshService>(
+      MailboxRefreshService(
+        mailbox: _sync!,
+        contacts: context.services.isRegistered<ContactService>()
+            ? context.services.get<ContactService>()
+            : null,
+      ),
+    );
   }
 
   @override

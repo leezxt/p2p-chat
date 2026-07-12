@@ -30,5 +30,9 @@ Future<void> main() async {
     if (signalingUrl.isNotEmpty) 'signalingUrl': signalingUrl,
     if (localDevKey.isNotEmpty) 'localDevKey': localDevKey,
   });
-  runApp(P2pChatApp(routes: boot.routes, registry: boot.registry));
+  runApp(P2pChatApp(
+    routes: boot.routes,
+    registry: boot.registry,
+    services: boot.services,
+  ));
 }

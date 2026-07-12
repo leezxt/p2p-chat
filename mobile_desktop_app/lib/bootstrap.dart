@@ -23,9 +23,10 @@ import 'shared/utils/id_generator.dart';
 
 /// 啟動結果：交給 App 根 Widget 使用。
 class Bootstrap {
-  Bootstrap(this.registry, this.routes);
+  Bootstrap(this.registry, this.routes, this.services);
   final ModuleRegistry registry;
   final RouteRegistry routes;
+  final ServiceLocator services;
 }
 
 /// 組裝 Core 服務、註冊模組並 init（規格 §9）。
@@ -82,5 +83,5 @@ Future<Bootstrap> bootstrap({
 
   await registry.initEnabledModules();
   logger.info('bootstrap', '啟動完成，路由：${routes.routeNames.join(', ')}');
-  return Bootstrap(registry, routes);
+  return Bootstrap(registry, routes, services);
 }
