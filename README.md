@@ -40,6 +40,8 @@ Push token 與 notification outbox 契約見 [`docs/push_api.md`](docs/push_api.
 
 可執行、具依賴與驗收條件的工作分解見 [`docs/project_tasks.md`](docs/project_tasks.md)。
 
+日常、完整、native 與端對端測試指令及結果判讀見 [`docs/testing.md`](docs/testing.md)。
+
 接手順序與逐項完成狀態見 [`docs/handoff_checklist.md`](docs/handoff_checklist.md)。每完成一項工作，需在同一次變更中勾選並更新相關文件。
 
 ## 快速開始（mobile_desktop_app）

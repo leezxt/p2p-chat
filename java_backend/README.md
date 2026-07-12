@@ -44,6 +44,8 @@ mvn test
 
 此腳本會驗證 user/device 註冊、重註冊 token、JWT 授權、邀請碼、QR payload、重複兌換與錯誤開發金鑰，完成後自動關閉測試 backend。
 
+完整測試矩陣、環境需求與結果判讀見 [`../docs/testing.md`](../docs/testing.md)。
+
 ## 規劃模組
 
 ```text
