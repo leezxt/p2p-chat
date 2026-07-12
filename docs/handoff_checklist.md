@@ -92,7 +92,7 @@
 
 - [ ] 實作 FCM token 註冊、更新與撤銷（API/Flutter service 已完成，真實 Firebase token 待 credentials）
 - [ ] Mailbox 新訊息觸發不含明文或敏感 metadata 的推播（安全 outbox 已完成，FCM worker 待 credentials）
-- [ ] 驗證 cold start、warm start 可開啟正確聊天室並冪等同步 mailbox
+- [ ] 驗證 cold start、warm start 可開啟正確聊天室並冪等同步 mailbox（provider-neutral parser/coordinator 與單元測試已完成；真實 FCM 待 credentials）
 - [x] 實作前景低頻 Presence、lastSeen 與背景停止更新（Android 雙 AVD 驗證）
 - [ ] 驗證通知權限拒絕、App 生命週期、背景連線與耗電行為
 
@@ -178,6 +178,18 @@
 - `flutter analyze`：S7-01 修改後通過，No issues found。
 
 ## 目前續接點
+
+### 2026-07-12 Sprint 8 Notification Launch Coordinator
+
+- **已完成**：PR #2 `Record Mac iOS verification results` 已轉 Ready、合併至 `main`，本機同步至 merge commit `08d74dc`。
+- **已完成**：新增只接受 `schemaVersion=1`、`type=MAILBOX_AVAILABLE` 且拒絕額外 metadata 的 notification payload parser。
+- **已完成**：新增 provider-neutral cold/warm `NotificationLaunchSource` 與序列化 coordinator；以 provider launch ID 冪等去重，失敗同步不會被誤標已處理，可用相同 ID 重試。
+- **已完成**：抽出共用 `MailboxRefreshService`，通知開啟與聊天列表手動同步都依序執行 contact sync、mailbox pull、sender status sync；通知完成後回到聊天列表，由既有 incoming message 流程建立新 conversation。
+- **已完成**：新增 4 項 parser/coordinator tests；排除需要 Windows native libsodium 的 `device_key_service_test.dart` 後，其餘 Flutter suite 70 tests 全通過，`flutter analyze` 零問題，format check 通過。
+- **已實作未驗證**：真實 FCM/APNs adapter、Android notification permission、系統通知點擊 cold/warm start 與實機導向；目前 production 使用 no-op launch source，不建立假 token 或 provider。
+- **未完成**：取得 Firebase credentials 後接上 `firebase_core`/`firebase_messaging` 與 backend FCM outbox worker，再做 Android 實機通知與 token invalidation 驗收。
+- 已知環境限制：Windows 完整 `flutter test` 的 `device_key_service_test.dart` 因未安裝 Visual Studio Desktop development with C++，無法建立 sodium native asset；Mac 既有完整 71-test baseline 已通過。
+- 本輪未啟動或停止 Docker、AVD 或其他長時間程序；既有 runtime 狀態未重新檢查。
 
 ### 2026-07-12 Mac iOS 同步結果
 

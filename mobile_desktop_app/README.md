@@ -14,6 +14,15 @@ APK 產物位於 `build/app/outputs/flutter-apk/app-debug.apk`。目前已驗證
 
 本機 Android Emulator x86_64 alpha 位於 `../dist/android-alpha/p2p-messenger-android-alpha-debug.apk`。它固定連線 `10.0.2.2:18080`，需搭配 `java_backend/scripts/alpha-up.ps1`，不可用於公開發布、ARM 真機或外部網路環境。雙 AVD 已驗證邀請、聯絡人同步、encrypted mailbox fallback、DELIVERED/READ ACK、sender 已讀顯示、前景 Presence／背景停止 heartbeat，以及不含敏感資料的 notification outbox。
 
+## Push notification 啟動流程
+
+App 已提供 provider-neutral 的 notification launch adapter 邊界。只接受
+`{"schemaVersion":1,"type":"MAILBOX_AVAILABLE"}`，通知資料不得包含 sender、
+conversation、message 或密文資訊。Cold/warm launch 會走同一個冪等 coordinator，
+先同步聯絡人與 mailbox，再回到聊天列表。Production 目前使用 no-op source；待有
+Firebase credentials 後再由 `firebase_messaging` adapter 提供真實 token、initial
+message 與 opened-message stream。
+
 ## iPhone / iOS 建置
 
 `ios/` runner 已建立，最低版本為 iOS 13，並已設定 Keychain entitlements、相機、麥克風與區網用途說明。實際建置必須使用 macOS、Xcode 與 CocoaPods：

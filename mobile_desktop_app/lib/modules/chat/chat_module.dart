@@ -15,6 +15,7 @@ import '../contacts/data/contact_repository.dart';
 import '../contacts/domain/contact_service.dart';
 import '../mailbox/domain/message_transport_coordinator.dart';
 import '../mailbox/domain/mailbox_sync_service.dart';
+import '../mailbox/domain/mailbox_refresh_service.dart';
 import '../../core/di/service_locator.dart';
 import '../presence/domain/presence_service.dart';
 
@@ -86,14 +87,7 @@ class ChatModule implements AppModule {
                   ? _services.get<MailboxSyncService>().markRead
                   : null,
               syncMailbox: _services.isRegistered<MailboxSyncService>()
-                  ? () async {
-                      if (_services.isRegistered<ContactService>()) {
-                        await _services.get<ContactService>().syncContacts();
-                      }
-                      final sync = _services.get<MailboxSyncService>();
-                      await sync.syncIncoming();
-                      await sync.syncSenderStatuses();
-                    }
+                  ? _services.get<MailboxRefreshService>().refresh
                   : null,
               contactService: _services.isRegistered<ContactService>()
                   ? _services.get<ContactService>()
