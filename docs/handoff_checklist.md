@@ -181,6 +181,7 @@
 
 ### 2026-07-12 Sprint 8 Manual Mailbox Refresh
 
+- Git 狀態：branch `codex/manual-mailbox-refresh`，功能 commit `f2acdd4`，Draft PR [#4 Add manual mailbox refresh](https://github.com/leezxt/p2p-chat/pull/4)。
 - **已完成**：PR #3 `Add push launch mailbox coordinator` 已合併至 `main`，本機同步至 merge commit `eaca2ec`。
 - **已完成**：聊天列表 AppBar 新增「同步訊息」控制；沒有 push provider 或通知權限時，使用者仍可手動執行 contact sync、mailbox pull 與 sender status sync。
 - **已完成**：同步期間按鈕停用並顯示固定尺寸進度，避免重複網路請求；成功顯示「訊息已同步」，失敗顯示「無法同步訊息，本機聊天仍可使用」。
