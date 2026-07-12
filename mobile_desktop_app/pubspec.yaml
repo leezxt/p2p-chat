@@ -1,0 +1,33 @@
+name: p2p_chat_app
+description: Mobile-first Modular P2P Messenger（手機主端 + 桌面副端）。
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.6.0 <4.0.0"
+  flutter: ">=3.27.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # 本機資料庫（Sprint 2）
+  sqflite: ^2.3.0
+  sqflite_common_ffi: ^2.3.0   # 桌面 / 測試環境
+  path: ^1.9.0
+  path_provider: ^2.1.0
+  # 工具
+  uuid: ^4.2.0
+  intl: ^0.19.0
+  flutter_webrtc: ^1.5.2
+  sodium: 4.0.3
+  flutter_secure_storage: 10.3.1
+  crypto: 3.0.7
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

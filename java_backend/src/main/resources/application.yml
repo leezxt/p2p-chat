@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: p2p-chat-backend
+  profiles:
+    default: local
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-migration-naming: true
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
+app:
+  security:
+    jwt:
+      issuer: p2p-chat-backend
+      audience: p2p-chat-app
+      ttl: PT15M
+      secret: ${JWT_SECRET}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true

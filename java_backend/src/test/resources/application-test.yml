@@ -1,0 +1,22 @@
+logging:
+  level:
+    root: WARN
+
+management:
+  endpoint:
+    health:
+      show-details: never
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:p2p_chat;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  flyway:
+    locations: classpath:db/migration
+
+app:
+  security:
+    local-dev-key: test-local-dev-key
+    jwt:
+      secret: dGVzdC1qd3Qtc2VjcmV0LW11c3QtYmUtYXQtbGVhc3QtMzItYnl0ZXMtbG9uZw==
