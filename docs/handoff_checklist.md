@@ -181,6 +181,7 @@
 
 ### 2026-07-13 V1-04 Mailbox Restart Integrity
 
+- Git 狀態：branch `codex/mailbox-restart-integrity`，功能 commit `38d9631`，Draft PR [#5 Test mailbox integrity across restart](https://github.com/leezxt/p2p-chat/pull/5)。
 - **已完成**：PR #4 `Add manual mailbox refresh` 已合併至 `main`，本機同步至 merge commit `6fc3e5e`。
 - **已完成**：新增使用 production SQLite migration、`ChatSqfliteDao`、`SqliteReplayProtection`、`SqliteMailboxReceipts` 與 `MailboxSyncService` 的跨重啟整合測試。
 - **已完成**：模擬首次 DELIVERED ACK 遺失後關閉 DB，再以新 service instance 重開同一 DB；server 重投後 conversation、message、replay record、receipt 均維持一筆，且 ACK 成功補送。
