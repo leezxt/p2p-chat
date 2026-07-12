@@ -181,6 +181,7 @@
 
 ### 2026-07-12 Sprint 8 Notification Launch Coordinator
 
+- Git 狀態：branch `codex/push-launch-coordinator`，功能 commit `2c30f58`，Draft PR [#3 Add push launch mailbox coordinator](https://github.com/leezxt/p2p-chat/pull/3)。
 - **已完成**：PR #2 `Record Mac iOS verification results` 已轉 Ready、合併至 `main`，本機同步至 merge commit `08d74dc`。
 - **已完成**：新增只接受 `schemaVersion=1`、`type=MAILBOX_AVAILABLE` 且拒絕額外 metadata 的 notification payload parser。
 - **已完成**：新增 provider-neutral cold/warm `NotificationLaunchSource` 與序列化 coordinator；以 provider launch ID 冪等去重，失敗同步不會被誤標已處理，可用相同 ID 重試。
