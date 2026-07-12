@@ -23,6 +23,10 @@ conversation、message 或密文資訊。Cold/warm launch 會走同一個冪等 
 Firebase credentials 後再由 `firebase_messaging` adapter 提供真實 token、initial
 message 與 opened-message stream。
 
+若通知權限被拒絕、provider 尚未設定或背景通知未送達，聊天列表右上角的
+「同步訊息」按鈕仍可手動執行相同 refresh。同步失敗不會阻止本機聊天室操作，
+同步進行中也會防止重複請求。
+
 ## iPhone / iOS 建置
 
 `ios/` runner 已建立，最低版本為 iOS 13，並已設定 Keychain entitlements、相機、麥克風與區網用途說明。實際建置必須使用 macOS、Xcode 與 CocoaPods：

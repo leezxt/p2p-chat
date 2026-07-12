@@ -45,6 +45,7 @@ class ConversationListPage extends StatefulWidget {
 }
 
 class _ConversationListPageState extends State<ConversationListPage> {
+  bool _syncing = false;
   late final ConversationListController _controller =
       ConversationListController(
     repository: widget.repository,
@@ -64,6 +65,28 @@ class _ConversationListPageState extends State<ConversationListPage> {
       // Local chat remains usable while mailbox/backend is unavailable.
     }
     await _controller.load();
+  }
+
+  Future<void> _syncMailbox() async {
+    if (_syncing || widget.syncMailbox == null) return;
+    setState(() => _syncing = true);
+    try {
+      await widget.syncMailbox!.call();
+      await _controller.load();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('訊息已同步')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('無法同步訊息，本機聊天仍可使用')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _syncing = false);
+    }
   }
 
   @override
@@ -158,6 +181,17 @@ class _ConversationListPageState extends State<ConversationListPage> {
       appBar: AppBar(
         title: const Text('聊天'),
         actions: [
+          IconButton(
+            onPressed:
+                widget.syncMailbox == null || _syncing ? null : _syncMailbox,
+            tooltip: '同步訊息',
+            icon: _syncing
+                ? const SizedBox.square(
+                    dimension: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.sync),
+          ),
           IconButton(
             onPressed: widget.contactService == null ? null : _createInvite,
             tooltip: '建立邀請碼',

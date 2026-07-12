@@ -108,7 +108,7 @@
 | S8-02 | 🚧 mailbox 新訊息觸發不含明文的推播 | S7-02,S8-01 | Flyway V6 與冪等 outbox 完成，payload 只有 `schemaVersion/type`；FCM worker 發送待 credentials |
 | S8-03 | 🚧 推播開啟聊天室並同步 mailbox | S7-05,S8-02 | provider-neutral payload parser、cold/warm launch source、冪等 coordinator 與 mailbox refresh 已完成並通過單元測試；真實 FCM 導向待 credentials |
 | S8-04 | ✅ 實作低頻 Presence 與 lastSeen 顯示 | S4-03 | JWT/device ownership、contact ACL、Flyway V5；前景約 60 秒更新、背景停止，雙 AVD timestamp/UI 驗收通過 |
-| S8-05 | 推播、生命週期與耗電驗證 | S8-03,S8-04 | 背景無 WebRTC/heartbeat；通知權限拒絕時仍可手動同步 |
+| S8-05 | 🚧 推播、生命週期與耗電驗證 | S8-03,S8-04 | 背景無 WebRTC/heartbeat；聊天列表手動同步、失敗保留本機聊天與防重入 tests 已完成；通知權限拒絕實機與耗電量測待驗 |
 
 ### EPIC-09 V1 整合、品質與發布門檻（P0）— BLOCKED
 
