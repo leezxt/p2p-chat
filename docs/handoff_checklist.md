@@ -12,7 +12,7 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-14 01:17 +08:00）
+## 目前交接（2026-07-14 01:27 +08:00）
 
 目前目標：建立可重複執行、同時支援 Android Emulator 與 USB 真機的 V1 雙裝置 encrypted P2P 驗收入口；本輪先以兩台 AVD 驗證，不以模擬器取代真機發布門檻。
 
@@ -26,7 +26,7 @@
 - [x] **已完成**：更新 testing、mobile README 與 V1-01 任務狀態
 - [x] **已完成**：runner backend 與兩台 AVD 均乾淨停止
 - [x] **已完成**：backend loopback-only bind 與 port-in-use fail-fast 防護，雙 AVD 回歸通過
-- [ ] **未完成**：提交與 GitHub 合併
+- [x] **已完成**：功能 commit `0a4c7f2` 經 PR #18 合併至 `main`，merge commit `2a0a283`
 
 驗證：PowerShell parser、Dart format、`flutter analyze` 與 `two_device_p2p_test.dart` 通過。`verify_android_v1.ps1 -SenderDevice emulator-5554 -ReceiverDevice emulator-5556` 首次完整執行 186.8 秒通過；加入 loopback/port 防護後以 build cache 重跑 96.1 秒再次通過。backend 使用 H2、Flyway V1～V9，兩端完成 registration、invite/contact ACL、JWT WebSocket signaling、offer/answer/ICE、真實 libsodium encrypted envelope 與 DataChannel。
 
@@ -34,7 +34,7 @@ Runtime：第二次 runner 建立的 backend 已自動停止，port 8081 已釋�
 
 限制：目前 runner 驗證 registration、雙向 contact ACL、JWT WebSocket signaling、offer/answer/ICE、真實 libsodium encrypted envelope 與 DataChannel；mailbox fallback、DELIVERED/READ UI 與斷網/kill process 仍需後續擴充及真機驗收，因此 V1-01/V1-04 尚不可勾選完成。
 
-續接順序：同步本輪 GitHub 變更；下一輪擴充 mailbox/DELIVERED/READ 與 kill-process/斷網腳本，再以兩台 Android 真機執行完整 V1-01/V1-04 驗收。
+續接順序：擴充 mailbox/DELIVERED/READ 與 kill-process/斷網腳本，再以兩台 Android 真機執行完整 V1-01/V1-04 驗收；真機通過後進行 V1-03 資源量測。
 
 ## 上次交接（2026-07-13 23:51 +08:00）
 
