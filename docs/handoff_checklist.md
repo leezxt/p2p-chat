@@ -12,9 +12,9 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-13 21:01 +08:00）
+## 目前交接（2026-07-13 21:04 +08:00）
 
-目前目標：完成 V1 release candidate 前的 production WebSocket origin allowlist，下一步處理 push token at-rest policy。
+目前目標：Mailbox signed cursor 與 production WebSocket origin allowlist 已合併至 `main`；下一步處理 push token at-rest policy。
 
 - [x] **已完成**：確認 `main`、依賴與既有安全設計基線
 - [x] **已完成**：稽核後端 JWT、裝置 ownership、contact ACL、註冊與輸入限制
@@ -27,7 +27,7 @@
 - [x] **已完成**：Java 29 tests、Flutter 82 tests、`flutter analyze` 與 Android debug APK build
 - [x] **已完成**：更新 backend README、mailbox API、V1-02 安全稽核、任務與交接文件
 
-本輪變更：PR #9 已將 mailbox signed cursor 合併至 `main`（merge commit `4597499`）。後續 signaling endpoint 移除全域 `*`，改由 `WEBSOCKET_ALLOWED_ORIGINS` 提供逗號分隔的精確 allowlist；production 設定 `*` 會拒絕啟動，未設定時使用 empty/same-origin policy，未列入來源握手回 403，originless native client 保持可連線。完整殘餘風險見 [`security_audit_v1.md`](security_audit_v1.md)。
+本輪變更：PR #9 已將 mailbox signed cursor 合併至 `main`（merge commit `4597499`）；PR #10 已將 production WebSocket origin allowlist 合併至 `main`（merge commit `4ce7f06`）。Signaling endpoint 由 `WEBSOCKET_ALLOWED_ORIGINS` 提供逗號分隔的精確 allowlist；production 設定 `*` 會拒絕啟動，未設定時使用 empty/same-origin policy，未列入來源握手回 403，originless native client 保持可連線。完整殘餘風險見 [`security_audit_v1.md`](security_audit_v1.md)。
 
 驗證：`mvn -q test` 共 29 tests 全通過；Flutter 程式未因 origin policy 變更，沿用同一 `main` 的 `flutter analyze` 零問題、非 Windows-native 82 tests 與 Android debug APK build 成功結果。所有測試程序已結束，本輪未啟動 Docker 或 AVD。
 
