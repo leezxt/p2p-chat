@@ -6,6 +6,10 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.WebSocket;
+import java.net.http.WebSocketHandshakeException;
+import java.time.Duration;
+import java.util.concurrent.CompletionException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +24,8 @@ import com.p2pchat.modules.devices.presentation.RegistrationController;
         "spring.datasource.username=sa",
         "spring.datasource.password=",
         "spring.flyway.locations=classpath:db/migration",
-        "app.security.jwt.secret=dGVzdC1qd3Qtc2VjcmV0LW11c3QtYmUtYXQtbGVhc3QtMzItYnl0ZXMtbG9uZw=="
+        "app.security.jwt.secret=dGVzdC1qd3Qtc2VjcmV0LW11c3QtYmUtYXQtbGVhc3QtMzItYnl0ZXMtbG9uZw==",
+        "app.security.websocket.allowed-origins=https://app.example.test"
 })
 class ProductionProfileSecurityIntegrationTest {
     @Value("${local.server.port}") int port;
@@ -33,6 +38,28 @@ class ProductionProfileSecurityIntegrationTest {
         assertThat(get(client, "/v3/api-docs").statusCode()).isEqualTo(404);
         assertThat(get(client, "/swagger-ui.html").statusCode()).isEqualTo(404);
         assertThat(get(client, "/api/v1/registration").statusCode()).isEqualTo(404);
+    }
+
+    @Test
+    void productionWebSocketUsesExactOriginAllowlist() {
+        WebSocket allowed = connect("https://app.example.test");
+        allowed.sendClose(WebSocket.NORMAL_CLOSURE, "done").join();
+
+        try {
+            connect("https://attacker.example.test");
+            throw new AssertionError("Expected WebSocket handshake rejection");
+        } catch (CompletionException exception) {
+            assertThat(exception.getCause()).isInstanceOf(WebSocketHandshakeException.class);
+            var handshake = (WebSocketHandshakeException) exception.getCause();
+            assertThat(handshake.getResponse().statusCode()).isEqualTo(403);
+        }
+    }
+
+    private WebSocket connect(String origin) {
+        return HttpClient.newHttpClient().newWebSocketBuilder().connectTimeout(Duration.ofSeconds(5))
+                .header("Origin", origin)
+                .buildAsync(URI.create("ws://localhost:" + port + "/ws/signaling"), new WebSocket.Listener() {})
+                .join();
     }
 
     private HttpResponse<String> get(HttpClient client, String path) throws Exception {

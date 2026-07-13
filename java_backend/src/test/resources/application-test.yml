@@ -18,5 +18,7 @@ spring:
 app:
   security:
     local-dev-key: test-local-dev-key
+    websocket:
+      allowed-origins: https://allowed.example.test
     jwt:
       secret: dGVzdC1qd3Qtc2VjcmV0LW11c3QtYmUtYXQtbGVhc3QtMzItYnl0ZXMtbG9uZw==

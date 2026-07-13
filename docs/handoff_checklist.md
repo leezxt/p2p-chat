@@ -12,9 +12,9 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-13 20:38 +08:00）
+## 目前交接（2026-07-13 21:01 +08:00）
 
-目前目標：完成 V1 release candidate 前的 mailbox signed opaque cursor，下一步處理 production WebSocket origin allowlist 或 push token at-rest policy。
+目前目標：完成 V1 release candidate 前的 production WebSocket origin allowlist，下一步處理 push token at-rest policy。
 
 - [x] **已完成**：確認 `main`、依賴與既有安全設計基線
 - [x] **已完成**：稽核後端 JWT、裝置 ownership、contact ACL、註冊與輸入限制
@@ -22,16 +22,18 @@
 - [x] **已完成**：修復 Mailbox ACK transaction ordering 與 Signaling contact ACL，新增安全回歸測試
 - [x] **已完成**：Inbox 與 ACK 使用 HMAC-SHA256 signed opaque cursor，綁定 device 與用途，拒絕竄改及跨用途重用
 - [x] **已完成**：Flutter inbox 與 sender ACK/status 支援多頁拉取，拒絕重複 cursor 與過多頁數
-- [x] **已完成**：Java 23 tests、Flutter 82 tests、`flutter analyze` 與 Android debug APK build
-- [x] **已完成**：更新 mailbox API、V1-02 安全稽核、任務與交接文件
+- [x] **已完成**：Production signaling 使用精確 origin allowlist，空設定維持 empty/same-origin，禁止 `*`
+- [x] **已完成**：允許來源可握手、未列入來源回 403、originless native client 與 wildcard fail-fast 測試
+- [x] **已完成**：Java 29 tests、Flutter 82 tests、`flutter analyze` 與 Android debug APK build
+- [x] **已完成**：更新 backend README、mailbox API、V1-02 安全稽核、任務與交接文件
 
-本輪變更：Mailbox inbox 與 sender ACK/status API 改用 signed opaque cursor；cursor 以 HMAC-SHA256 保護，包含版本、用途、device 與最後一筆 mailbox ID，跨裝置、跨用途、竄改或格式錯誤統一回 `400 MAILBOX_INVALID_CURSOR`。Flutter client 會拉完所有頁面，並限制重複 cursor 與最大頁數。完整契約見 [`mailbox_api.md`](mailbox_api.md)，殘餘風險見 [`security_audit_v1.md`](security_audit_v1.md)。
+本輪變更：PR #9 已將 mailbox signed cursor 合併至 `main`（merge commit `4597499`）。後續 signaling endpoint 移除全域 `*`，改由 `WEBSOCKET_ALLOWED_ORIGINS` 提供逗號分隔的精確 allowlist；production 設定 `*` 會拒絕啟動，未設定時使用 empty/same-origin policy，未列入來源握手回 403，originless native client 保持可連線。完整殘餘風險見 [`security_audit_v1.md`](security_audit_v1.md)。
 
-驗證：`mvn -q test` 共 23 tests 全通過；`flutter analyze` 零問題；排除 Windows native `device_key_service_test.dart` 後 82 tests 全通過；`flutter build apk --debug` 成功。所有測試程序已結束，本輪未啟動 Docker 或 AVD。
+驗證：`mvn -q test` 共 29 tests 全通過；Flutter 程式未因 origin policy 變更，沿用同一 `main` 的 `flutter analyze` 零問題、非 Windows-native 82 tests 與 Android debug APK build 成功結果。所有測試程序已結束，本輪未啟動 Docker 或 AVD。
 
-限制：Windows native sodium test 仍缺 Visual C++ workload；iOS/Android 真機、真實 FCM/APNs、斷網/kill process、資源量測仍未完成。共享 rate limiter、push token at-rest policy 與 WebSocket origin allowlist 必須在 release candidate 前處理；`flutter_webrtc` 尚待上游遷移 Built-in Kotlin，以免未來 Flutter 版本停止建置。
+限制：Windows native sodium test 仍缺 Visual C++ workload；iOS/Android 真機、真實 FCM/APNs、斷網/kill process、資源量測仍未完成。共享 rate limiter 與 push token at-rest policy 必須在 release candidate 前處理；`flutter_webrtc` 尚待上游遷移 Built-in Kotlin，以免未來 Flutter 版本停止建置。
 
-續接順序：先完成不依賴外部 credentials 的 WebSocket origin allowlist 或 push token at-rest policy；取得 Firebase credentials 後完成 S8 push，再執行 V1-01 雙真機 E2E、V1-04 斷網/kill process、V1-03 資源量測，最後整理 V1-05 release candidate。
+續接順序：先完成 push token at-rest policy；取得 Firebase credentials 後完成 S8 push，再執行 V1-01 雙真機 E2E、V1-04 斷網/kill process、V1-03 資源量測，最後整理 V1-05 release candidate。
 
 ## 已完成基線
 
