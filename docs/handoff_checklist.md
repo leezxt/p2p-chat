@@ -12,7 +12,7 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-13 23:44 +08:00）
+## 目前交接（2026-07-13 23:51 +08:00）
 
 目前目標：完成 S8-02 FCM outbox worker 的 provider-neutral 核心與 FCM HTTP v1 adapter；真實 Firebase credentials 與 Android/iPhone 實機通知留待外部驗收。
 
@@ -25,7 +25,7 @@
 - [x] **已完成**：Java 51 tests、PostgreSQL 18.4 worker 8 tests 與 Flyway V1～V9 schema/constraint/index 驗證
 - [x] **已完成**：輕量 backend image 建置成功，大小 140,960,449 bytes；新容器 readiness `UP`
 - [ ] **已實作未驗證**：真實 FCM credentials、Android 系統通知、cold/warm start、token invalidation 與耗電
-- [ ] **未完成**：本 branch 提交、GitHub PR、合併與 main handoff 更新
+- [x] **已完成**：功能 commit `bb6e5cf` 經 PR #16 合併至 `main`，merge commit `540eab0`
 
 本輪另修正 PostgreSQL worker test 的可重複性：stale-token 案例原本固定使用 `replacement-token`，持久化測試 DB 第二次執行會命中跨使用者唯一約束；現在每個 fixture 使用唯一 replacement token，並直接揭露 callback setup 例外。
 
@@ -35,7 +35,7 @@ Runtime：隔離 Compose project `p2p_fcm_worker_verify` 已在本文件停止�
 
 限制：`FCM_ENABLED=false`、`PUSH_DELIVERY_ENABLED=false` 預設關閉；啟用需 `FCM_PROJECT_ID` 與 Google ADC。Windows native sodium test 仍缺 Visual C++ workload；iOS/Android 真機、真實 FCM/APNs、斷網/kill process、資源量測仍未完成。
 
-續接順序：本輪先完成 Docker readiness、乾淨停止 runtime 與 GitHub 合併；取得 Firebase credentials 後驗收 S8-01～S8-03/S8-05，否則進行 V1-01 雙真機 E2E、V1-04 斷網/kill process、V1-03 資源量測。
+續接順序：取得 Firebase credentials 後驗收 S8-01～S8-03/S8-05；credentials 尚不可用時，進行 V1-01 雙真機 E2E、V1-04 斷網/kill process、V1-03 資源量測，最後整理 V1-05 release candidate。
 
 ## 已完成基線
 
