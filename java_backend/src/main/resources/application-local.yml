@@ -14,6 +14,8 @@ spring:
 app:
   security:
     local-dev-key: ${LOCAL_DEV_AUTH_KEY}
+    push-token:
+      encryption-keys: ${PUSH_TOKEN_ENCRYPTION_KEYS:local-v1=AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=}
 
 logging:
   level:

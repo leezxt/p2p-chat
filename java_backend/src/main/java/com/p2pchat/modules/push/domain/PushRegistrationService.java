@@ -17,9 +17,11 @@ import com.p2pchat.modules.push.data.DevicePushTokenRepository;
 public class PushRegistrationService {
     private final DeviceRepository devices;
     private final DevicePushTokenRepository tokens;
+    private final PushTokenCipher cipher;
 
-    public PushRegistrationService(DeviceRepository devices, DevicePushTokenRepository tokens) {
-        this.devices = devices; this.tokens = tokens;
+    public PushRegistrationService(DeviceRepository devices, DevicePushTokenRepository tokens,
+            PushTokenCipher cipher) {
+        this.devices = devices; this.tokens = tokens; this.cipher = cipher;
     }
 
     @Transactional
@@ -29,6 +31,7 @@ public class PushRegistrationService {
         if (!device.getUser().getId().equals(userId)) throw unavailable();
         Instant now = Instant.now();
         String hash = hash(token);
+        String encrypted = cipher.encrypt(deviceId, provider, token);
         var sameToken = tokens.findByProviderAndTokenHash(provider, hash);
         if (sameToken.isPresent() && !sameToken.get().getDevice().getId().equals(deviceId)) {
             if (!sameToken.get().getDevice().getUser().getId().equals(userId)) {
@@ -38,8 +41,8 @@ public class PushRegistrationService {
             tokens.flush();
         }
         var existing = tokens.findByDeviceIdAndProvider(deviceId, provider);
-        if (existing.isPresent()) existing.get().updateToken(token, hash, now);
-        else tokens.save(new DevicePushToken(UUID.randomUUID(), device, provider, token, hash, now));
+        if (existing.isPresent()) existing.get().updateToken(encrypted, hash, now);
+        else tokens.save(new DevicePushToken(UUID.randomUUID(), device, provider, encrypted, hash, now));
     }
 
     @Transactional

@@ -12,9 +12,9 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-13 21:04 +08:00）
+## 目前交接（2026-07-13 21:49 +08:00）
 
-目前目標：Mailbox signed cursor 與 production WebSocket origin allowlist 已合併至 `main`；下一步處理 push token at-rest policy。
+目前目標：完成 V1 push token at-rest policy；下一步處理多 instance 共享 mailbox rate limiter，或取得 Firebase credentials 後接真實 FCM/APNs。
 
 - [x] **已完成**：確認 `main`、依賴與既有安全設計基線
 - [x] **已完成**：稽核後端 JWT、裝置 ownership、contact ACL、註冊與輸入限制
@@ -24,16 +24,18 @@
 - [x] **已完成**：Flutter inbox 與 sender ACK/status 支援多頁拉取，拒絕重複 cursor 與過多頁數
 - [x] **已完成**：Production signaling 使用精確 origin allowlist，空設定維持 empty/same-origin，禁止 `*`
 - [x] **已完成**：允許來源可握手、未列入來源回 403、originless native client 與 wildcard fail-fast 測試
-- [x] **已完成**：Java 29 tests、Flutter 82 tests、`flutter analyze` 與 Android debug APK build
-- [x] **已完成**：更新 backend README、mailbox API、V1-02 安全稽核、任務與交接文件
+- [x] **已完成**：Push token 使用 AES-256-GCM、device/provider AAD 與版本化 key ring，支援舊 key 解密輪替
+- [x] **已完成**：撤銷立即清除 ciphertext，30 天後 purge tombstone；V7 安全失效 V6 明文 token
+- [x] **已完成**：Java 36 tests、PostgreSQL Flyway V1～V7、Flutter 82 tests、`flutter analyze` 與 Android debug APK build
+- [x] **已完成**：更新 backend README、V1-02 安全稽核、任務與交接文件
 
-本輪變更：PR #9 已將 mailbox signed cursor 合併至 `main`（merge commit `4597499`）；PR #10 已將 production WebSocket origin allowlist 合併至 `main`（merge commit `4ce7f06`）。Signaling endpoint 由 `WEBSOCKET_ALLOWED_ORIGINS` 提供逗號分隔的精確 allowlist；production 設定 `*` 會拒絕啟動，未設定時使用 empty/same-origin policy，未列入來源握手回 403，originless native client 保持可連線。完整殘餘風險見 [`security_audit_v1.md`](security_audit_v1.md)。
+本輪變更：新增 Flyway V7、`PushTokenCipher`、worker 專用 delivery service 與 retention cleanup。資料庫只保存 `v1.<keyId>.<nonce>.<ciphertext>` envelope 與 SHA-256 uniqueness hash；token 綁定 device/provider，竄改、錯 binding 或缺 key 均拒絕解密。`PUSH_TOKEN_ENCRYPTION_KEYS` 第一把為 active key，後續 key 用於輪替讀取。完整殘餘風險見 [`security_audit_v1.md`](security_audit_v1.md)。
 
-驗證：`mvn -q test` 共 29 tests 全通過；Flutter 程式未因 origin policy 變更，沿用同一 `main` 的 `flutter analyze` 零問題、非 Windows-native 82 tests 與 Android debug APK build 成功結果。所有測試程序已結束，本輪未啟動 Docker 或 AVD。
+驗證：`mvn -q test` 共 36 tests 全通過；Docker PostgreSQL 18.4/backend healthy，Flyway V1～V7 均成功，`device_push_tokens` 只有 nullable `token_ciphertext`、無明文 `token` 欄位。Flutter 程式未變，沿用非 Windows-native 82 tests、`flutter analyze` 與 Android debug APK build 成功基線。Docker compose 已乾淨停止並移除 containers/network，保留 PostgreSQL volume；本輪未啟動 AVD。
 
-限制：Windows native sodium test 仍缺 Visual C++ workload；iOS/Android 真機、真實 FCM/APNs、斷網/kill process、資源量測仍未完成。共享 rate limiter 與 push token at-rest policy 必須在 release candidate 前處理；`flutter_webrtc` 尚待上游遷移 Built-in Kotlin，以免未來 Flutter 版本停止建置。
+限制：Windows native sodium test 仍缺 Visual C++ workload；iOS/Android 真機、真實 FCM/APNs、斷網/kill process、資源量測仍未完成。Mailbox 共享 rate limiter 仍需在多 instance 部署前處理；`flutter_webrtc` 尚待上游遷移 Built-in Kotlin，以免未來 Flutter 版本停止建置。
 
-續接順序：先完成 push token at-rest policy；取得 Firebase credentials 後完成 S8 push，再執行 V1-01 雙真機 E2E、V1-04 斷網/kill process、V1-03 資源量測，最後整理 V1-05 release candidate。
+續接順序：先完成共享 mailbox rate limiter；取得 Firebase credentials 後完成 S8 push，再執行 V1-01 雙真機 E2E、V1-04 斷網/kill process、V1-03 資源量測，最後整理 V1-05 release candidate。
 
 ## 已完成基線
 

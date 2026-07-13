@@ -25,6 +25,7 @@ import com.p2pchat.modules.devices.presentation.RegistrationController;
         "spring.datasource.password=",
         "spring.flyway.locations=classpath:db/migration",
         "app.security.jwt.secret=dGVzdC1qd3Qtc2VjcmV0LW11c3QtYmUtYXQtbGVhc3QtMzItYnl0ZXMtbG9uZw==",
+        "app.security.push-token.encryption-keys=prod-test-v1=AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
         "app.security.websocket.allowed-origins=https://app.example.test"
 })
 class ProductionProfileSecurityIntegrationTest {

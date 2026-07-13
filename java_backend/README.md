@@ -16,7 +16,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=local
 
 執行前將 `.env.example` 複製為 `.env` 並替換本機密碼；請勿提交 `.env`。資料庫使用 PostgreSQL 18.4，Spring 啟動時由 Flyway 自動執行 migration。
 
-未指定 profile 時預設使用 fail-closed 的 `prod`，並要求 `DB_URL`、`DB_USERNAME`、`DB_PASSWORD` 與 `JWT_SECRET`。`WEBSOCKET_ALLOWED_ORIGINS` 可用逗號分隔設定 browser signaling 的精確 origin 清單；未設定時使用空 allowlist／same-origin policy，production 禁止 `*`。Android/iOS native client 不送 `Origin`，仍可使用 JWT/device authentication 連線。本機開發必須明確使用上方的 `local` profile；服務位於 `http://localhost:8080`。健康檢查：
+未指定 profile 時預設使用 fail-closed 的 `prod`，並要求 `DB_URL`、`DB_USERNAME`、`DB_PASSWORD`、`JWT_SECRET` 與 `PUSH_TOKEN_ENCRYPTION_KEYS`。`WEBSOCKET_ALLOWED_ORIGINS` 可用逗號分隔設定 browser signaling 的精確 origin 清單；未設定時使用空 allowlist／same-origin policy，production 禁止 `*`。Android/iOS native client 不送 `Origin`，仍可使用 JWT/device authentication 連線。本機開發必須明確使用上方的 `local` profile；服務位於 `http://localhost:8080`。健康檢查：
 
 ```powershell
 Invoke-RestMethod http://localhost:8080/actuator/health
@@ -44,6 +44,9 @@ mvn test
 
 此腳本會驗證 user/device 註冊、重註冊 token、JWT 授權、邀請碼、QR payload、重複兌換與錯誤開發金鑰，完成後自動關閉測試 backend。
 
+Push token 使用 AES-256-GCM 加密保存。`PUSH_TOKEN_ENCRYPTION_KEYS` 格式為
+`current-id=<base64-32-byte-key>,old-id=<base64-32-byte-key>`；第一把 key 用於新寫入，後續 key 只供輪替期間解密舊 token。撤銷時立即清除 ciphertext，預設 30 天後刪除 hash/tombstone。Flyway V7 會失效 V6 既有明文 token，client 必須重新註冊。
+
 完整測試矩陣、環境需求與結果判讀見 [`../docs/testing.md`](../docs/testing.md)。
 
 ## 規劃模組
@@ -58,4 +61,4 @@ src/main/java/com/p2pchat/
 
 Sprint 3 的 `S3-01`～`S3-06` 已完成。2026-07-12 已以 Docker Compose 5.1.4、PostgreSQL 18.4 與實際 backend image 驗證 container health、readiness、Flyway v1～v3、預期資料表及 OpenAPI。
 
-Sprint 7 mailbox backend 已加入 Flyway V4 與 `/api/v1/mailbox`：支援 encrypted envelope 冪等上傳、recipient pull/cursor、`DELIVERED`/`READ` ACK、sender status、device/contact ACL、quota、rate limit 與 TTL cleanup。PostgreSQL 已驗證 Flyway v1～v4；目前 rate limiter 為單 instance prototype，多實例部署需改用共享 limiter。
+Sprint 7 mailbox backend 已加入 Flyway V4 與 `/api/v1/mailbox`：支援 encrypted envelope 冪等上傳、recipient pull/cursor、`DELIVERED`/`READ` ACK、sender status、device/contact ACL、quota、rate limit 與 TTL cleanup。PostgreSQL 已驗證 Flyway v1～v7；目前 rate limiter 為單 instance prototype，多實例部署需改用共享 limiter。

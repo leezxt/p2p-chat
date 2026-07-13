@@ -16,6 +16,10 @@ app:
   security:
     websocket:
       allowed-origins: ${WEBSOCKET_ALLOWED_ORIGINS:}
+    push-token:
+      encryption-keys: ${PUSH_TOKEN_ENCRYPTION_KEYS}
+      revoked-retention: ${PUSH_TOKEN_REVOKED_RETENTION:P30D}
+      cleanup-delay: ${PUSH_TOKEN_CLEANUP_DELAY:PT1H}
     jwt:
       issuer: p2p-chat-backend
       audience: p2p-chat-app
