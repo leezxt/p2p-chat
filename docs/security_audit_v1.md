@@ -21,7 +21,7 @@ Production 預設改為 fail-closed：未指定 profile 時使用 `prod`、要�
 |---|---|
 | JWT issuer、audience、expiry 與至少 32-byte HMAC key | 通過既有 Java tests |
 | Device ownership、revocation、contact ACL | Mailbox、Presence、Push 與 Signaling integration tests 通過 |
-| Mailbox sender/recipient ACL、quota、TTL、rate limit、ACK 狀態機 | 通過；錯誤 `messageId` 不再改變狀態 |
+| Mailbox sender/recipient ACL、quota、TTL、rate limit、ACK 狀態機 | 通過；rate limit 使用 PostgreSQL 原子 counter，多 instance 共用配額並回 `Retry-After`；錯誤 `messageId` 不再改變狀態 |
 | Mailbox cursor 完整性與用途隔離 | HMAC-SHA256 signed opaque cursor；綁定 inbox/ACK 用途與 device，竄改、跨裝置及跨用途重用均拒絕 |
 | Replay、tamper、wrong key、inner/outer mismatch、key change | Flutter 回歸 tests 通過 |
 | Private key / token 儲存邊界 | 私鑰走 secure storage；SQLite schema 無私鑰/access token |
@@ -36,7 +36,7 @@ Production 預設改為 fail-closed：未指定 profile 時使用 `prod`、要�
 
 ```text
 java_backend: mvn -q test
-36 tests, 0 failures, 0 errors
+41 tests, 0 failures, 0 errors
 
 mobile_desktop_app: flutter analyze
 No issues found
@@ -52,7 +52,6 @@ Built build/app/outputs/flutter-apk/app-debug.apk
 
 ## 殘餘風險
 
-- Mailbox rate limiter 是單一 Spring instance 記憶體狀態；多實例部署前需改為共享 limiter。
 - V1 `P2P_BOX_V1` 使用長期裝置金鑰，不具 Double Ratchet 等級的 forward secrecy 或 post-compromise security。
 - 真實 FCM/APNs、兩台真機、iOS runtime、斷網/kill process 與資源耗電量測屬 V1-01、V1-03、V1-04 尚未完成的外部驗收。
 - `flutter_webrtc` 仍套用 Kotlin Gradle Plugin；目前 build 通過，但 Flutter 已警告未來版本將要求 plugin 遷移至 Built-in Kotlin。

@@ -23,7 +23,9 @@
 | 每 sender device 上傳速率 | 60 requests/minute |
 | 每 device 拉取/ACK 速率 | 120 requests/minute |
 
-超限回 `413 MAILBOX_MESSAGE_TOO_LARGE`、`429 MAILBOX_RATE_LIMITED` 或 `429 MAILBOX_QUOTA_EXCEEDED`；回應可附 `Retry-After`，但不得揭露其他使用者 quota 資訊。
+超限回 `413 MAILBOX_MESSAGE_TOO_LARGE`、`429 MAILBOX_RATE_LIMITED` 或 `429 MAILBOX_QUOTA_EXCEEDED`。`MAILBOX_RATE_LIMITED` 回應會附整數秒 `Retry-After`，指向下一個 UTC 分鐘視窗；不得揭露其他使用者 quota 資訊。
+
+速率限制使用 PostgreSQL 共用 fixed-window counter，以 `(deviceId, operation, windowStart)` 為唯一鍵。Upload 與 read/ACK 分開計數，read 與 ACK 共用同一配額；counter 在獨立 transaction 中原子遞增，因此多個 backend instance、並行請求及後續 ACL/payload 驗證失敗都不會繞過限制。排程清理只刪除前一分鐘以前的舊視窗，保留當前與前一視窗避免邊界競態。
 
 ## 上傳密文
 

@@ -12,30 +12,29 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-13 22:37 +08:00）
+## 目前交接（2026-07-13 23:02 +08:00）
 
-目前目標：V1 push token at-rest policy 已合併至 `main`；下一步處理多 instance 共享 mailbox rate limiter，或取得 Firebase credentials 後接真實 FCM/APNs。
+目前目標：多 instance 共用 mailbox rate limiter 已實作並完成本機與 PostgreSQL 驗證；待提交、PR 與合併後，下一步處理真實 FCM/APNs 或 V1 真機驗收。
 
-- [x] **已完成**：確認 `main`、依賴與既有安全設計基線
-- [x] **已完成**：稽核後端 JWT、裝置 ownership、contact ACL、註冊與輸入限制
-- [x] **已完成**：稽核 Flutter 私鑰、明文、log、push 與 SQLite 儲存邊界
-- [x] **已完成**：修復 Mailbox ACK transaction ordering 與 Signaling contact ACL，新增安全回歸測試
-- [x] **已完成**：Inbox 與 ACK 使用 HMAC-SHA256 signed opaque cursor，綁定 device 與用途，拒絕竄改及跨用途重用
-- [x] **已完成**：Flutter inbox 與 sender ACK/status 支援多頁拉取，拒絕重複 cursor 與過多頁數
-- [x] **已完成**：Production signaling 使用精確 origin allowlist，空設定維持 empty/same-origin，禁止 `*`
-- [x] **已完成**：允許來源可握手、未列入來源回 403、originless native client 與 wildcard fail-fast 測試
-- [x] **已完成**：Push token 使用 AES-256-GCM、device/provider AAD 與版本化 key ring，支援舊 key 解密輪替
-- [x] **已完成**：撤銷立即清除 ciphertext，30 天後 purge tombstone；V7 安全失效 V6 明文 token
-- [x] **已完成**：Java 36 tests、PostgreSQL Flyway V1～V7、Flutter 82 tests、`flutter analyze` 與 Android debug APK build
-- [x] **已完成**：更新 backend README、V1-02 安全稽核、任務與交接文件
+- [x] **已完成**：確認 mailbox upload、pull、ACK、sender status 呼叫點與既有 429 錯誤契約
+- [x] **已完成**：新增 Flyway V8 `mailbox_rate_limit_windows` 與 cleanup index
+- [x] **已完成**：以 PostgreSQL 原子 insert/update counter 取代單 JVM `ConcurrentHashMap`
+- [x] **已完成**：counter 使用獨立 transaction，多 backend instance 與失敗請求共用並保留配額
+- [x] **已完成**：超限維持 `MAILBOX_RATE_LIMITED`，並回傳下一分鐘邊界的 `Retry-After`
+- [x] **已完成**：加入多 instance、80-way 並行、operation/device 隔離、window reset、cleanup 與 MVC header 測試
+- [x] **已完成**：Java 41 tests、PostgreSQL rate-limit tests、Flyway V1～V8、backend image/readiness 驗證
+- [x] **已完成**：更新 mailbox API、backend README、安全稽核、任務與交接文件
+- [ ] **未完成**：提交、推送、建立並合併本輪 PR，再記錄 merge commit
 
-本輪變更：PR #12 已將 push token at-rest policy 合併至 `main`（merge commit `4679e0f`）。新增 Flyway V7、`PushTokenCipher`、worker 專用 delivery service 與 retention cleanup。資料庫只保存 `v1.<keyId>.<nonce>.<ciphertext>` envelope 與 SHA-256 uniqueness hash；token 綁定 device/provider，竄改、錯 binding 或缺 key 均拒絕解密。`PUSH_TOKEN_ENCRYPTION_KEYS` 第一把為 active key，後續 key 用於輪替讀取。
+本輪變更：`MailboxRateLimitStore` 以 `(device_id, operation, window_start)` 唯一鍵保存 fixed-window counter。新視窗使用 `INSERT ... ON CONFLICT DO NOTHING`，既有視窗以 row-level atomic `UPDATE request_count = request_count + 1` 遞增；`REQUIRES_NEW` 確保後續 ACL 或 payload 失敗不會回滾濫用計數。排程保留當前與前一分鐘，只刪除更舊視窗。
 
-驗證：`mvn -q test` 共 36 tests 全通過；Docker PostgreSQL 18.4/backend healthy，Flyway V1～V7 均成功，`device_push_tokens` 只有 nullable `token_ciphertext`、無明文 `token` 欄位。Flutter 程式未變，沿用非 Windows-native 82 tests、`flutter analyze` 與 Android debug APK build 成功基線。Docker compose 已乾淨停止並移除 containers/network，保留 PostgreSQL volume；本輪未啟動 AVD。
+驗證：`mvn -q test` 共 41 tests、0 failures、0 errors；同一組 8 個 rate-limit tests 直接連 PostgreSQL 18.4 通過，包含兩個 limiter instance 共用 DB budget 與 80 個並行請求只有 60 個成功。Docker backend image build 成功、readiness `UP`、Flyway V1～V8 全部 `success=true`，V8 五欄均為 NOT NULL 且 cleanup index 存在。Flutter 程式未變，沿用非 Windows-native 82 tests、`flutter analyze` 與 Android debug APK build 成功基線。
 
-限制：Windows native sodium test 仍缺 Visual C++ workload；iOS/Android 真機、真實 FCM/APNs、斷網/kill process、資源量測仍未完成。Mailbox 共享 rate limiter 仍需在多 instance 部署前處理；`flutter_webrtc` 尚待上游遷移 Built-in Kotlin，以免未來 Flutter 版本停止建置。
+Runtime：隔離 Compose project `p2p_rate_limit_verify` 已在本文件停止前更新後乾淨關閉；backend/PostgreSQL containers、network 與本次測試 volume 均已移除，ports 55434/18082 已釋放。本輪未啟動 AVD。
 
-續接順序：先完成共享 mailbox rate limiter；取得 Firebase credentials 後完成 S8 push，再執行 V1-01 雙真機 E2E、V1-04 斷網/kill process、V1-03 資源量測，最後整理 V1-05 release candidate。
+限制：Windows native sodium test 仍缺 Visual C++ workload；iOS/Android 真機、真實 FCM/APNs、斷網/kill process、資源量測仍未完成；`flutter_webrtc` 尚待上游遷移 Built-in Kotlin，以免未來 Flutter 版本停止建置。
+
+續接順序：取得 Firebase credentials 後完成 S8 push；否則先執行 V1-01 雙真機 E2E、V1-04 斷網/kill process、V1-03 資源量測，最後整理 V1-05 release candidate。
 
 ## 已完成基線
 
@@ -336,7 +335,7 @@
 - **已完成**：S7-02 Java backend Flyway V4、mailbox upload/pull/cursor/ACK/sender status、ACL、quota、rate limit、TTL cleanup 與 ciphertext 清除。
 - `mvn test -q`：最終 S7-02 程式 14 tests、0 failures、0 errors；新增 HTTP 整合測試驗證 upload、冪等重送、recipient-only pull、DELIVERED ACK、密文清除與 sender status。
 - Docker Compose `p2p_mailbox_verify`：PostgreSQL/backend containers healthy，Flyway v1～v4 全部 `success=true`，`mailbox_messages` 15 欄 schema 正確；驗證後 containers、network、volume 已移除。
-- Rate limit 目前是單一 Spring instance 的 per-device fixed-window prototype；多實例部署前必須改用 Redis、Cloudflare Durable Object 或 API gateway 共享 limiter。
+- 當時 Rate limit 是單一 Spring instance 的 per-device fixed-window prototype；已於 2026-07-13 改為 Flyway V8/PostgreSQL 共用 atomic counter，解除多 instance 配額分裂風險。
 - **已完成**：S7-03 Flutter SQLite schema v5 `mailbox_pending_queue`、冪等 enqueue、lease claim/recovery、成功刪除、最多 8 次 exponential backoff + jitter。
 - `NIX_SKIP_SODIUM_BUILD_HOOKS=1 flutter test test/modules/pending_mailbox_queue_test.dart test/modules/identity_schema_test.dart`：2 tests、All tests passed；跨 service instance、lease expiry、retry delay、success delete 與 schema v5 通過。
 - `flutter analyze`：S7-03 修改後通過，No issues found。
