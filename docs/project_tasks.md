@@ -95,7 +95,7 @@
 | ID | 任務 | 依賴 | 驗收條件 |
 |---|---|---|---|
 | S7-01 | ✅ 定義 mailbox API、ACL、quota、TTL 與 ACK 狀態機 | S6-03 | 僅收件裝置可下載；嚴格 `STORED → DELIVERED → READ`/`EXPIRED`；具大小、容量與速率限制；13 項 schema 回歸通過 |
-| S7-02 | ✅ 實作密文上傳、拉取與刪除 backend | S7-01 | Flyway V4、JWT/device/contact ACL、冪等 upload、HMAC signed opaque inbox/ACK cursor、穩定分頁、quota/rate limit、TTL cleanup 與 ciphertext 清除完成 |
+| S7-02 | ✅ 實作密文上傳、拉取與刪除 backend | S7-01 | Flyway V4/V8、JWT/device/contact ACL、冪等 upload、HMAC signed opaque inbox/ACK cursor、穩定分頁、PostgreSQL 多 instance 共用 rate limit、quota/TTL cleanup 與 ciphertext 清除完成 |
 | S7-03 | ✅ 建立本機 pending queue 與退避重試 | S2-01,S7-01 | SQLite v5 queue 可跨重啟保存；lease 可回收 crash 中工作；最多 8 次、5 秒起始/15 分鐘上限 exponential backoff + 20% jitter |
 | S7-04 | ✅ P2P 失敗 fallback 至 mailbox | S5-04,S6-04,S7-02,S7-03 | 同一密文先走 P2P；失敗後冪等 enqueue/upload，等待重試為 PENDING，mailbox 成功為 STORED，不重複建立訊息 |
 | S7-05 | ✅ 實作 DELIVERED、READ ACK 與冪等處理 | S7-04 | 認證並本機保存後才 DELIVERED；receipt mapping 支援 READ；重複下載/replay 重送 ACK，不重複寫入 |
@@ -118,7 +118,7 @@
 | ID | 任務 | 依賴 | 驗收條件 |
 |---|---|---|---|
 | V1-01 | 建立兩台真機的完整 E2E 測試腳本 | S8-05 | 加好友、在線 P2P、離線 mailbox、已送達/已讀全流程可重現 |
-| V1-02 | ✅ 安全與隱私稽核 | S6-06,S7-06,S8-05 | 私鑰/明文不上傳、不進 log；修復 ACK/origin/cursor 並完成 push token at-rest；Java 36 tests、Flutter 82 tests、analyze 通過，殘餘風險見 `security_audit_v1.md` |
+| V1-02 | ✅ 安全與隱私稽核 | S6-06,S7-06,S8-05 | 私鑰/明文不上傳、不進 log；修復 ACK/origin/cursor、push token at-rest 與共享 mailbox rate limit；Java 41 tests、Flutter 82 tests、analyze 通過，殘餘風險見 `security_audit_v1.md` |
 | V1-03 | 資源目標量測 | V1-01 | 冷啟動、閒置記憶體、背景連線、網路與電量結果寫入 docs |
 | V1-04 | 🚧 故障恢復與資料完整性測試 | V1-01 | SQLite 關閉／重開、ACK 遺失重投與 v1～v5 升級至 v6 的資料完整性測試已通過；真機殺程序與實際斷網待驗 |
 | V1-05 | 發布候選版文件與已知限制 | V1-02..04 | README、架構、安全、成本、操作說明與已知限制同步更新 |

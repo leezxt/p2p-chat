@@ -61,4 +61,4 @@ src/main/java/com/p2pchat/
 
 Sprint 3 的 `S3-01`～`S3-06` 已完成。2026-07-12 已以 Docker Compose 5.1.4、PostgreSQL 18.4 與實際 backend image 驗證 container health、readiness、Flyway v1～v3、預期資料表及 OpenAPI。
 
-Sprint 7 mailbox backend 已加入 Flyway V4 與 `/api/v1/mailbox`：支援 encrypted envelope 冪等上傳、recipient pull/cursor、`DELIVERED`/`READ` ACK、sender status、device/contact ACL、quota、rate limit 與 TTL cleanup。PostgreSQL 已驗證 Flyway v1～v7；目前 rate limiter 為單 instance prototype，多實例部署需改用共享 limiter。
+Sprint 7 mailbox backend 已加入 Flyway V4/V8 與 `/api/v1/mailbox`：支援 encrypted envelope 冪等上傳、recipient pull/cursor、`DELIVERED`/`READ` ACK、sender status、device/contact ACL、quota、TTL cleanup，以及以 PostgreSQL 原子 counter 實作的多 instance 共用 fixed-window rate limit。超限回 `429 MAILBOX_RATE_LIMITED` 與 `Retry-After`。PostgreSQL 已驗證 Flyway v1～v8。
