@@ -12,9 +12,9 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-13 21:49 +08:00）
+## 目前交接（2026-07-13 22:37 +08:00）
 
-目前目標：完成 V1 push token at-rest policy；下一步處理多 instance 共享 mailbox rate limiter，或取得 Firebase credentials 後接真實 FCM/APNs。
+目前目標：V1 push token at-rest policy 已合併至 `main`；下一步處理多 instance 共享 mailbox rate limiter，或取得 Firebase credentials 後接真實 FCM/APNs。
 
 - [x] **已完成**：確認 `main`、依賴與既有安全設計基線
 - [x] **已完成**：稽核後端 JWT、裝置 ownership、contact ACL、註冊與輸入限制
@@ -29,7 +29,7 @@
 - [x] **已完成**：Java 36 tests、PostgreSQL Flyway V1～V7、Flutter 82 tests、`flutter analyze` 與 Android debug APK build
 - [x] **已完成**：更新 backend README、V1-02 安全稽核、任務與交接文件
 
-本輪變更：新增 Flyway V7、`PushTokenCipher`、worker 專用 delivery service 與 retention cleanup。資料庫只保存 `v1.<keyId>.<nonce>.<ciphertext>` envelope 與 SHA-256 uniqueness hash；token 綁定 device/provider，竄改、錯 binding 或缺 key 均拒絕解密。`PUSH_TOKEN_ENCRYPTION_KEYS` 第一把為 active key，後續 key 用於輪替讀取。完整殘餘風險見 [`security_audit_v1.md`](security_audit_v1.md)。
+本輪變更：PR #12 已將 push token at-rest policy 合併至 `main`（merge commit `4679e0f`）。新增 Flyway V7、`PushTokenCipher`、worker 專用 delivery service 與 retention cleanup。資料庫只保存 `v1.<keyId>.<nonce>.<ciphertext>` envelope 與 SHA-256 uniqueness hash；token 綁定 device/provider，竄改、錯 binding 或缺 key 均拒絕解密。`PUSH_TOKEN_ENCRYPTION_KEYS` 第一把為 active key，後續 key 用於輪替讀取。
 
 驗證：`mvn -q test` 共 36 tests 全通過；Docker PostgreSQL 18.4/backend healthy，Flyway V1～V7 均成功，`device_push_tokens` 只有 nullable `token_ciphertext`、無明文 `token` 欄位。Flutter 程式未變，沿用非 Windows-native 82 tests、`flutter analyze` 與 Android debug APK build 成功基線。Docker compose 已乾淨停止並移除 containers/network，保留 PostgreSQL volume；本輪未啟動 AVD。
 
