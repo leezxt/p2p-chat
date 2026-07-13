@@ -22,6 +22,7 @@ Production 預設改為 fail-closed：未指定 profile 時使用 `prod`、要�
 | JWT issuer、audience、expiry 與至少 32-byte HMAC key | 通過既有 Java tests |
 | Device ownership、revocation、contact ACL | Mailbox、Presence、Push 與 Signaling integration tests 通過 |
 | Mailbox sender/recipient ACL、quota、TTL、rate limit、ACK 狀態機 | 通過；錯誤 `messageId` 不再改變狀態 |
+| Mailbox cursor 完整性與用途隔離 | HMAC-SHA256 signed opaque cursor；綁定 inbox/ACK 用途與 device，竄改、跨裝置及跨用途重用均拒絕 |
 | Replay、tamper、wrong key、inner/outer mismatch、key change | Flutter 回歸 tests 通過 |
 | Private key / token 儲存邊界 | 私鑰走 secure storage；SQLite schema 無私鑰/access token |
 | 敏感日誌 | Logger sanitizer 與 crypto `toString()` tests 通過；Java main code 無直接 request/body logger |
@@ -33,13 +34,13 @@ Production 預設改為 fail-closed：未指定 profile 時使用 `prod`、要�
 
 ```text
 java_backend: mvn -q test
-21 tests, 0 failures, 0 errors
+23 tests, 0 failures, 0 errors
 
 mobile_desktop_app: flutter analyze
 No issues found
 
 mobile_desktop_app: flutter test（排除 Windows native device_key_service_test.dart）
-79 tests, All tests passed
+82 tests, All tests passed
 
 mobile_desktop_app: flutter build apk --debug
 Built build/app/outputs/flutter-apk/app-debug.apk
@@ -49,7 +50,6 @@ Built build/app/outputs/flutter-apk/app-debug.apk
 
 ## 殘餘風險
 
-- Mailbox cursor 目前是 recipient-scoped UUID，不是 `mailbox_api.md` 宣告的 HMAC opaque cursor。ownership 與 recipient query 仍會阻止越權，但 cursor 完整性與 metadata 隱藏尚未達契約。
 - Mailbox rate limiter 是單一 Spring instance 記憶體狀態；多實例部署前需改為共享 limiter。
 - Push provider token 必須可供 worker 投遞，目前 backend 保存 token 與 hash；正式上線前需完成資料庫加密、最小權限與 retention policy。
 - V1 `P2P_BOX_V1` 使用長期裝置金鑰，不具 Double Ratchet 等級的 forward secrecy 或 post-compromise security。
@@ -61,4 +61,4 @@ Built build/app/outputs/flutter-apk/app-debug.apk
 
 1. 完成真實 FCM/APNs credentials、通知權限與 cold/warm start 驗收。
 2. 以 Android/iPhone 真機重跑 secure storage、P2P、mailbox、ACK、斷網與 kill process。
-3. 在 V1 release candidate 前完成 opaque signed cursor、production WebSocket origin allowlist 與 push token at-rest policy。
+3. 在 V1 release candidate 前完成 production WebSocket origin allowlist 與 push token at-rest policy。

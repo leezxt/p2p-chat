@@ -24,6 +24,7 @@ import com.p2pchat.modules.push.data.NotificationOutboxRepository;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MailboxApiIntegrationTest {
     private static final Pattern MAILBOX_ID = Pattern.compile("\\\"mailboxMessageId\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"");
+    private static final Pattern NEXT_CURSOR = Pattern.compile("\\\"nextCursor\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"");
     @Value("${local.server.port}") int port;
     @Autowired UserRepository users;
     @Autowired DeviceRepository devices;
@@ -39,6 +40,7 @@ class MailboxApiIntegrationTest {
         User bob = users.save(new User(UUID.randomUUID(), "mb-b-" + suffix, "Bob", now));
         Device a = devices.save(new Device(UUID.randomUUID(), alice, "Phone A", "pk-a", "mb-fp-a-" + suffix, now));
         Device b = devices.save(new Device(UUID.randomUUID(), bob, "Phone B", "pk-b", "mb-fp-b-" + suffix, now));
+        Device b2 = devices.save(new Device(UUID.randomUUID(), bob, "Phone B2", "pk-b2", "mb-fp-b2-" + suffix, now));
         contacts.save(new Contact(UUID.randomUUID(), alice, bob, null, now));
         contacts.save(new Contact(UUID.randomUUID(), bob, alice, null, now));
         String aliceToken = tokens.issue(alice.getId()).token();
@@ -90,6 +92,44 @@ class MailboxApiIntegrationTest {
         assertThat(afterAck.body()).doesNotContain(mailboxId, ciphertext);
         var senderAcks = send(client, "GET", "/api/v1/mailbox/acks?deviceId=" + a.getId(), aliceToken, null);
         assertThat(senderAcks.body()).contains(mailboxId, "DELIVERED").doesNotContain(ciphertext);
+
+        String pageBody1 = body.replace("message-" + suffix, "message-page-1-" + suffix);
+        String pageBody2 = body.replace("message-" + suffix, "message-page-2-" + suffix);
+        assertThat(send(client, "POST", "/api/v1/mailbox/messages", aliceToken, pageBody1).statusCode()).isEqualTo(201);
+        assertThat(send(client, "POST", "/api/v1/mailbox/messages", aliceToken, pageBody2).statusCode()).isEqualTo(201);
+        var firstPage = send(client, "GET", "/api/v1/mailbox/messages?deviceId=" + b.getId() + "&limit=1",
+                bobToken, null);
+        assertThat(firstPage.statusCode()).isEqualTo(200);
+        var cursorMatch = NEXT_CURSOR.matcher(firstPage.body());
+        assertThat(cursorMatch.find()).isTrue();
+        String cursor = cursorMatch.group(1);
+        assertThat(cursor).matches("[A-Za-z0-9_-]+").doesNotContain(b.getId().toString());
+
+        char replacement = cursor.charAt(cursor.length() - 1) == 'A' ? 'B' : 'A';
+        String tampered = cursor.substring(0, cursor.length() - 1) + replacement;
+        assertThat(send(client, "GET", "/api/v1/mailbox/messages?deviceId=" + b.getId() + "&cursor=" + tampered,
+                bobToken, null).statusCode()).isEqualTo(400);
+        assertThat(send(client, "GET", "/api/v1/mailbox/messages?deviceId=" + b2.getId() + "&cursor=" + cursor,
+                bobToken, null).statusCode()).isEqualTo(400);
+
+        var secondPage = send(client, "GET", "/api/v1/mailbox/messages?deviceId=" + b.getId() + "&limit=1&cursor=" + cursor,
+                bobToken, null);
+        assertThat(secondPage.statusCode()).isEqualTo(200);
+        assertThat(firstPage.body() + secondPage.body()).contains("message-page-1-" + suffix, "message-page-2-" + suffix);
+
+        assertThat(send(client, "GET", "/api/v1/mailbox/acks?deviceId=" + a.getId() + "&cursor=" + cursor,
+                aliceToken, null).statusCode()).isEqualTo(400);
+        var firstAckPage = send(client, "GET", "/api/v1/mailbox/acks?deviceId=" + a.getId() + "&limit=1",
+                aliceToken, null);
+        assertThat(firstAckPage.statusCode()).isEqualTo(200);
+        var ackCursorMatch = NEXT_CURSOR.matcher(firstAckPage.body());
+        assertThat(ackCursorMatch.find()).isTrue();
+        String ackCursor = ackCursorMatch.group(1);
+        assertThat(ackCursor).isNotEqualTo(cursor).matches("[A-Za-z0-9_-]+");
+        var secondAckPage = send(client, "GET", "/api/v1/mailbox/acks?deviceId=" + a.getId()
+                + "&limit=1&cursor=" + ackCursor, aliceToken, null);
+        assertThat(secondAckPage.statusCode()).isEqualTo(200);
+        assertThat(secondAckPage.body()).contains("message-");
     }
 
     private HttpResponse<String> send(HttpClient client, String method, String path, String token, String body)

@@ -117,11 +117,22 @@ public class MailboxService {
     }
 
     @Transactional(readOnly = true)
-    public List<MailboxMessage> senderStatuses(UUID userId, UUID deviceId, int limit) {
+    public StatusPage senderStatuses(UUID userId, UUID deviceId, UUID cursor, int limit) {
         rateLimiter.checkReadOrAck(deviceId);
         requireOwnedDevice(userId, deviceId);
-        return messages.findBySenderDeviceIdOrderByUpdatedAtAscIdAsc(deviceId).stream()
-                .limit(Math.min(Math.max(limit, 1), 100)).toList();
+        var all = messages.findBySenderDeviceIdOrderByUpdatedAtAscIdAsc(deviceId);
+        int start = 0;
+        if (cursor != null) {
+            while (start < all.size() && !all.get(start).getId().equals(cursor)) start++;
+            if (start == all.size())
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "MAILBOX_INVALID_CURSOR");
+            start++;
+        }
+        int pageSize = Math.min(Math.max(limit, 1), 100);
+        int end = Math.min(start + pageSize, all.size());
+        var items = List.copyOf(all.subList(start, end));
+        UUID nextCursor = end < all.size() && !items.isEmpty() ? items.get(items.size() - 1).getId() : null;
+        return new StatusPage(items, nextCursor);
     }
 
     @Scheduled(fixedDelayString = "${app.mailbox.cleanup-delay:PT1H}")
@@ -148,4 +159,5 @@ public class MailboxService {
     public record StoredResult(UUID mailboxMessageId, String messageId, MailboxState status,
             Instant storedAt, Instant expiresAt, boolean created) {}
     public record PullPage(List<MailboxMessage> items, UUID nextCursor) {}
+    public record StatusPage(List<MailboxMessage> items, UUID nextCursor) {}
 }

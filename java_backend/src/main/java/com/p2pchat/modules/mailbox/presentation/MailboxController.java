@@ -14,7 +14,10 @@ import jakarta.validation.constraints.*;
 @RequestMapping("/api/v1/mailbox")
 public class MailboxController {
     private final MailboxService service;
-    public MailboxController(MailboxService service) { this.service = service; }
+    private final MailboxCursorCodec cursors;
+    public MailboxController(MailboxService service, MailboxCursorCodec cursors) {
+        this.service = service; this.cursors = cursors;
+    }
 
     @PostMapping("/messages")
     public ResponseEntity<StoredResponse> upload(@AuthenticationPrincipal Jwt jwt,
@@ -33,15 +36,18 @@ public class MailboxController {
 
     @GetMapping("/messages")
     public PageResponse pull(@AuthenticationPrincipal Jwt jwt, @RequestParam UUID deviceId,
-            @RequestParam(required = false) UUID cursor, @RequestParam(defaultValue = "50") int limit) {
-        var page = service.pull(UUID.fromString(jwt.getSubject()), deviceId, cursor, limit);
+            @RequestParam(required = false) String cursor, @RequestParam(defaultValue = "50") int limit) {
+        UUID cursorId = cursor == null ? null : cursors.decode(cursor, MailboxCursorCodec.Purpose.INBOX, deviceId);
+        var page = service.pull(UUID.fromString(jwt.getSubject()), deviceId, cursorId, limit);
         var items = page.items().stream()
                 .map(m -> new MessageResponse(m.getId(), m.getStoredAt(), m.getExpiresAt(),
                         new EnvelopeResponse(1, "P2P_BOX_V1", m.getSenderDevice().getId(),
                                 m.getRecipientDevice().getId(), m.getSenderKeyId(), m.getRecipientKeyId(),
                                 m.getMessageId(), m.getNonce(), m.getCiphertext())))
                 .toList();
-        return new PageResponse(items, page.nextCursor() == null ? null : page.nextCursor().toString());
+        return new PageResponse(items,
+                page.nextCursor() == null ? null :
+                        cursors.encode(MailboxCursorCodec.Purpose.INBOX, deviceId, page.nextCursor()));
     }
 
     @PutMapping("/messages/{id}/ack")
@@ -55,10 +61,14 @@ public class MailboxController {
     }
 
     @GetMapping("/acks")
-    public List<AckResponse> acks(@AuthenticationPrincipal Jwt jwt, @RequestParam UUID deviceId,
-            @RequestParam(defaultValue = "50") int limit) {
-        return service.senderStatuses(UUID.fromString(jwt.getSubject()), deviceId, limit).stream()
+    public AckPageResponse acks(@AuthenticationPrincipal Jwt jwt, @RequestParam UUID deviceId,
+            @RequestParam(required = false) String cursor, @RequestParam(defaultValue = "50") int limit) {
+        UUID cursorId = cursor == null ? null : cursors.decode(cursor, MailboxCursorCodec.Purpose.ACKS, deviceId);
+        var page = service.senderStatuses(UUID.fromString(jwt.getSubject()), deviceId, cursorId, limit);
+        var items = page.items().stream()
                 .map(m -> new AckResponse(m.getId(), m.getMessageId(), m.getState(), m.getUpdatedAt())).toList();
+        return new AckPageResponse(items, page.nextCursor() == null ? null :
+                cursors.encode(MailboxCursorCodec.Purpose.ACKS, deviceId, page.nextCursor()));
     }
 
     public record UploadRequest(@NotNull Integer schemaVersion, @Positive Long expiresInSeconds,
@@ -77,4 +87,5 @@ public class MailboxController {
             @NotBlank String messageId, @NotNull UUID acknowledgingDeviceId, @NotNull MailboxState status,
             @Positive long occurredAt) {}
     public record AckResponse(UUID mailboxMessageId, String messageId, MailboxState status, Instant acceptedAt) {}
+    public record AckPageResponse(List<AckResponse> items, String nextCursor) {}
 }

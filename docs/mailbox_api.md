@@ -65,7 +65,7 @@ ACL 驗證：JWT user 擁有 sender device、sender 未撤銷、recipient 存在
 
 `GET /api/v1/mailbox/messages?deviceId=device_b&cursor=<opaque>&limit=50`
 
-只回傳該 device 尚未 `DELIVERED` 且未過期的紀錄，依 `(storedAt, mailboxMessageId)` 穩定排序。Cursor 必須是不透明、具完整性保護的 token，不接受任意 offset。
+只回傳該 device 尚未 `DELIVERED` 且未過期的紀錄，依 `(storedAt, mailboxMessageId)` 穩定排序。Cursor 是無 padding 的 base64url token，payload 包含版本、用途、device ID 與最後一筆 mailbox message ID，並以 server secret 衍生的 HMAC-SHA256 驗證完整性。Cursor 綁定 `INBOX` 用途與指定 device，不接受任意 offset，也不可跨裝置或跨 ACK API 重用。
 
 ```json
 {
@@ -106,7 +106,23 @@ ACL 驗證：JWT user 擁有 sender device、sender 未撤銷、recipient 存在
 
 `GET /api/v1/mailbox/acks?deviceId=device_a&cursor=<opaque>&limit=50`
 
-只允許原 sender device owner 查詢，回傳 `DELIVERED`/`READ`/`EXPIRED` 狀態，不回 ciphertext。Sender 以 `(mailboxMessageId, status)` 冪等更新本機訊息狀態。
+只允許原 sender device owner 查詢，依 `(updatedAt, mailboxMessageId)` 穩定分頁，回傳 `DELIVERED`/`READ`/`EXPIRED` 狀態，不回 ciphertext。Cursor 使用與 inbox 相同的 signed opaque 格式，但綁定 `ACKS` 用途與 sender device；不可拿 inbox cursor 查詢 ACK。Sender 以 `(mailboxMessageId, status)` 冪等更新本機訊息狀態。
+
+```json
+{
+  "items": [
+    {
+      "mailboxMessageId": "mbx_123",
+      "messageId": "msg_123",
+      "status": "DELIVERED",
+      "acceptedAt": 1780000010
+    }
+  ],
+  "nextCursor": null
+}
+```
+
+Flutter client 會持續拉取 `nextCursor` 直到為 `null`，每頁最多要求 100 筆；重複 cursor 或超過安全頁數會中止並回報錯誤，避免不可信 server 造成無限分頁。
 
 ## 過期與刪除
 
@@ -133,3 +149,4 @@ ACL 驗證：JWT user 擁有 sender device、sender 未撤銷、recipient 存在
 - `MAILBOX_MESSAGE_NOT_FOUND`
 - `MAILBOX_INVALID_STATE_TRANSITION`
 - `MAILBOX_MESSAGE_EXPIRED`
+- `MAILBOX_INVALID_CURSOR`
