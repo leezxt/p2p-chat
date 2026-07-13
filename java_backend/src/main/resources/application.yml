@@ -2,7 +2,7 @@ spring:
   application:
     name: p2p-chat-backend
   profiles:
-    default: local
+    default: prod
   flyway:
     enabled: true
     locations: classpath:db/migration

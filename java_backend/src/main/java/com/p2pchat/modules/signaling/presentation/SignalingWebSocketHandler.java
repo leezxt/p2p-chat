@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import com.p2pchat.modules.contacts.data.ContactRepository;
 import com.p2pchat.modules.devices.data.DeviceRepository;
 import com.p2pchat.modules.signaling.domain.SignalingType;
 import tools.jackson.databind.JsonNode;
@@ -19,11 +20,14 @@ public class SignalingWebSocketHandler extends TextWebSocketHandler {
     private final ObjectMapper json;
     private final JwtDecoder tokens;
     private final DeviceRepository devices;
+    private final ContactRepository contacts;
     private final Map<String, WebSocketSession> sessionsByDevice = new ConcurrentHashMap<>();
     private final Map<String, String> deviceBySession = new ConcurrentHashMap<>();
+    private final Map<String, UUID> userByDevice = new ConcurrentHashMap<>();
 
-    public SignalingWebSocketHandler(ObjectMapper json, JwtDecoder tokens, DeviceRepository devices) {
-        this.json = json; this.tokens = tokens; this.devices = devices;
+    public SignalingWebSocketHandler(ObjectMapper json, JwtDecoder tokens, DeviceRepository devices,
+            ContactRepository contacts) {
+        this.json = json; this.tokens = tokens; this.devices = devices; this.contacts = contacts;
     }
 
     @Override protected void handleTextMessage(WebSocketSession session, TextMessage frame) throws Exception {
@@ -51,6 +55,7 @@ public class SignalingWebSocketHandler extends TextWebSocketHandler {
             }
             WebSocketSession previous = sessionsByDevice.put(deviceId.toString(), session);
             deviceBySession.put(session.getId(), deviceId.toString());
+            userByDevice.put(deviceId.toString(), userId);
             if (previous != null && previous.isOpen()) previous.close(CloseStatus.POLICY_VIOLATION);
             ObjectNode response = json.createObjectNode();
             response.put("schemaVersion", 1).put("type", "AUTHENTICATED").put("deviceId", deviceId.toString());
@@ -63,10 +68,16 @@ public class SignalingWebSocketHandler extends TextWebSocketHandler {
         String sessionId = text(message, "sessionId");
         if (target.isBlank() || sessionId.isBlank()) { sendError(sender, "INVALID_MESSAGE"); return; }
         WebSocketSession recipient = sessionsByDevice.get(target);
-        if (recipient == null || !recipient.isOpen()) { sendError(sender, "TARGET_OFFLINE"); return; }
+        String senderDevice = deviceBySession.get(sender.getId());
+        UUID senderUser = userByDevice.get(senderDevice);
+        UUID targetUser = userByDevice.get(target);
+        if (recipient == null || !recipient.isOpen() || senderUser == null || targetUser == null ||
+                contacts.findByOwnerIdAndContactUserId(senderUser, targetUser).isEmpty()) {
+            sendError(sender, "TARGET_UNAVAILABLE"); return;
+        }
         ObjectNode outbound = json.createObjectNode();
         outbound.put("schemaVersion", 1).put("type", type.name()).put("sessionId", sessionId)
-                .put("senderDeviceId", deviceBySession.get(sender.getId())).put("targetDeviceId", target);
+                .put("senderDeviceId", senderDevice).put("targetDeviceId", target);
         JsonNode payload = message.get("payload");
         if (payload != null) outbound.set("payload", payload);
         recipient.sendMessage(new TextMessage(json.writeValueAsString(outbound)));
@@ -84,6 +95,6 @@ public class SignalingWebSocketHandler extends TextWebSocketHandler {
 
     @Override public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         String device = deviceBySession.remove(session.getId());
-        if (device != null) sessionsByDevice.remove(device, session);
+        if (device != null && sessionsByDevice.remove(device, session)) userByDevice.remove(device);
     }
 }

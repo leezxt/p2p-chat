@@ -50,9 +50,7 @@ public class MailboxController {
         if (request.schemaVersion() != 1 || !id.equals(request.mailboxMessageId()))
             throw new org.springframework.web.server.ResponseStatusException(HttpStatus.BAD_REQUEST, "MAILBOX_INVALID_ACK");
         var message = service.acknowledge(UUID.fromString(jwt.getSubject()), id,
-                request.acknowledgingDeviceId(), request.status());
-        if (!message.getMessageId().equals(request.messageId()))
-            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.BAD_REQUEST, "MAILBOX_INVALID_ACK");
+                request.messageId(), request.acknowledgingDeviceId(), request.status());
         return new AckResponse(message.getId(), message.getMessageId(), message.getState(), message.getUpdatedAt());
     }
 

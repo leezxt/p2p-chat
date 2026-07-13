@@ -175,6 +175,8 @@
 - 必須檢查 server/App log，證明無 plaintext、private key 或 token。
 - 對外安全宣稱需經獨立安全審查；本文件不是密碼學稽核報告。
 
+V1 工程稽核結果、已修復問題、驗證命令與殘餘風險見 [`security_audit_v1.md`](security_audit_v1.md)。
+
 ## 參考來源
 
 - [Signal libsignal repository](https://github.com/signalapp/libsignal)

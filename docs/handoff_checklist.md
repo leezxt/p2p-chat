@@ -12,6 +12,25 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
+## 目前交接（2026-07-13 20:07 +08:00）
+
+目前目標：完成 V1-02 安全與隱私稽核，下一步回到真實 push 與雙真機 V1 驗收。
+
+- [x] **已完成**：確認 `main`、依賴與既有安全設計基線
+- [x] **已完成**：稽核後端 JWT、裝置 ownership、contact ACL、註冊與輸入限制
+- [x] **已完成**：稽核 Flutter 私鑰、明文、log、push 與 SQLite 儲存邊界
+- [x] **已完成**：修復 Mailbox ACK transaction ordering 與 Signaling contact ACL，新增安全回歸測試
+- [x] **已完成**：Java 21 tests、Flutter 79 tests、`flutter analyze` 與敏感資料掃描
+- [x] **已完成**：更新 V1-02 安全稽核、任務與交接文件
+
+本輪變更：錯誤 ACK 在狀態變更前拒絕；signaling 只允許聯絡人 relay 並統一 unavailable 錯誤；預設 profile 改為 fail-closed `prod`，停用 production API docs/local registration 與敏感錯誤內容；Android release 明確禁止 cleartext/backup。完整結果與殘餘風險見 [`security_audit_v1.md`](security_audit_v1.md)。
+
+驗證：`mvn -q test` 共 21 tests 全通過；`flutter analyze` 零問題；排除 Windows native `device_key_service_test.dart` 後 79 tests 全通過；`flutter build apk --debug` 成功。所有測試程序已結束，Docker 無運行中 container，本輪未啟動 AVD。
+
+限制：Windows native sodium test 仍缺 Visual C++ workload；iOS/Android 真機、真實 FCM/APNs、斷網/kill process、資源量測仍未完成。Mailbox signed opaque cursor、共享 rate limiter、push token at-rest policy 與 WebSocket origin allowlist 必須在 release candidate 前處理；`flutter_webrtc` 尚待上游遷移 Built-in Kotlin，以免未來 Flutter 版本停止建置。
+
+續接順序：先取得 Firebase credentials 完成 S8 push；再執行 V1-01 雙真機 E2E、V1-04 斷網/kill process、V1-03 資源量測，最後整理 V1-05 release candidate。
+
 ## 已完成基線
 
 - [x] Sprint 0：Repository 與開發規範初始化
@@ -103,7 +122,7 @@
 - [x] 建立可安裝的 Android Emulator alpha APK，完成邀請、1:1 加密文字、offline mailbox 與 DELIVERED/READ 可視驗收
 
 - [ ] 建立兩台真機的完整 E2E 測試腳本並通過
-- [ ] 完成安全與隱私稽核，確認私鑰、明文與敏感資料不上傳且不進 log
+- [x] 完成安全與隱私稽核，確認私鑰、明文與敏感資料不上傳且不進 log
 - [ ] 量測並記錄冷啟動、閒置記憶體、背景連線、網路與電量
 - [ ] 完成斷網、殺程序、DB migration、重複訊息與 ACK 遺失的恢復測試（SQLite 重啟、ACK 遺失重投、v1～v5 migration matrix 已通過）
 - [ ] 更新 README、架構、安全、成本、操作說明與已知限制

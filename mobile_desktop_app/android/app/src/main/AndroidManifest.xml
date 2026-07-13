@@ -4,6 +4,7 @@
 
     <application
         android:allowBackup="false"
+        android:usesCleartextTraffic="false"
         android:label="P2P Messenger"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">

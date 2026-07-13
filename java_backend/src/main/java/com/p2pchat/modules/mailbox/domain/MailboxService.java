@@ -101,7 +101,7 @@ public class MailboxService {
     }
 
     @Transactional
-    public MailboxMessage acknowledge(UUID userId, UUID id, UUID deviceId, MailboxState status) {
+    public MailboxMessage acknowledge(UUID userId, UUID id, String messageId, UUID deviceId, MailboxState status) {
         rateLimiter.checkReadOrAck(deviceId);
         requireOwnedDevice(userId, deviceId);
         if (status != MailboxState.DELIVERED && status != MailboxState.READ)
@@ -109,6 +109,8 @@ public class MailboxService {
         var message = messages.findById(id).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "MAILBOX_MESSAGE_NOT_FOUND"));
         if (!message.getRecipientDevice().getId().equals(deviceId)) throw unavailable();
+        if (!message.getMessageId().equals(messageId))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "MAILBOX_INVALID_ACK");
         try { message.acknowledge(status, clock.instant()); }
         catch (IllegalStateException e) { throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage()); }
         return message;
