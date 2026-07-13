@@ -16,7 +16,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=local
 
 執行前將 `.env.example` 複製為 `.env` 並替換本機密碼；請勿提交 `.env`。資料庫使用 PostgreSQL 18.4，Spring 啟動時由 Flyway 自動執行 migration。
 
-未指定 profile 時預設使用 fail-closed 的 `prod`，並要求 `DB_URL`、`DB_USERNAME`、`DB_PASSWORD` 與 `JWT_SECRET`。本機開發必須明確使用上方的 `local` profile；服務位於 `http://localhost:8080`。健康檢查：
+未指定 profile 時預設使用 fail-closed 的 `prod`，並要求 `DB_URL`、`DB_USERNAME`、`DB_PASSWORD` 與 `JWT_SECRET`。`WEBSOCKET_ALLOWED_ORIGINS` 可用逗號分隔設定 browser signaling 的精確 origin 清單；未設定時使用空 allowlist／same-origin policy，production 禁止 `*`。Android/iOS native client 不送 `Origin`，仍可使用 JWT/device authentication 連線。本機開發必須明確使用上方的 `local` profile；服務位於 `http://localhost:8080`。健康檢查：
 
 ```powershell
 Invoke-RestMethod http://localhost:8080/actuator/health

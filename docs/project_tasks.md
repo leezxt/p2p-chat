@@ -70,7 +70,7 @@
 | ID | 任務 | 依賴 | 驗收條件 |
 |---|---|---|---|
 | S5-01 | ✅ 定義 signaling message schema 與 session 狀態機 | S4-05 | offer、answer、ICE、close、error 具版本與關聯 ID |
-| S5-02 | ✅ 實作 Spring WebSocket signaling | S3-05,S5-01 | 僅驗證過的裝置可交換自己會話的 signaling 資料 |
+| S5-02 | ✅ 實作 Spring WebSocket signaling | S3-05,S5-01 | 僅驗證過的聯絡人裝置可交換 signaling；production 使用精確 origin allowlist 並禁止 `*` |
 | S5-03 | ✅ Flutter 整合 WebRTC DataChannel | S5-01 | Android production adapter、debug build 與雙 AVD encrypted DataChannel 通過；Desktop 另行驗收 |
 | S5-04 | ✅ 實作 P2P session lifecycle | S5-02,S5-03 | close、sleep、timeout、有限重試、error 與 App 背景釋放測試通過 |
 | S5-05 | ✅ 經 P2P 傳送文字 envelope | S2-02,S5-04 | deterministic two-device envelope test 通過；實機由 S5-06 驗收 |
@@ -118,7 +118,7 @@
 | ID | 任務 | 依賴 | 驗收條件 |
 |---|---|---|---|
 | V1-01 | 建立兩台真機的完整 E2E 測試腳本 | S8-05 | 加好友、在線 P2P、離線 mailbox、已送達/已讀全流程可重現 |
-| V1-02 | ✅ 安全與隱私稽核 | S6-06,S7-06,S8-05 | 私鑰/明文不上傳、不進 log；修復 Mailbox ACK transaction ordering、Signaling contact ACL 與 mailbox signed cursor；Java 23 tests、Flutter 82 tests、analyze 通過，殘餘風險見 `security_audit_v1.md` |
+| V1-02 | ✅ 安全與隱私稽核 | S6-06,S7-06,S8-05 | 私鑰/明文不上傳、不進 log；修復 Mailbox ACK ordering、Signaling contact/origin policy 與 mailbox signed cursor；Java 29 tests、Flutter 82 tests、analyze 通過，殘餘風險見 `security_audit_v1.md` |
 | V1-03 | 資源目標量測 | V1-01 | 冷啟動、閒置記憶體、背景連線、網路與電量結果寫入 docs |
 | V1-04 | 🚧 故障恢復與資料完整性測試 | V1-01 | SQLite 關閉／重開、ACK 遺失重投與 v1～v5 升級至 v6 的資料完整性測試已通過；真機殺程序與實際斷網待驗 |
 | V1-05 | 發布候選版文件與已知限制 | V1-02..04 | README、架構、安全、成本、操作說明與已知限制同步更新 |

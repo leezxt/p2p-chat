@@ -14,6 +14,8 @@ spring:
 
 app:
   security:
+    websocket:
+      allowed-origins: ${WEBSOCKET_ALLOWED_ORIGINS:}
     jwt:
       issuer: p2p-chat-backend
       audience: p2p-chat-app

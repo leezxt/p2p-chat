@@ -82,9 +82,31 @@ class SignalingWebSocketIntegrationTest {
         }
     }
 
+    @Test
+    void signalingAllowsConfiguredOrigin() {
+        WebSocket socket = connect(new QueueListener(), "https://allowed.example.test");
+        socket.sendClose(WebSocket.NORMAL_CLOSURE, "done").join();
+    }
+
+    @Test
+    void signalingRejectsUnlistedOrigin() {
+        try {
+            connect(new QueueListener(), "https://blocked.example.test");
+            throw new AssertionError("Expected WebSocket handshake rejection");
+        } catch (CompletionException exception) {
+            assertThat(exception.getCause()).isInstanceOf(WebSocketHandshakeException.class);
+            var handshake = (WebSocketHandshakeException) exception.getCause();
+            assertThat(handshake.getResponse().statusCode()).isEqualTo(403);
+        }
+    }
+
     private WebSocket connect(QueueListener listener) {
-        return HttpClient.newHttpClient().newWebSocketBuilder().connectTimeout(Duration.ofSeconds(5))
-                .buildAsync(URI.create("ws://localhost:" + port + "/ws/signaling"), listener).join();
+        return connect(listener, null);
+    }
+    private WebSocket connect(QueueListener listener, String origin) {
+        var builder = HttpClient.newHttpClient().newWebSocketBuilder().connectTimeout(Duration.ofSeconds(5));
+        if (origin != null) builder.header("Origin", origin);
+        return builder.buildAsync(URI.create("ws://localhost:" + port + "/ws/signaling"), listener).join();
     }
     private String auth(UUID device, String token) {
         return "{\"schemaVersion\":1,\"type\":\"AUTH\",\"deviceId\":\"" + device + "\",\"token\":\"" + token + "\"}";
