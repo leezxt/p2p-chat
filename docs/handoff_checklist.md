@@ -12,9 +12,9 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-13 23:02 +08:00）
+## 目前交接（2026-07-13 23:05 +08:00）
 
-目前目標：多 instance 共用 mailbox rate limiter 已實作並完成本機與 PostgreSQL 驗證；待提交、PR 與合併後，下一步處理真實 FCM/APNs 或 V1 真機驗收。
+目前目標：多 instance 共用 mailbox rate limiter 已由 PR #14 合併至 `main`（merge commit `40c94ea`）；下一步處理真實 FCM/APNs 或 V1 真機驗收。
 
 - [x] **已完成**：確認 mailbox upload、pull、ACK、sender status 呼叫點與既有 429 錯誤契約
 - [x] **已完成**：新增 Flyway V8 `mailbox_rate_limit_windows` 與 cleanup index
@@ -24,7 +24,7 @@
 - [x] **已完成**：加入多 instance、80-way 並行、operation/device 隔離、window reset、cleanup 與 MVC header 測試
 - [x] **已完成**：Java 41 tests、PostgreSQL rate-limit tests、Flyway V1～V8、backend image/readiness 驗證
 - [x] **已完成**：更新 mailbox API、backend README、安全稽核、任務與交接文件
-- [ ] **未完成**：提交、推送、建立並合併本輪 PR，再記錄 merge commit
+- [x] **已完成**：功能 commit `e039a64` 經 PR #14 合併至 `main`，merge commit `40c94ea`
 
 本輪變更：`MailboxRateLimitStore` 以 `(device_id, operation, window_start)` 唯一鍵保存 fixed-window counter。新視窗使用 `INSERT ... ON CONFLICT DO NOTHING`，既有視窗以 row-level atomic `UPDATE request_count = request_count + 1` 遞增；`REQUIRES_NEW` 確保後續 ACL 或 payload 失敗不會回滾濫用計數。排程保留當前與前一分鐘，只刪除更舊視窗。
 
