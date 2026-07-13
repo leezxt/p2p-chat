@@ -1,5 +1,6 @@
 package com.p2pchat.modules.push.domain;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -18,8 +19,16 @@ public class PushTokenDeliveryService {
     @Transactional(readOnly = true)
     public List<DeliveryToken> activeTokens(UUID deviceId) {
         return tokens.findByDeviceIdAndRevokedAtIsNull(deviceId).stream()
-                .map(token -> new DeliveryToken(token.getProvider(), token.decrypt(cipher))).toList();
+                .map(token -> new DeliveryToken(token.getId(), token.getProvider(), token.getTokenHash(),
+                        token.decrypt(cipher))).toList();
     }
 
-    public record DeliveryToken(PushProvider provider, String token) {}
+    @Transactional
+    public boolean revokeIfCurrent(UUID tokenId, String tokenHash, Instant now) {
+        return tokens.findById(tokenId).filter(token -> !token.isRevoked())
+                .filter(token -> token.getTokenHash().equals(tokenHash))
+                .map(token -> { token.revoke(now); return true; }).orElse(false);
+    }
+
+    public record DeliveryToken(UUID id, PushProvider provider, String tokenHash, String token) {}
 }

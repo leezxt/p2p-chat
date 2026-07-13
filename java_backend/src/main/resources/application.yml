@@ -13,6 +13,14 @@ spring:
       ddl-auto: validate
 
 app:
+  push:
+    delivery:
+      enabled: ${PUSH_DELIVERY_ENABLED:false}
+      batch-size: ${PUSH_DELIVERY_BATCH_SIZE:50}
+      poll-delay: ${PUSH_DELIVERY_POLL_DELAY:PT5S}
+    fcm:
+      enabled: ${FCM_ENABLED:false}
+      project-id: ${FCM_PROJECT_ID:}
   security:
     websocket:
       allowed-origins: ${WEBSOCKET_ALLOWED_ORIGINS:}

@@ -26,8 +26,10 @@ Production 預設改為 fail-closed：未指定 profile 時使用 `prod`、要�
 | Replay、tamper、wrong key、inner/outer mismatch、key change | Flutter 回歸 tests 通過 |
 | Private key / token 儲存邊界 | 私鑰走 secure storage；SQLite schema 無私鑰/access token |
 | 敏感日誌 | Logger sanitizer 與 crypto `toString()` tests 通過；Java main code 無直接 request/body logger |
-| Push payload | Outbox 只含 `schemaVersion` 與 `MAILBOX_AVAILABLE` |
+| Push payload | FCM HTTP v1 data-only request；Outbox 只含 `schemaVersion` 與 `MAILBOX_AVAILABLE`，tampered payload 不送出 |
 | Push token at rest | AES-256-GCM、device/provider AAD、版本化 key ID；撤銷立即清 ciphertext，30 天後刪 tombstone |
+| Push worker concurrency | PostgreSQL 短交易 claim、兩分鐘 lease 與 lease token；過期 worker 無法覆寫新 worker，最多 8 次 bounded retry |
+| Push token invalidation | `UNREGISTERED` / `NOT_FOUND` 只在 token ID/hash 仍相符時撤銷，避免舊 response 撤銷新 token |
 | Production surface | local registration 與 API docs 在 `prod` profile 均為 404 |
 | WebSocket origin policy | 精確 allowlist；未設定時 empty/same-origin，production 禁止 `*`，未列入來源握手回 403 |
 | Transport policy | Android release cleartext=false；iOS 使用預設 ATS 限制 |
@@ -36,7 +38,7 @@ Production 預設改為 fail-closed：未指定 profile 時使用 `prod`、要�
 
 ```text
 java_backend: mvn -q test
-41 tests, 0 failures, 0 errors
+51 tests, 0 failures, 0 errors
 
 mobile_desktop_app: flutter analyze
 No issues found
@@ -53,7 +55,7 @@ Built build/app/outputs/flutter-apk/app-debug.apk
 ## 殘餘風險
 
 - V1 `P2P_BOX_V1` 使用長期裝置金鑰，不具 Double Ratchet 等級的 forward secrecy 或 post-compromise security。
-- 真實 FCM/APNs、兩台真機、iOS runtime、斷網/kill process 與資源耗電量測屬 V1-01、V1-03、V1-04 尚未完成的外部驗收。
+- FCM HTTP v1 worker 已完成自動化/PostgreSQL 驗證；真實 FCM credentials、APNs、兩台真機、iOS runtime、斷網/kill process 與資源耗電量測仍屬外部驗收。
 - `flutter_webrtc` 仍套用 Kotlin Gradle Plugin；目前 build 通過，但 Flutter 已警告未來版本將要求 plugin 遷移至 Built-in Kotlin。
 
 ## 後續門檻

@@ -28,7 +28,7 @@ p2p-chat/
 | 5 | Signaling 與 WebRTC P2P | 🚧 Android 雙 AVD authenticated encrypted E2E 通過；Desktop/資源驗收待補 |
 | 6 | Crypto 與安全儲存 | 🚧 Android 實作與 runtime 驗證完成；iPhone 驗收依使用者指示暫停 |
 | 7 | Offline Mailbox 與 ACK | ✅ S7-01～06 與 Android alpha 雙 AVD 驗收完成 |
-| 8+ | Push / Presence / 低功耗 / 貼圖 / 多媒體 / 多裝置 / 通話 … | 🚧 低頻 Presence 完成；FCM/Push 待 credentials |
+| 8+ | Push / Presence / 低功耗 / 貼圖 / 多媒體 / 多裝置 / 通話 … | 🚧 低頻 Presence、FCM HTTP v1 worker 完成；真實 FCM/Push 待 credentials |
 
 完整路線圖見 [`docs/architecture.md`](docs/architecture.md)。
 

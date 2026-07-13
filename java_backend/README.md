@@ -47,6 +47,10 @@ mvn test
 Push token 使用 AES-256-GCM 加密保存。`PUSH_TOKEN_ENCRYPTION_KEYS` 格式為
 `current-id=<base64-32-byte-key>,old-id=<base64-32-byte-key>`；第一把 key 用於新寫入，後續 key 只供輪替期間解密舊 token。撤銷時立即清除 ciphertext，預設 30 天後刪除 hash/tombstone。Flyway V7 會失效 V6 既有明文 token，client 必須重新註冊。
 
+FCM delivery 預設關閉。啟用時同時設定 `PUSH_DELIVERY_ENABLED=true`、`FCM_ENABLED=true`、`FCM_PROJECT_ID`，並透過 Google Application Default Credentials 提供 Firebase service account 或 workload identity。直接在 host 執行可設定 `GOOGLE_APPLICATION_CREDENTIALS`；Docker 部署需將 credential file 以 read-only secret mount 放入容器並讓該變數指向容器內路徑，不可把 JSON credential 提交到 repository 或寫入 image。
+
+Worker 使用 FCM HTTP v1 data-only request，只送 `schemaVersion=1` 與 `type=MAILBOX_AVAILABLE`。Flyway V9 加入短交易 claim、兩分鐘 lease、lease token 與有上限的 retry；多 instance 不會同時持有同一工作，過期 worker 也無法覆寫新 worker 結果。`UNREGISTERED` / `NOT_FOUND` 只會在 token hash 仍相符時撤銷 token，避免舊 response 撤銷剛更新的新 token。
+
 完整測試矩陣、環境需求與結果判讀見 [`../docs/testing.md`](../docs/testing.md)。
 
 ## 規劃模組
@@ -61,4 +65,4 @@ src/main/java/com/p2pchat/
 
 Sprint 3 的 `S3-01`～`S3-06` 已完成。2026-07-12 已以 Docker Compose 5.1.4、PostgreSQL 18.4 與實際 backend image 驗證 container health、readiness、Flyway v1～v3、預期資料表及 OpenAPI。
 
-Sprint 7 mailbox backend 已加入 Flyway V4/V8 與 `/api/v1/mailbox`：支援 encrypted envelope 冪等上傳、recipient pull/cursor、`DELIVERED`/`READ` ACK、sender status、device/contact ACL、quota、TTL cleanup，以及以 PostgreSQL 原子 counter 實作的多 instance 共用 fixed-window rate limit。超限回 `429 MAILBOX_RATE_LIMITED` 與 `Retry-After`。PostgreSQL 已驗證 Flyway v1～v8。
+Sprint 7 mailbox backend 已加入 Flyway V4/V8 與 `/api/v1/mailbox`：支援 encrypted envelope 冪等上傳、recipient pull/cursor、`DELIVERED`/`READ` ACK、sender status、device/contact ACL、quota、TTL cleanup，以及以 PostgreSQL 原子 counter 實作的多 instance 共用 fixed-window rate limit。超限回 `429 MAILBOX_RATE_LIMITED` 與 `Retry-After`。Sprint 8 FCM HTTP v1 worker 使用 Flyway V9。PostgreSQL 已驗證 Flyway v1～v9。
