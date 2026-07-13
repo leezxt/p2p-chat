@@ -14,6 +14,16 @@ APK 產物位於 `build/app/outputs/flutter-apk/app-debug.apk`。目前已驗證
 
 本機 Android Emulator x86_64 alpha 位於 `../dist/android-alpha/p2p-messenger-android-alpha-debug.apk`。它固定連線 `10.0.2.2:18080`，需搭配 `java_backend/scripts/alpha-up.ps1`，不可用於公開發布、ARM 真機或外部網路環境。雙 AVD 已驗證邀請、聯絡人同步、encrypted mailbox fallback、DELIVERED/READ ACK、sender 已讀顯示、前景 Presence／背景停止 heartbeat，以及不含敏感資料的 notification outbox。
 
+可用同一個 PowerShell runner 驗證兩台 Emulator 或兩台以 USB 連接的 Android 裝置：
+
+```powershell
+.\tool\verify_android_v1.ps1 `
+  -SenderDevice emulator-5554 `
+  -ReceiverDevice emulator-5556
+```
+
+Runner 會啟動乾淨的 test-profile H2 backend、等待兩端註冊、建立 contact ACL，然後執行 JWT signaling、offer/answer/ICE、真實 libsodium encrypted envelope 與 WebRTC DataChannel。實體裝置會自動設定並清除 `adb reverse`；需要 Git for Windows、GNU make 與兩個 `adb devices` 狀態為 `device` 的不同序號。Log 位於 `build/v1-android-e2e/`。此流程尚未涵蓋 mailbox/ACK、斷網、kill process 或資源量測，不能單獨視為 V1 真機發布驗收完成。
+
 ## Push notification 啟動流程
 
 App 已提供 provider-neutral 的 notification launch adapter 邊界。只接受

@@ -23,8 +23,14 @@ import 'package:p2p_chat_app/shared/utils/id_generator.dart';
 import 'package:sodium/sodium.dart';
 
 const _role = String.fromEnvironment('E2E_ROLE');
-const _backendUrl = 'http://10.0.2.2:8081';
-const _signalingUrl = 'ws://10.0.2.2:8081/ws/signaling';
+const _backendUrl = String.fromEnvironment(
+  'E2E_BACKEND_URL',
+  defaultValue: 'http://10.0.2.2:8081',
+);
+const _signalingUrl = String.fromEnvironment(
+  'E2E_SIGNALING_URL',
+  defaultValue: 'ws://10.0.2.2:8081/ws/signaling',
+);
 const _userA = '11111111-1111-4111-8111-111111111111';
 const _deviceA = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const _userB = '22222222-2222-4222-8222-222222222222';
@@ -93,6 +99,11 @@ void main() {
       localDeviceId,
       publicKey: publicKey,
       publicKeyFingerprint: localKey.fingerprint,
+    );
+    await _waitUntilAsync(
+      () async => (await api.listContacts(access.token))
+          .any((contact) => contact.deviceId == remoteDeviceId),
+      const Duration(minutes: 8),
     );
     final signaling = WebSocketSignalingClient();
     final bus = EventBus();
@@ -168,6 +179,19 @@ Future<void> _waitUntil(bool Function() condition, Duration timeout) async {
       throw TimeoutException('Condition was not met');
     }
     await Future<void>.delayed(const Duration(milliseconds: 100));
+  }
+}
+
+Future<void> _waitUntilAsync(
+  Future<bool> Function() condition,
+  Duration timeout,
+) async {
+  final deadline = DateTime.now().add(timeout);
+  while (!await condition()) {
+    if (DateTime.now().isAfter(deadline)) {
+      throw TimeoutException('Async condition was not met');
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 250));
   }
 }
 
