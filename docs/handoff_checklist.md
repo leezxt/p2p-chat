@@ -12,7 +12,31 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-13 23:51 +08:00）
+## 目前交接（2026-07-14 01:17 +08:00）
+
+目前目標：建立可重複執行、同時支援 Android Emulator 與 USB 真機的 V1 雙裝置 encrypted P2P 驗收入口；本輪先以兩台 AVD 驗證，不以模擬器取代真機發布門檻。
+
+- [x] **已完成**：確認既有雙裝置 test、registration/invite/contact ACL、signaling 與 backend 啟動資料流
+- [x] **已完成**：將 E2E backend/signaling URL 改為可由 `--dart-define` 注入，保留 Emulator 預設值
+- [x] **已完成**：兩個 App process 在 contact ACL 建立後才連線，不再依賴外部殘留測試資料
+- [x] **已完成**：新增 `tool/verify_android_v1.ps1`，自動啟動乾淨 H2 backend、註冊協調、建立 contact、執行兩裝置測試、收集 log 與清理 backend
+- [x] **已完成**：PowerShell parser、Dart format 與 `flutter analyze` 通過
+- [x] **已完成**：新 runner 在 `emulator-5554` / `emulator-5556` 通過 encrypted WebRTC/DataChannel E2E
+- [ ] **已實作未驗證**：USB 真機 `adb reverse` 路徑與兩台 Android 真機完整流程
+- [x] **已完成**：更新 testing、mobile README 與 V1-01 任務狀態
+- [x] **已完成**：runner backend 與兩台 AVD 均乾淨停止
+- [x] **已完成**：backend loopback-only bind 與 port-in-use fail-fast 防護，雙 AVD 回歸通過
+- [ ] **未完成**：提交與 GitHub 合併
+
+驗證：PowerShell parser、Dart format、`flutter analyze` 與 `two_device_p2p_test.dart` 通過。`verify_android_v1.ps1 -SenderDevice emulator-5554 -ReceiverDevice emulator-5556` 首次完整執行 186.8 秒通過；加入 loopback/port 防護後以 build cache 重跑 96.1 秒再次通過。backend 使用 H2、Flyway V1～V9，兩端完成 registration、invite/contact ACL、JWT WebSocket signaling、offer/answer/ICE、真實 libsodium encrypted envelope 與 DataChannel。
+
+Runtime：第二次 runner 建立的 backend 已自動停止，port 8081 已釋放。AVD `emulator-5554`、`emulator-5556` 已在本文件停止前更新後正常關閉；`adb devices` 無殘留裝置。
+
+限制：目前 runner 驗證 registration、雙向 contact ACL、JWT WebSocket signaling、offer/answer/ICE、真實 libsodium encrypted envelope 與 DataChannel；mailbox fallback、DELIVERED/READ UI 與斷網/kill process 仍需後續擴充及真機驗收，因此 V1-01/V1-04 尚不可勾選完成。
+
+續接順序：同步本輪 GitHub 變更；下一輪擴充 mailbox/DELIVERED/READ 與 kill-process/斷網腳本，再以兩台 Android 真機執行完整 V1-01/V1-04 驗收。
+
+## 上次交接（2026-07-13 23:51 +08:00）
 
 目前目標：完成 S8-02 FCM outbox worker 的 provider-neutral 核心與 FCM HTTP v1 adapter；真實 Firebase credentials 與 Android/iPhone 實機通知留待外部驗收。
 

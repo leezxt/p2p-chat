@@ -83,6 +83,17 @@ cd mobile_desktop_app
 flutter test integration_test/android_crypto_runtime_test.dart -d <android-device-id>
 ```
 
+Android 雙裝置 encrypted P2P（PowerShell）：
+
+```powershell
+cd mobile_desktop_app
+.\tool\verify_android_v1.ps1 `
+  -SenderDevice <android-device-id-a> `
+  -ReceiverDevice <android-device-id-b>
+```
+
+Runner 會使用乾淨 H2 backend 與 Flyway migration，自動建立雙向 contact ACL；Emulator 使用 `10.0.2.2`，USB 真機使用暫時的 `adb reverse`。2026-07-14 已在 `emulator-5554` / `emulator-5556` 通過。真機、mailbox/ACK、斷網與 kill-process 仍須另外驗收。
+
 iOS 驗證：
 
 ```bash
@@ -91,7 +102,7 @@ bash tool/verify_ios.sh
 IOS_DEVICE_ID=<iphone-device-id> bash tool/verify_ios.sh
 ```
 
-兩裝置 E2E 需要 backend、兩個獨立 App process 與各自 device ID。執行前先確認測試資料庫、連接埠與 emulator/實機沒有沿用上一次執行的狀態；詳細現況與待驗項目見 [`handoff_checklist.md`](handoff_checklist.md)。
+兩裝置 E2E 需要兩個獨立 App process 與各自 device ID；runner 會建立本次專用的 backend 狀態並於結束時清理。執行前仍須確認 port 8081 未被其他程式使用，且 emulator/實機沒有其他測試佔用；詳細現況與待驗項目見 [`handoff_checklist.md`](handoff_checklist.md)。
 
 ## 結果判讀
 
