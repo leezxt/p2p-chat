@@ -4,6 +4,10 @@ if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
     throw 'Docker CLI is required for the container smoke test.'
 }
 
+if (-not $env:PUSH_TOKEN_ENCRYPTION_KEYS) {
+    $env:PUSH_TOKEN_ENCRYPTION_KEYS = 'smoke-v1=' + [Convert]::ToBase64String([byte[]](0..31))
+}
+
 docker compose up --build -d
 try {
     $deadline = (Get-Date).AddMinutes(3)

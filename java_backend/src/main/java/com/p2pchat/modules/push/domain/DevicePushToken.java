@@ -14,7 +14,7 @@ public class DevicePushToken {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "device_id", nullable = false) private Device device;
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 16) private PushProvider provider;
-    @Column(nullable = false, columnDefinition = "TEXT") private String token;
+    @Column(name = "token_ciphertext", columnDefinition = "TEXT") private String tokenCiphertext;
     @Column(name = "token_hash", nullable = false, length = 64) private String tokenHash;
     @Column(name = "created_at", nullable = false) private Instant createdAt;
     @Column(name = "updated_at", nullable = false) private Instant updatedAt;
@@ -22,8 +22,9 @@ public class DevicePushToken {
 
     protected DevicePushToken() {}
 
-    public DevicePushToken(UUID id, Device device, PushProvider provider, String token, String tokenHash, Instant now) {
-        this.id = id; this.device = device; this.provider = provider; this.token = token;
+    public DevicePushToken(UUID id, Device device, PushProvider provider,
+            String tokenCiphertext, String tokenHash, Instant now) {
+        this.id = id; this.device = device; this.provider = provider; this.tokenCiphertext = tokenCiphertext;
         this.tokenHash = tokenHash; this.createdAt = now; this.updatedAt = now;
     }
 
@@ -33,9 +34,17 @@ public class DevicePushToken {
     public String getTokenHash() { return tokenHash; }
     public boolean isRevoked() { return revokedAt != null; }
 
-    public void updateToken(String token, String tokenHash, Instant now) {
-        this.token = token; this.tokenHash = tokenHash; this.revokedAt = null; this.updatedAt = now;
+    public void updateToken(String tokenCiphertext, String tokenHash, Instant now) {
+        this.tokenCiphertext = tokenCiphertext; this.tokenHash = tokenHash;
+        this.revokedAt = null; this.updatedAt = now;
     }
 
-    public void revoke(Instant now) { this.revokedAt = now; this.updatedAt = now; }
+    String decrypt(PushTokenCipher cipher) {
+        if (tokenCiphertext == null || revokedAt != null) throw new IllegalStateException("PUSH_TOKEN_REVOKED");
+        return cipher.decrypt(device.getId(), provider, tokenCiphertext);
+    }
+
+    public void revoke(Instant now) {
+        this.tokenCiphertext = null; this.revokedAt = now; this.updatedAt = now;
+    }
 }

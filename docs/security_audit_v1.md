@@ -27,6 +27,7 @@ Production 預設改為 fail-closed：未指定 profile 時使用 `prod`、要�
 | Private key / token 儲存邊界 | 私鑰走 secure storage；SQLite schema 無私鑰/access token |
 | 敏感日誌 | Logger sanitizer 與 crypto `toString()` tests 通過；Java main code 無直接 request/body logger |
 | Push payload | Outbox 只含 `schemaVersion` 與 `MAILBOX_AVAILABLE` |
+| Push token at rest | AES-256-GCM、device/provider AAD、版本化 key ID；撤銷立即清 ciphertext，30 天後刪 tombstone |
 | Production surface | local registration 與 API docs 在 `prod` profile 均為 404 |
 | WebSocket origin policy | 精確 allowlist；未設定時 empty/same-origin，production 禁止 `*`，未列入來源握手回 403 |
 | Transport policy | Android release cleartext=false；iOS 使用預設 ATS 限制 |
@@ -35,7 +36,7 @@ Production 預設改為 fail-closed：未指定 profile 時使用 `prod`、要�
 
 ```text
 java_backend: mvn -q test
-29 tests, 0 failures, 0 errors
+36 tests, 0 failures, 0 errors
 
 mobile_desktop_app: flutter analyze
 No issues found
@@ -52,7 +53,6 @@ Built build/app/outputs/flutter-apk/app-debug.apk
 ## 殘餘風險
 
 - Mailbox rate limiter 是單一 Spring instance 記憶體狀態；多實例部署前需改為共享 limiter。
-- Push provider token 必須可供 worker 投遞，目前 backend 保存 token 與 hash；正式上線前需完成資料庫加密、最小權限與 retention policy。
 - V1 `P2P_BOX_V1` 使用長期裝置金鑰，不具 Double Ratchet 等級的 forward secrecy 或 post-compromise security。
 - 真實 FCM/APNs、兩台真機、iOS runtime、斷網/kill process 與資源耗電量測屬 V1-01、V1-03、V1-04 尚未完成的外部驗收。
 - `flutter_webrtc` 仍套用 Kotlin Gradle Plugin；目前 build 通過，但 Flutter 已警告未來版本將要求 plugin 遷移至 Built-in Kotlin。
@@ -61,4 +61,3 @@ Built build/app/outputs/flutter-apk/app-debug.apk
 
 1. 完成真實 FCM/APNs credentials、通知權限與 cold/warm start 驗收。
 2. 以 Android/iPhone 真機重跑 secure storage、P2P、mailbox、ACK、斷網與 kill process。
-3. 在 V1 release candidate 前完成 push token at-rest policy。

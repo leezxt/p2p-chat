@@ -107,7 +107,7 @@
 
 | ID | 任務 | 依賴 | 驗收條件 |
 |---|---|---|---|
-| S8-01 | 🚧 註冊、更新與撤銷 FCM token | S4-03 | provider-neutral API/Flutter service、JWT ownership、更新/撤銷與 tests 完成；Firebase SDK 真實 token 待 credentials |
+| S8-01 | 🚧 註冊、更新與撤銷 FCM token | S4-03 | API/Flutter service、JWT ownership、AES-GCM at-rest、key rotation、撤銷清除與 retention 完成；Firebase SDK 真實 token 待 credentials |
 | S8-02 | 🚧 mailbox 新訊息觸發不含明文的推播 | S7-02,S8-01 | Flyway V6 與冪等 outbox 完成，payload 只有 `schemaVersion/type`；FCM worker 發送待 credentials |
 | S8-03 | 🚧 推播開啟聊天室並同步 mailbox | S7-05,S8-02 | provider-neutral payload parser、cold/warm launch source、冪等 coordinator 與 mailbox refresh 已完成並通過單元測試；真實 FCM 導向待 credentials |
 | S8-04 | ✅ 實作低頻 Presence 與 lastSeen 顯示 | S4-03 | JWT/device ownership、contact ACL、Flyway V5；前景約 60 秒更新、背景停止，雙 AVD timestamp/UI 驗收通過 |
@@ -118,7 +118,7 @@
 | ID | 任務 | 依賴 | 驗收條件 |
 |---|---|---|---|
 | V1-01 | 建立兩台真機的完整 E2E 測試腳本 | S8-05 | 加好友、在線 P2P、離線 mailbox、已送達/已讀全流程可重現 |
-| V1-02 | ✅ 安全與隱私稽核 | S6-06,S7-06,S8-05 | 私鑰/明文不上傳、不進 log；修復 Mailbox ACK ordering、Signaling contact/origin policy 與 mailbox signed cursor；Java 29 tests、Flutter 82 tests、analyze 通過，殘餘風險見 `security_audit_v1.md` |
+| V1-02 | ✅ 安全與隱私稽核 | S6-06,S7-06,S8-05 | 私鑰/明文不上傳、不進 log；修復 ACK/origin/cursor 並完成 push token at-rest；Java 36 tests、Flutter 82 tests、analyze 通過，殘餘風險見 `security_audit_v1.md` |
 | V1-03 | 資源目標量測 | V1-01 | 冷啟動、閒置記憶體、背景連線、網路與電量結果寫入 docs |
 | V1-04 | 🚧 故障恢復與資料完整性測試 | V1-01 | SQLite 關閉／重開、ACK 遺失重投與 v1～v5 升級至 v6 的資料完整性測試已通過；真機殺程序與實際斷網待驗 |
 | V1-05 | 發布候選版文件與已知限制 | V1-02..04 | README、架構、安全、成本、操作說明與已知限制同步更新 |
