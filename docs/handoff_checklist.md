@@ -12,29 +12,30 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-13 23:05 +08:00）
+## 目前交接（2026-07-13 23:44 +08:00）
 
-目前目標：多 instance 共用 mailbox rate limiter 已由 PR #14 合併至 `main`（merge commit `40c94ea`）；下一步處理真實 FCM/APNs 或 V1 真機驗收。
+目前目標：完成 S8-02 FCM outbox worker 的 provider-neutral 核心與 FCM HTTP v1 adapter；真實 Firebase credentials 與 Android/iPhone 實機通知留待外部驗收。
 
-- [x] **已完成**：確認 mailbox upload、pull、ACK、sender status 呼叫點與既有 429 錯誤契約
-- [x] **已完成**：新增 Flyway V8 `mailbox_rate_limit_windows` 與 cleanup index
-- [x] **已完成**：以 PostgreSQL 原子 insert/update counter 取代單 JVM `ConcurrentHashMap`
-- [x] **已完成**：counter 使用獨立 transaction，多 backend instance 與失敗請求共用並保留配額
-- [x] **已完成**：超限維持 `MAILBOX_RATE_LIMITED`，並回傳下一分鐘邊界的 `Retry-After`
-- [x] **已完成**：加入多 instance、80-way 並行、operation/device 隔離、window reset、cleanup 與 MVC header 測試
-- [x] **已完成**：Java 41 tests、PostgreSQL rate-limit tests、Flyway V1～V8、backend image/readiness 驗證
-- [x] **已完成**：更新 mailbox API、backend README、安全稽核、任務與交接文件
-- [x] **已完成**：功能 commit `e039a64` 經 PR #14 合併至 `main`，merge commit `40c94ea`
+- [x] **已完成**：新增 Flyway V9 `PROCESSING`、dispatch time、lease、lease token、error code 與 dispatch index
+- [x] **已完成**：多 instance 短交易 claim、過期 lease recovery 與 stale worker completion 防護
+- [x] **已完成**：最多 8 次、5 秒起始、15 分鐘上限退避，以及成功/無 token/暫時/永久/tamper/max-attempt 分類
+- [x] **已完成**：以 FCM HTTP v1、Java `HttpClient` 與 Google ADC 取代較大的 Firebase Admin SDK
+- [x] **已完成**：`UNREGISTERED` / `NOT_FOUND` 自動撤銷 token、清 ciphertext，並以 token ID/hash 防止舊 response 撤銷新 token
+- [x] **已完成**：payload 僅含 `schemaVersion=1`、`type=MAILBOX_AVAILABLE`，HTTP 測試確認不含 notification/sender/conversation/ciphertext/plaintext
+- [x] **已完成**：Java 51 tests、PostgreSQL 18.4 worker 8 tests 與 Flyway V1～V9 schema/constraint/index 驗證
+- [x] **已完成**：輕量 backend image 建置成功，大小 140,960,449 bytes；新容器 readiness `UP`
+- [ ] **已實作未驗證**：真實 FCM credentials、Android 系統通知、cold/warm start、token invalidation 與耗電
+- [ ] **未完成**：本 branch 提交、GitHub PR、合併與 main handoff 更新
 
-本輪變更：`MailboxRateLimitStore` 以 `(device_id, operation, window_start)` 唯一鍵保存 fixed-window counter。新視窗使用 `INSERT ... ON CONFLICT DO NOTHING`，既有視窗以 row-level atomic `UPDATE request_count = request_count + 1` 遞增；`REQUIRES_NEW` 確保後續 ACL 或 payload 失敗不會回滾濫用計數。排程保留當前與前一分鐘，只刪除更舊視窗。
+本輪另修正 PostgreSQL worker test 的可重複性：stale-token 案例原本固定使用 `replacement-token`，持久化測試 DB 第二次執行會命中跨使用者唯一約束；現在每個 fixture 使用唯一 replacement token，並直接揭露 callback setup 例外。
 
-驗證：`mvn -q test` 共 41 tests、0 failures、0 errors；同一組 8 個 rate-limit tests 直接連 PostgreSQL 18.4 通過，包含兩個 limiter instance 共用 DB budget 與 80 個並行請求只有 60 個成功。Docker backend image build 成功、readiness `UP`、Flyway V1～V8 全部 `success=true`，V8 五欄均為 NOT NULL 且 cleanup index 存在。Flutter 程式未變，沿用非 Windows-native 82 tests、`flutter analyze` 與 Android debug APK build 成功基線。
+驗證：`mvn -q test` 共 51 tests、0 failures、0 errors；`NotificationOutboxWorkerTest` 直接連 PostgreSQL 18.4 共 8 tests 全通過。Flyway V1～V9 全部 `success=true`；V9 13 欄、`PENDING/PROCESSING/SENT/FAILED` constraint、attempt constraint 與 `idx_notification_outbox_dispatch` 均存在。新 Docker image 大小 140,960,449 bytes，backend 重建後 readiness `UP`；本段寫入後將停止隔離 Compose project。
 
-Runtime：隔離 Compose project `p2p_rate_limit_verify` 已在本文件停止前更新後乾淨關閉；backend/PostgreSQL containers、network 與本次測試 volume 均已移除，ports 55434/18082 已釋放。本輪未啟動 AVD。
+Runtime：隔離 Compose project `p2p_fcm_worker_verify` 已在本文件停止前更新後乾淨關閉；backend/PostgreSQL containers、network 與測試 volume 均已移除，ports 55435/18083 已釋放。本輪未啟動 AVD。
 
-限制：Windows native sodium test 仍缺 Visual C++ workload；iOS/Android 真機、真實 FCM/APNs、斷網/kill process、資源量測仍未完成；`flutter_webrtc` 尚待上游遷移 Built-in Kotlin，以免未來 Flutter 版本停止建置。
+限制：`FCM_ENABLED=false`、`PUSH_DELIVERY_ENABLED=false` 預設關閉；啟用需 `FCM_PROJECT_ID` 與 Google ADC。Windows native sodium test 仍缺 Visual C++ workload；iOS/Android 真機、真實 FCM/APNs、斷網/kill process、資源量測仍未完成。
 
-續接順序：取得 Firebase credentials 後完成 S8 push；否則先執行 V1-01 雙真機 E2E、V1-04 斷網/kill process、V1-03 資源量測，最後整理 V1-05 release candidate。
+續接順序：本輪先完成 Docker readiness、乾淨停止 runtime 與 GitHub 合併；取得 Firebase credentials 後驗收 S8-01～S8-03/S8-05，否則進行 V1-01 雙真機 E2E、V1-04 斷網/kill process、V1-03 資源量測。
 
 ## 已完成基線
 
