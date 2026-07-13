@@ -71,6 +71,14 @@ class MailboxApiIntegrationTest {
         assertThat(pulled.statusCode()).isEqualTo(200);
         assertThat(pulled.body()).contains(mailboxId, ciphertext).doesNotContain("plaintext");
 
+        String invalidAck = "{\"schemaVersion\":1,\"mailboxMessageId\":\"" + mailboxId +
+                "\",\"messageId\":\"wrong-message-id\",\"acknowledgingDeviceId\":\"" + b.getId() +
+                "\",\"status\":\"DELIVERED\",\"occurredAt\":100}";
+        assertThat(send(client, "PUT", "/api/v1/mailbox/messages/" + mailboxId + "/ack", bobToken, invalidAck).statusCode())
+                .isEqualTo(400);
+        var afterInvalidAck = send(client, "GET", "/api/v1/mailbox/messages?deviceId=" + b.getId(), bobToken, null);
+        assertThat(afterInvalidAck.body()).contains(mailboxId, ciphertext);
+
         String ack = "{\"schemaVersion\":1,\"mailboxMessageId\":\"" + mailboxId +
                 "\",\"messageId\":\"message-" + suffix + "\",\"acknowledgingDeviceId\":\"" + b.getId() +
                 "\",\"status\":\"DELIVERED\",\"occurredAt\":100}";

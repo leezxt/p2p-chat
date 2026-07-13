@@ -16,7 +16,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=local
 
 執行前將 `.env.example` 複製為 `.env` 並替換本機密碼；請勿提交 `.env`。資料庫使用 PostgreSQL 18.4，Spring 啟動時由 Flyway 自動執行 migration。
 
-預設 profile 為 `local`，服務位於 `http://localhost:8080`。健康檢查：
+未指定 profile 時預設使用 fail-closed 的 `prod`，並要求 `DB_URL`、`DB_USERNAME`、`DB_PASSWORD` 與 `JWT_SECRET`。本機開發必須明確使用上方的 `local` profile；服務位於 `http://localhost:8080`。健康檢查：
 
 ```powershell
 Invoke-RestMethod http://localhost:8080/actuator/health
@@ -24,7 +24,7 @@ Invoke-RestMethod http://localhost:8080/actuator/health
 
 健康端點只公開整體狀態，不公開元件細節。測試使用獨立的 `test` profile：
 
-OpenAPI JSON 位於 `http://localhost:8080/v3/api-docs`，Swagger UI 位於 `http://localhost:8080/swagger-ui.html`。
+`local` profile 的 OpenAPI JSON 位於 `http://localhost:8080/v3/api-docs`，Swagger UI 位於 `http://localhost:8080/swagger-ui.html`；`prod` profile 會停用兩者。
 
 ```powershell
 mvn test

@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import com.p2pchat.core.security.TokenService;
+import com.p2pchat.modules.contacts.data.ContactRepository;
+import com.p2pchat.modules.contacts.domain.Contact;
 import com.p2pchat.modules.devices.data.DeviceRepository;
 import com.p2pchat.modules.devices.domain.Device;
 import com.p2pchat.modules.users.data.UserRepository;
@@ -24,6 +26,7 @@ class SignalingWebSocketIntegrationTest {
     @Value("${local.server.port}") int port;
     @Autowired UserRepository users;
     @Autowired DeviceRepository devices;
+    @Autowired ContactRepository contacts;
     @Autowired TokenService tokens;
 
     @Test
@@ -33,6 +36,7 @@ class SignalingWebSocketIntegrationTest {
         User b = users.save(new User(UUID.randomUUID(), null, "B", now));
         Device da = devices.save(new Device(UUID.randomUUID(), a, "A phone", "pk-a", "fp-" + UUID.randomUUID(), now));
         Device db = devices.save(new Device(UUID.randomUUID(), b, "B phone", "pk-b", "fp-" + UUID.randomUUID(), now));
+        contacts.save(new Contact(UUID.randomUUID(), a, b, null, now));
         QueueListener la = new QueueListener(); QueueListener lb = new QueueListener();
         WebSocket wa = connect(la); WebSocket wb = connect(lb);
         try {
@@ -48,6 +52,33 @@ class SignalingWebSocketIntegrationTest {
         } finally {
             wa.sendClose(WebSocket.NORMAL_CLOSURE, "done").join();
             wb.sendClose(WebSocket.NORMAL_CLOSURE, "done").join();
+        }
+    }
+
+    @Test
+    void signalingRejectsRelayToNonContactWithoutDisclosingAvailability() throws Exception {
+        Instant now = Instant.now();
+        User sender = users.save(new User(UUID.randomUUID(), null, "Sender", now));
+        User target = users.save(new User(UUID.randomUUID(), null, "Target", now));
+        Device senderDevice = devices.save(new Device(UUID.randomUUID(), sender, "Sender phone", "pk-s",
+                "fp-" + UUID.randomUUID(), now));
+        Device targetDevice = devices.save(new Device(UUID.randomUUID(), target, "Target phone", "pk-t",
+                "fp-" + UUID.randomUUID(), now));
+        QueueListener senderListener = new QueueListener(); QueueListener targetListener = new QueueListener();
+        WebSocket senderSocket = connect(senderListener); WebSocket targetSocket = connect(targetListener);
+        try {
+            senderSocket.sendText(auth(senderDevice.getId(), tokens.issue(sender.getId()).token()), true).join();
+            targetSocket.sendText(auth(targetDevice.getId(), tokens.issue(target.getId()).token()), true).join();
+            assertThat(senderListener.next()).contains("AUTHENTICATED");
+            assertThat(targetListener.next()).contains("AUTHENTICATED");
+            senderSocket.sendText("{\"schemaVersion\":1,\"type\":\"OFFER\",\"sessionId\":\"blocked\""
+                    + ",\"targetDeviceId\":\"" + targetDevice.getId() + "\",\"payload\":{\"sdp\":\"offer\"}}",
+                    true).join();
+            assertThat(senderListener.next()).contains("TARGET_UNAVAILABLE");
+            assertThat(targetListener.messages.poll(200, TimeUnit.MILLISECONDS)).isNull();
+        } finally {
+            senderSocket.sendClose(WebSocket.NORMAL_CLOSURE, "done").join();
+            targetSocket.sendClose(WebSocket.NORMAL_CLOSURE, "done").join();
         }
     }
 
