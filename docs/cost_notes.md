@@ -27,6 +27,16 @@
 - 圖片 / 大檔案不自動下載 → 降低頻寬。
 - TURN 只在 P2P 直連失敗時 fallback → 控制最貴的頻寬成本。
 
-## 目前 Sprint 0–2
+## 目前 V1 實作
 
-無任何伺服器成本（純本機）。
+- App 本機聊天與 P2P 路徑本身不產生中央訊息流量成本。
+- 已實作的 Spring Boot signaling/mailbox/presence/push backend 需要 Java runtime 與
+  PostgreSQL；目前 Docker Compose 是開發/驗收環境，不代表免費 production hosting。
+- FCM HTTP v1 adapter 使用免費 FCM，但正式啟用仍需 Firebase project、Google ADC；
+  iOS 通知另需 APNs 設定與 Apple Developer Program 資格。
+- Cloudflare Worker/D1/KV 仍是後續低成本替代方案，尚未取代目前 Spring Boot backend。
+- TURN 尚未實作，因此 V1 沒有 TURN 頻寬費；受限 NAT 下改走有 TTL/quota 的密文
+  mailbox。若後續加入 TURN，必須另設流量上限與成本警示。
+
+正式發布前需依預估活躍裝置數、mailbox 留存量、request rate、log/monitoring 與備份
+需求建立月成本上限；候選版 Gate 見 [`release_candidate_v1.md`](release_candidate_v1.md)。

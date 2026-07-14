@@ -2,6 +2,10 @@
 
 完整 UML 視圖請見 [`uml.md`](uml.md)，包含部署、元件、訊息循序、模組生命週期與訊息狀態圖。
 
+目前只推進 v1.2 藍圖的 V1。Android 雙 AVD 已通過加密 P2P、offline mailbox、
+ACK/restart 與資源開發基線；雙 Android 真機、真實 Push、iOS 實機與正式簽章仍是
+發布 Gate。建置、操作與逐項限制見 [`release_candidate_v1.md`](release_candidate_v1.md)。
+
 ## 裝置角色
 
 ```text
