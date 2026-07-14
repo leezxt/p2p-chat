@@ -66,10 +66,21 @@ docker compose --env-file .\production.env -f .\compose.production.yml config --
 ```
 
 Preflight 拒絕 placeholder、短密碼、無效 base64 key、HTTP/wildcard WebSocket origin、
-未 pin registry digest 的 image、公開 backend/PostgreSQL port、非 internal data network 與
-非 `prod` profile。本機 `-AllowLocalVerification` 僅供隔離測試，不是 production 通過。
+未 pin registry digest 的 image、公開 backend/PostgreSQL port、非 internal data network、
+非 `prod` profile 與無效 log rotation。本機 `-AllowLocalVerification` 僅供隔離測試，不是
+production 通過。
 WSS probe 回 `101` 只代表 TLS proxy 成功升級 transport；signaling client 仍必須在第一個
 frame 送 `AUTH`，backend 才以 JWT subject 與 device ownership 建立已認證 session。
+
+Production topology 啟動後的 one-shot monitor：
+
+```powershell
+.\scripts\monitor-production.ps1 -EnvFile .\production.env
+```
+
+`PASS`/exit 0 表示 HTTP 轉 HTTPS、readiness `UP`、HSTS/`nosniff`/無 `Server` header 與
+WSS 101 均通過；`FAIL`/非零 exit code 可直接供排程器或外部監控觸發告警。正式驗收
+必須從 deployment host 外部執行，且不得使用 `-AllowLocalVerification`。
 
 PostgreSQL backup/restore drill：
 

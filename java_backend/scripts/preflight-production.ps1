@@ -65,6 +65,8 @@ $postgresPassword = Require-Value -Values $values -Name 'POSTGRES_PASSWORD'
 $jwtSecret = Require-Value -Values $values -Name 'JWT_SECRET'
 $pushKeys = Require-Value -Values $values -Name 'PUSH_TOKEN_ENCRYPTION_KEYS'
 $allowedOrigins = Require-Value -Values $values -Name 'WEBSOCKET_ALLOWED_ORIGINS'
+$logMaxSize = if ([string]::IsNullOrWhiteSpace([string]$values['LOG_MAX_SIZE'])) { '10m' } else { [string]$values['LOG_MAX_SIZE'] }
+$logMaxFilesText = if ([string]::IsNullOrWhiteSpace([string]$values['LOG_MAX_FILES'])) { '5' } else { [string]$values['LOG_MAX_FILES'] }
 
 if ($AllowLocalVerification) {
     if ($publicHost -ne 'localhost') { throw 'Local verification requires PUBLIC_HOST=localhost.' }
@@ -80,6 +82,11 @@ if ($expectedHttpPort -lt 1 -or $expectedHttpPort -gt 65535) { throw 'HTTP_PORT 
 if ($expectedHttpsPort -lt 1 -or $expectedHttpsPort -gt 65535) { throw 'HTTPS_PORT is invalid.' }
 if ($expectedHttpPort -eq $expectedHttpsPort) { throw 'HTTP_PORT and HTTPS_PORT must differ.' }
 if ($acmeEmail -notmatch '^[^\s@]+@[^\s@]+\.[^\s@]+$') { throw 'ACME_EMAIL is invalid.' }
+if ($logMaxSize -notmatch '^[1-9][0-9]{0,3}[kKmMgG]$') { throw 'LOG_MAX_SIZE must be 1-9999 followed by k, m, or g.' }
+$logMaxFiles = 0
+if (-not [int]::TryParse($logMaxFilesText, [ref]$logMaxFiles) -or $logMaxFiles -lt 2 -or $logMaxFiles -gt 20) {
+    throw 'LOG_MAX_FILES must be an integer from 2 through 20.'
+}
 
 $digestPattern = '@sha256:[0-9a-f]{64}$'
 if (-not $AllowLocalVerification) {
@@ -123,6 +130,11 @@ $config = $configJson | ConvertFrom-Json -Depth 40
 
 foreach ($serviceName in @('proxy', 'backend', 'postgres')) {
     if ($null -eq $config.services.$serviceName) { throw "Missing production service: $serviceName" }
+    $logging = $config.services.$serviceName.logging
+    if ($logging.driver -ne 'json-file' -or $logging.options.'max-size' -cne $logMaxSize.ToLowerInvariant() -or
+        [string]$logging.options.'max-file' -cne [string]$logMaxFiles) {
+        throw "Production service $serviceName must use the configured bounded json-file logging policy."
+    }
 }
 $backendPublishedPorts = @(
     $config.services.backend.ports |
@@ -158,5 +170,7 @@ if ($publishedPorts -notcontains $expectedHttpPort -or $publishedPorts -notconta
     websocketOrigins = $origins
     httpPort = $expectedHttpPort
     httpsPort = $expectedHttpsPort
+    logMaxSize = $logMaxSize.ToLowerInvariant()
+    logMaxFiles = $logMaxFiles
     localVerification = [bool]$AllowLocalVerification
 } | ConvertTo-Json -Depth 5
