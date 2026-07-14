@@ -12,7 +12,37 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-14 01:27 +08:00）
+## 目前交接（2026-07-14 19:18 +08:00）
+
+目前目標：以兩台 Android AVD 驗證真實 offline mailbox、DELIVERED/READ 狀態與 App process force-stop 後的 SQLite/ACK 復原；模擬器結果不取代兩台真機的斷網、OS kill 與資源驗收。
+
+- [x] **已完成**：確認 production `MailboxSyncService`、`HttpMailboxUploader`、`SqliteReplayProtection`、receipt 與 sender status 資料流及既有測試缺口
+- [x] **已完成**：新增五階段 `android_mailbox_restart_e2e_test.dart`，涵蓋 registration、密文 upload、ACK 遺失、跨 process restart、DELIVERED/READ 與 sender 本機狀態
+- [x] **已完成**：新增 `verify_android_mailbox_recovery.ps1`，協調 H2 backend、雙裝置、contact ACL、`am force-stop`、ADB server recovery、重啟驗證與 runtime 清理
+- [x] **已完成**：`flutter analyze` 零問題；既有 mailbox restart/sync 3 tests 全通過；PowerShell parser 通過
+- [x] **已完成**：雙 AVD runner 192.7 秒通過；真實 sodium mailbox、SQLite message/replay/receipt、ACK 遺失、force-stop、重投冪等、DELIVERED/READ 與 sender READ 狀態形成閉環
+- [x] **已完成**：修正 test-profile H2 無法執行 PostgreSQL `ON CONFLICT` 的 rate-limit store；PostgreSQL 原子路徑不變，H2 fallback 通過 rate-limit concurrency 與 mailbox API tests
+- [ ] **未完成**：兩台 Android 真機的實際斷網、OS kill、USB `adb reverse` 與耗電/記憶體驗收
+- [x] **已完成**：功能 commit `e6550b0` 經 PR #20 合併至 `main`，merge commit `efaee49`；UML 與交接文件以獨立 docs commit 同步，不混入功能 commit
+
+驗證：`flutter analyze` 零問題；mailbox restart/sync 3 tests 通過；完整 Java suite 51 tests、0 failures/errors/skipped；PowerShell parser 與 `git diff --check` 通過。雙 AVD runner 最終 192.7 秒通過；前兩次失敗分別揭露 H2 `ON CONFLICT` 與 abrupt kill 後 ADB child cleanup，第三個測試缺口是正常結束的 Flutter phase 會清 App data，均已修正並由最終並行 sender 流程驗證。
+
+Runtime：runner backend 已停止，port 8081 已釋放；`emulator-5554`、`emulator-5556` 已在本段先行記錄後乾淨關閉，`adb devices` 無殘留裝置。續接命令：`powershell -ExecutionPolicy Bypass -File mobile_desktop_app/tool/verify_android_mailbox_recovery.ps1 -SenderDevice emulator-5554 -ReceiverDevice emulator-5556`。
+
+下一步：接上兩台 USB Android 真機執行 encrypted P2P 與 mailbox recovery 兩個 runner，再補實際斷網、OS kill、耗電與記憶體量測；完成後才可勾選 V1-01/V1-03/V1-04，最後整理 V1-05 release candidate 文件。
+
+## 上次交接（2026-07-14 01:34 +08:00）
+
+目前目標：將《P2P Modular Messenger Codex 開發總規格 v1.2》整理為可維護的 UML 文件。
+
+- [x] **已完成**：解析裝置角色、Core/Modules、P2P 與 Offline Mailbox 資料流、模組生命週期及訊息狀態
+- [x] **已完成**：新增 `docs/uml.md`，包含部署圖、元件圖、訊息循序圖、模組生命週期與訊息狀態圖
+- [x] **已完成**：在 `docs/architecture.md` 加入 UML 文件入口
+- [x] **已完成**：Mermaid CLI 實際渲染 5 張圖，全部成功；`git diff --check` 通過
+
+本輪只變更文件，未修改 App、backend、資料庫或 runtime。未啟動或停止 Docker、AVD、backend 或其他長時間程序。下一步可直接依 `docs/uml.md` 維護架構，或在文件發布流程中將 Mermaid 匯出為 SVG / PNG。
+
+## 上次交接（2026-07-14 01:27 +08:00）
 
 目前目標：建立可重複執行、同時支援 Android Emulator 與 USB 真機的 V1 雙裝置 encrypted P2P 驗收入口；本輪先以兩台 AVD 驗證，不以模擬器取代真機發布門檻。
 
