@@ -12,7 +12,27 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-15 07:19 +08:00）
+## 目前交接（2026-07-15 07:34 +08:00）
+
+目前目標：依使用者指示把多語言介面納入 v1.2 藍圖的 V1 必要實作範圍；本輪只更新
+任務與交接，不開始修改 Flutter 程式。
+
+- [x] **已完成**：確認目前 `MaterialApp` 沒有 localization delegates、supported locales、locale resolution 或語言切換
+- [x] **已完成**：確認 repository 沒有 ARB、`l10n.yaml` 或 `AppLocalizations`；聊天 UI 文字目前直接寫死為繁體中文
+- [x] **已完成**：新增 V1-06 多語言介面工作，首批語言為繁體中文與英文，後續語言沿用 ARB 擴充
+- [x] **已完成**：V1-06 驗收包含系統語言偵測、App 內切換與跨重啟保存、完整 UI/date/status/error/accessibility localization、fallback、widget tests 與 analyze
+- [x] **已完成**：將 V1-06 加入 V1-05 release candidate 依賴與發布 Gate
+- [ ] **未完成**：建立 Flutter gen-l10n/ARB 基礎、繁中/英文資源與 `MaterialApp` localization 設定
+- [ ] **未完成**：移除主要畫面硬編碼文字，加入語言選擇與保存機制，補齊兩種語言及 fallback tests
+- [ ] **未完成**：兩台 Android 真機 V1-01/03/04、真實 FCM/APNs、iPhone runtime、正式簽章、公開 production 與最終 release artifacts
+
+Runtime：本輪只讀取與更新文件，沒有啟動 Docker、ADB、AVD、App、backend 或測試程序。
+
+下一步：從 `main` 建立多語言功能分支；先設定 `flutter_localizations`、gen-l10n、
+`l10n.yaml`、繁中/英文 ARB 與 `MaterialApp` delegates/locales，再逐頁搬移 UI 文字並加入
+語言偏好保存與 widget tests。
+
+## 上次交接（2026-07-15 07:19 +08:00）
 
 目前目標：修正 backup retention 合併後 `main` CI 揭露的 signaling WebSocket 並行
 寫入 race，恢復 Java Gate 的可重現穩定性。
