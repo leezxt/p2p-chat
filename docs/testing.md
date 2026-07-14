@@ -109,6 +109,15 @@ Backup 需通過 `pg_restore --list`、SHA-256 與 manifest 敏感欄位檢查�
 使用獨立 DB，並比對 Flyway versions、public table count 與已知 probe data；不得只因
 `pg_restore` exit 0 就宣稱備份可用。任何既有 DB replacement 都需要精確確認字串。
 
+不需要 Docker 的 backup retention safety fixtures：
+
+```powershell
+.\scripts\test-backup-retention.ps1
+```
+
+Fixtures 驗證 dry-run、精確 Apply confirmation、最少保留數、off-host receipt/hash、
+corrupt/orphan protection、刪除範圍與重跑冪等；同一測試也會在 V1 CI 執行。
+
 只需要驗證 Flutter client 與 Spring backend 契約、且不使用 Docker 時：
 
 ```powershell
