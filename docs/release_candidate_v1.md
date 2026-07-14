@@ -55,6 +55,26 @@ flutter build appbundle --release
 缺少 `key.properties` 或仍使用預設 application ID 時，release task 會直接失敗，且不會
 退回 debug signing。密碼與 keystore 不得提交至 repository、CI log 或 artifact。
 
+候選版產物必須由統一腳本建立。沒有正式憑證時可產生明確標示為
+`INTERNAL_PROFILE` 的 ARM64 APK：
+
+```powershell
+.\tool\build_android_candidate.ps1 -Mode Profile -TargetPlatform android-arm64
+```
+
+具備正式 ID 與被 Git 忽略的 `android/key.properties` 後，從乾淨工作樹建立 AAB：
+
+```powershell
+.\tool\build_android_candidate.ps1 `
+  -Mode Release `
+  -ApplicationId 'com.example.p2pchat'
+```
+
+腳本將 artifact 與 JSON manifest 寫入 `build/v1-release-candidate/`。Manifest 記錄
+application ID、version、來源 commit、Flutter/Dart 版本、檔案大小與 SHA-256；不讀取
+或輸出 keystore 密碼。Release 模式拒絕 dirty working tree、預設 application ID 與缺少
+keystore 的環境。
+
 Production backend 不得使用 H2、local development key 或 HTTP。正式環境必須提供
 PostgreSQL、JWT secret、HTTPS/WSS endpoint 與精確 WebSocket origin allowlist。環境變數
 與容器檢查方式見 [`../java_backend/README.md`](../java_backend/README.md)。
@@ -114,7 +134,7 @@ cd mobile_desktop_app
 - [ ] 提供正式 Android application ID、version 與 release keystore；安全簽章設定骨架已完成。
 - [ ] 設定正式 iOS Bundle ID、version 與 distribution signing。
 - [ ] 以 production HTTPS/WSS + PostgreSQL 環境完成最後 smoke test。
-- [ ] 產生 Android/iOS 候選版 artifact，記錄 SHA-256、建置時間與來源 commit。
+- [ ] 產生 Android/iOS 候選版 artifact，記錄 SHA-256、建置時間與來源 commit；Android 產物/manifest 腳本已完成，正式憑證待執行。
 - [ ] README、架構、安全、成本、操作說明與已知限制完成最終同步。
 
 ## 已知限制

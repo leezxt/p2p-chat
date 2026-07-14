@@ -7,6 +7,14 @@ V1 候選版的完整驗收與發布阻塞統一記錄於
 build 已禁止 fallback 至 debug signing，但正式 application ID 與 upload keystore 尚未
 提供，因此目前只可建立內部測試產物，不可上架或公開散佈。
 
+統一候選版產物腳本會建立 APK/AAB、SHA-256 與 JSON manifest：
+
+```powershell
+.\tool\build_android_candidate.ps1 -Mode Profile -TargetPlatform android-arm64
+```
+
+正式 AAB 用法與 fail-closed 條件見候選版驗收文件。
+
 ## Android 建置
 
 需求：Android SDK 36、Build Tools 36.0.0、NDK 28.2.13676358、Java 17 以上。Windows host 另需 Git Bash 與 GNU make 4.x，供 `sodium` native build hook 交叉編譯 libsodium。Android runner 已建立，debug APK 可用下列指令建置：

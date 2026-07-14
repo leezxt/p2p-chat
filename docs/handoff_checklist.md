@@ -12,7 +12,33 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-14 19:58 +08:00）
+## 目前交接（2026-07-14 20:13 +08:00）
+
+目前目標：建立可重現且不洩漏簽章憑證的 Android V1 候選版 artifact 流程；正式
+application ID/keystore 尚未提供時，只能輸出明確標示的內部 profile 產物。
+
+- [x] **已完成**：新增 `build_android_candidate.ps1`，支援 ARM64/x64 profile APK 與正式 release AAB，讀取 Gradle structured metadata 而非手動解析版本文字
+- [x] **已完成**：輸出 artifact 與 JSON manifest，記錄 application ID、version、Git commit/dirty 狀態、Flutter/Dart 版本、大小與 SHA-256
+- [x] **已完成**：release 模式拒絕 dirty working tree、預設 application ID 與缺少 `android/key.properties`；manifest 不讀取或輸出 keystore 欄位
+- [x] **已完成**：Windows build 期間自動加入既有 Git Bash/GNU make 路徑並於結束後恢復，不修改系統 PATH
+- [x] **已完成**：ARM64 profile 首次 native build 122.7 秒通過，APK 67,077,814 bytes，SHA-256 `3245fce5d1143d293be9f9157426b99c96ab3a32c372162597a17ac4fdc664f2`
+- [x] **已完成**：manifest schema/hash、`INTERNAL_PROFILE`、dirty source 與敏感 marker 驗證通過；release dirty-tree 負向驗證通過
+- [x] **已完成**：乾淨工作樹的 release 負向驗證通過；缺少正式 `-ApplicationId` 或缺少 `android/key.properties` 均在建置前明確拒絕
+- [ ] **已實作未驗證**：正式 release AAB、distribution signature 與 `RELEASE_CANDIDATE` manifest 需正式 application ID/keystore；雙真機、Push/iOS 與 V1-01/03/04 Gate 仍待完成
+- [x] **已完成**：同步 `release_candidate_v1.md`、`testing.md` 與 mobile README 的 artifact 操作方式
+
+首次 ARM64 執行因 process PATH 找不到 Git Bash 而失敗；腳本沿用既有 Android runner
+方式暫時加入 `C:\Program Files\Git\bin` 與 GNU make 路徑後，完整重跑成功。此失敗不
+是 App/crypto 編譯錯誤，且沒有使用 `NIX_SKIP_SODIUM_BUILD_HOOKS` 跳過 native build。
+
+Runtime：本輪未啟動 backend、Docker 或 AVD。Flutter/Gradle build 已結束；候選版 APK
+與 manifest 位於被 Git 忽略的 `mobile_desktop_app/build/v1-release-candidate/`。
+
+下一步：同步 GitHub。取得兩台 Android 真機後，以本次 ARM64 profile APK 接續
+V1-01/03/04；取得正式 ID/keystore 後才執行 release AAB 與 distribution signature
+驗證。
+
+## 上次交接（2026-07-14 19:58 +08:00）
 
 目前目標：建立 V1-05 release candidate 文件與可執行發布 Gate；在 V1-01/03/04、
 正式簽章、真實 Push 與 iOS 實機完成前，維持內部測試版狀態。
@@ -228,7 +254,7 @@ Runtime：隔離 Compose project `p2p_fcm_worker_verify` 已在本文件停止�
 - [x] 完成安全與隱私稽核，確認私鑰、明文與敏感資料不上傳且不進 log
 - [ ] 量測並記錄冷啟動、閒置記憶體、背景連線、網路與電量
 - [ ] 完成斷網、殺程序、DB migration、重複訊息與 ACK 遺失的恢復測試（SQLite 重啟、ACK 遺失重投、v1～v5 migration matrix 已通過）
-- [ ] **已實作未驗證**：更新 README、架構、安全、成本、操作說明與已知限制；V1-05 RC 文件與 Android fail-closed 簽章骨架已同步，真機 Gate、正式憑證、真實 Push/iOS 與最終 artifact 紀錄待完成
+- [ ] **已實作未驗證**：更新 README、架構、安全、成本、操作說明與已知限制；V1-05 RC 文件、Android fail-closed 簽章與 artifact/checksum manifest 流程已同步，真機 Gate、正式憑證、真實 Push/iOS 與最終 artifact 待完成
 - [ ] 完成 V1 release candidate 驗收
 
 ## 本次環境已知限制
