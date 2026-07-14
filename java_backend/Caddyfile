@@ -1,0 +1,25 @@
+{
+    email {$ACME_EMAIL}
+    admin off
+}
+{$PUBLIC_HOST} {
+    encode zstd gzip
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "no-referrer"
+        -Server
+    }
+
+    reverse_proxy backend:8080 {
+        health_uri /actuator/health/readiness
+        health_interval 15s
+        health_timeout 3s
+    }
+
+    log {
+        output stdout
+        format json
+    }
+}

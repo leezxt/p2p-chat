@@ -12,7 +12,37 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-14 21:00 +08:00）
+## 目前交接（2026-07-14 23:28 +08:00）
+
+目前目標：建立 fail-closed 的 production HTTPS/WSS deployment topology，在沒有公開
+DNS/registry/secrets 時先以 localhost 驗證 proxy、backend 與 PostgreSQL 邊界。
+
+- [x] **已完成**：新增 `compose.production.yml`，只公開 Caddy 80/443 TCP 與 443 UDP；backend 僅 expose 8080，PostgreSQL 無 host port 且 data network internal
+- [x] **已完成**：新增 Caddy TLS/WSS reverse proxy，啟用 HSTS、`nosniff`、no-referrer、移除 `Server` header，並關閉 admin API
+- [x] **已完成**：backend production container 使用 `prod` profile、read-only rootfs、tmpfs、drop all capabilities、no-new-privileges 與 image 內 non-root `app`
+- [x] **已完成**：新增 `production.env.example` 與 `preflight-production.ps1`；拒絕 placeholder、短密碼、無效 key、HTTP/wildcard origins、未 pin image digest 與公開 DB/backend port
+- [x] **已完成**：preflight 解析 rendered Compose JSON；確認 backend/PostgreSQL 不 publish host port、data network internal、proxy ports 與 `prod` profile
+- [x] **已完成**：正式模式未 pin digest 的三個 images fail-closed；`-AllowLocalVerification` 只接受 localhost 並可覆寫測試 ports
+- [x] **已完成**：production-mode 正常 preflight 以公開 hostname、80/443 與三個 sha256 registry references 通過 rendered Compose JSON 驗證；不需啟動 runtime
+- [x] **已完成**：本機 production topology 通過 TLS readiness `UP`、HSTS、Server header removed、HTTP 308、prod API docs 404 與 WebSocket `101 Switching Protocols`
+- [x] **已完成**：exact backend candidate + PostgreSQL 18.4 通過 Flyway 1～9，proxy/backend/postgres 三服務運行正常
+- [x] **已完成**：同步 backend README、testing、RC、安全稽核、成本、任務與交接文件
+- [ ] **已實作未驗證**：公開 DNS/ACME certificate、registry-pinned images、firewall、volume backup/restore、log retention、monitoring/alerting 與真實 HTTPS/WSS endpoint
+
+本機 port 80 由 Windows HTTP.sys 使用，因此 localhost 驗證明確以
+`HTTP_PORT=18080`/`HTTPS_PORT=18443` 執行；production preflight 未使用 local switch 時
+仍強制公開 80/443。WebSocket probe 成功回 101 後會保持長連線，首次未設 timeout 的
+probe 已終止並以三秒 timeout 重跑通過，服務本身未中斷。
+
+Runtime：proxy、backend、postgres 均曾 running，backend/postgres healthy；交接先行記錄
+後，Compose test containers、networks、PostgreSQL/Caddy volumes 已移除，本輪啟動的
+Docker Desktop 已正常停止。兩個一次性 local/negative env 亦已從忽略目錄刪除。
+
+下一步：同步 GitHub。取得正式網域與 registry 後，填寫 `production.env`、執行
+preflight、驗證公開 ACME/HTTPS/WSS、備份還原與監控告警；
+Android 真機仍接續 V1-01/03/04。
+
+## 上次交接（2026-07-14 21:00 +08:00）
 
 目前目標：建立 backend V1 candidate JAR/Docker image 追溯資訊，並以 exact image 在
 PostgreSQL 18.4 + production profile 驗證 readiness、migration 與安全 surface。

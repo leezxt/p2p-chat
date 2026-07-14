@@ -46,6 +46,27 @@ Manifest 記錄來源 commit、backend version、JAR SHA-256、local image ID/Re
 size 與 OCI labels，但不包含 `.env` 或任何 secret。本機 digest 不證明已發布，正式推送
 image 後仍需由 registry 另外確認並記錄 digest。
 
+## Production HTTPS/WSS 部署
+
+將 `production.env.example` 複製為被 Git 忽略的 `production.env`，填入公開網域、
+ACME email、三個 registry-pinned image digests 與隨機 secrets。先執行 fail-closed
+preflight，再啟動 production topology：
+
+```powershell
+.\scripts\preflight-production.ps1 -EnvFile .\production.env
+docker compose --env-file .\production.env -f .\compose.production.yml up -d
+```
+
+`compose.production.yml` 只公開 Caddy 的 80/443 TCP 與 443 UDP；backend 僅 expose
+container port 8080，PostgreSQL 無 host port且位於 internal network。Caddy 自動取得 TLS
+certificate、代理 HTTPS/WSS、加入 HSTS/安全 headers 並移除 `Server` header。Backend
+使用 `prod` profile、read-only root filesystem、drop all capabilities 與 non-root `app`
+user。正式環境不可使用 `-AllowLocalVerification`。
+
+正式啟動前仍需另外完成 DNS、firewall、registry access、volume backup/restore、log
+retention、監控告警與憑證續期演練。停止服務時不要任意加 `--volumes`，否則會刪除
+PostgreSQL 與 Caddy certificate 資料。
+
 不依賴 Docker、以 H2 test profile 驗證 Flutter HTTP client 與真實 Spring backend：
 
 ```powershell

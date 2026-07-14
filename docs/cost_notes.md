@@ -37,6 +37,9 @@
 - Cloudflare Worker/D1/KV 仍是後續低成本替代方案，尚未取代目前 Spring Boot backend。
 - TURN 尚未實作，因此 V1 沒有 TURN 頻寬費；受限 NAT 下改走有 TTL/quota 的密文
   mailbox。若後續加入 TURN，必須另設流量上限與成本警示。
+- Production Compose 使用自架 Caddy TLS proxy、Spring Boot 與 PostgreSQL，軟體本身無
+  授權費，但需要網域、主機、持久磁碟、備份、log/monitoring 與對外流量預算；Caddy
+  自動 ACME certificate 不代表主機或網域免費。
 
 正式發布前需依預估活躍裝置數、mailbox 留存量、request rate、log/monitoring 與備份
 需求建立月成本上限；候選版 Gate 見 [`release_candidate_v1.md`](release_candidate_v1.md)。

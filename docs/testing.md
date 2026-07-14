@@ -57,6 +57,20 @@ cd java_backend
 digest 分開，且不得包含資料庫密碼、JWT secret、push encryption key 或 Firebase
 credential。
 
+Production Compose/TLS preflight：
+
+```powershell
+cd java_backend
+.\scripts\preflight-production.ps1 -EnvFile .\production.env
+docker compose --env-file .\production.env -f .\compose.production.yml config --quiet
+```
+
+Preflight 拒絕 placeholder、短密碼、無效 base64 key、HTTP/wildcard WebSocket origin、
+未 pin registry digest 的 image、公開 backend/PostgreSQL port、非 internal data network 與
+非 `prod` profile。本機 `-AllowLocalVerification` 僅供隔離測試，不是 production 通過。
+WSS probe 回 `101` 只代表 TLS proxy 成功升級 transport；signaling client 仍必須在第一個
+frame 送 `AUTH`，backend 才以 JWT subject 與 device ownership 建立已認證 session。
+
 只需要驗證 Flutter client 與 Spring backend 契約、且不使用 Docker 時：
 
 ```powershell
