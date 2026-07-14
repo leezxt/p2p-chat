@@ -21,6 +21,7 @@ Production 預設改為 fail-closed：未指定 profile 時使用 `prod`、要�
 |---|---|
 | JWT issuer、audience、expiry 與至少 32-byte HMAC key | 通過既有 Java tests |
 | Device ownership、revocation、contact ACL | Mailbox、Presence、Push 與 Signaling integration tests 通過 |
+| Signaling concurrent writes | 同一 WebSocket session 的 authentication、relay 與 error frame 以 session lock 序列化，避免 Tomcat partial-write state 關閉連線；受控並行回歸測試通過 |
 | Mailbox sender/recipient ACL、quota、TTL、rate limit、ACK 狀態機 | 通過；rate limit 使用 PostgreSQL 原子 counter，多 instance 共用配額並回 `Retry-After`；錯誤 `messageId` 不再改變狀態 |
 | Mailbox cursor 完整性與用途隔離 | HMAC-SHA256 signed opaque cursor；綁定 inbox/ACK 用途與 device，竄改、跨裝置及跨用途重用均拒絕 |
 | Replay、tamper、wrong key、inner/outer mismatch、key change | Flutter 回歸 tests 通過 |
@@ -42,7 +43,7 @@ Production 預設改為 fail-closed：未指定 profile 時使用 `prod`、要�
 
 ```text
 java_backend: mvn -q test
-51 tests, 0 failures, 0 errors
+52 tests, 0 failures, 0 errors
 
 mobile_desktop_app: flutter analyze
 No issues found

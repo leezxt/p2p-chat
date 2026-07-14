@@ -12,7 +12,27 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-15 07:01 +08:00）
+## 目前交接（2026-07-15 07:13 +08:00）
+
+目前目標：修正 backup retention 合併後 `main` CI 揭露的 signaling WebSocket 並行
+寫入 race，恢復 Java Gate 的可重現穩定性。
+
+- [x] **已完成**：PR #32 已合併為 `main` commit `dd6b0f2`；PR head run `29375069377` 的 Java、Flutter 與 PostgreSQL container smoke 三 jobs 全通過
+- [x] **已完成**：`main` run `29375175296` 的 retention fixture、Flutter 與 PostgreSQL container smoke 通過；Java job 揭露 `TEXT_PARTIAL_WRITING` / `Output closed`
+- [x] **已完成**：根因為 authentication、relay 與 error path 可對同一 `WebSocketSession` 並行 `sendMessage`，Tomcat 不允許 concurrent partial write
+- [x] **已完成**：三條輸出路徑收斂至同一 session lock，確保 handler 對每個 session 序列化送出 frame
+- [x] **已完成**：新增受控並行回歸測試；第一筆 write 阻塞時第二筆不得進入底層 WebSocket send
+- [x] **已完成**：專項測試與完整 Maven suite 52 tests 全通過，0 failures/errors/skipped；`git diff --check` 通過
+- [ ] **已實作未驗證**：`codex/serialize-websocket-writes` 尚待 GitHub PR 的 Java、Flutter 與 PostgreSQL container smoke 驗證
+- [ ] **未完成**：兩台 Android 真機 V1-01/03/04、真實 FCM/APNs、iPhone runtime、正式簽章、公開 production 與最終 release artifacts
+
+Runtime：本輪只執行本機 Maven tests，測試用 Spring/Tomcat process 已隨 suite 正常結束；
+沒有啟動 Docker、ADB、AVD、App 或常駐 backend runtime。
+
+下一步：提交並推送 signaling fix，確認 PR 三項 CI 後合併；再確認 `main` CI 全綠。
+外部環境可用時仍以 Android 真機與 production/credentials Gate 為優先。
+
+## 上次交接（2026-07-15 07:01 +08:00）
 
 目前目標：完成 production backup 的本機 staging retention 安全邊界，避免未上傳、
 未驗證或仍在最低保留數內的 backup 被自動刪除。
