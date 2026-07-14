@@ -2,6 +2,11 @@
 
 Flutter 手機主端與 Desktop 副端。
 
+V1 候選版的完整驗收與發布阻塞統一記錄於
+[`../docs/release_candidate_v1.md`](../docs/release_candidate_v1.md)。Android release
+build 已禁止 fallback 至 debug signing，但正式 application ID 與 upload keystore 尚未
+提供，因此目前只可建立內部測試產物，不可上架或公開散佈。
+
 ## Android 建置
 
 需求：Android SDK 36、Build Tools 36.0.0、NDK 28.2.13676358、Java 17 以上。Windows host 另需 Git Bash 與 GNU make 4.x，供 `sodium` native build hook 交叉編譯 libsodium。Android runner 已建立，debug APK 可用下列指令建置：

@@ -12,7 +12,32 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-14 19:54 +08:00）
+## 目前交接（2026-07-14 19:58 +08:00）
+
+目前目標：建立 V1-05 release candidate 文件與可執行發布 Gate；在 V1-01/03/04、
+正式簽章、真實 Push 與 iOS 實機完成前，維持內部測試版狀態。
+
+- [x] **已完成**：核對 V1-05、現有 README/架構/安全/成本文件、App version、Android application ID 與 signing 設定
+- [x] **已完成**：新增 `release_candidate_v1.md`，彙整已通過範圍、Android/iOS 建置、基本操作、三個 Android runner、發布 Gate、已知限制與 artifact 紀錄格式
+- [x] **已完成**：同步 root/mobile README、架構入口與 V1 實際 backend/FCM/APNs/TURN 成本現況
+- [x] **已完成**：Android release signing 改讀取被 Git 忽略的 `key.properties`，並支援 Gradle property/環境變數 `P2P_APPLICATION_ID`；缺少設定或仍用預設 ID 時 fail-closed，不再 fallback 至 debug key
+- [x] **已完成**：新增 `android/key.properties.example`；Gradle task 載入、缺少 keystore 的 release 負向驗證及 profile x86_64 APK 64.0MB 建置通過
+- [ ] **已實作未驗證**：V1-05 文件與 Android 簽章骨架已完成；V1-01/03/04 雙真機與故障/資源 Gate、正式 ID/keystore、iOS distribution signing、真實 FCM/APNs、production smoke test 與最終 artifact hash 尚未完成
+- [x] **已完成**：文件中的本機相對連結、runner 檔案、PowerShell command 字面值與 `git diff --check` 驗證通過
+
+重要阻塞：`pubspec.yaml` 目前為 `0.1.0+1`，尚未決定正式 Android application ID，
+也未提供 upload keystore。Gradle 現在會阻擋缺少這些設定的 release build；未完成正式
+命名、版本與簽章憑證前，不可將任何 APK 標示為可上架 RC。
+
+Runtime：本輪只修改文件，未啟動或停止 backend、Docker、AVD 或其他長時間程序；
+`adb devices` 沿用前次狀態，無連接裝置。
+
+下一步：接上兩台 USB Android 真機，依 `release_candidate_v1.md` 先後執行
+`verify_android_v1.ps1`、`verify_android_mailbox_recovery.ps1` 與
+`measure_android_resources.ps1`，再人工驗證 Wi-Fi/行動網路切換、OS kill 與長時間
+耗電。完成 V1-01/03/04 後，再設定正式 application/Bundle ID 與 distribution signing。
+
+## 上次交接（2026-07-14 19:54 +08:00）
 
 目前目標：建立 V1-03 Android 資源量測入口，先以 Android 15 AVD/profile APK 建立可重現基線，不以 Emulator 取代真機 release 與電量驗收。
 
@@ -203,7 +228,7 @@ Runtime：隔離 Compose project `p2p_fcm_worker_verify` 已在本文件停止�
 - [x] 完成安全與隱私稽核，確認私鑰、明文與敏感資料不上傳且不進 log
 - [ ] 量測並記錄冷啟動、閒置記憶體、背景連線、網路與電量
 - [ ] 完成斷網、殺程序、DB migration、重複訊息與 ACK 遺失的恢復測試（SQLite 重啟、ACK 遺失重投、v1～v5 migration matrix 已通過）
-- [ ] 更新 README、架構、安全、成本、操作說明與已知限制
+- [ ] **已實作未驗證**：更新 README、架構、安全、成本、操作說明與已知限制；V1-05 RC 文件與 Android fail-closed 簽章骨架已同步，真機 Gate、正式憑證、真實 Push/iOS 與最終 artifact 紀錄待完成
 - [ ] 完成 V1 release candidate 驗收
 
 ## 本次環境已知限制

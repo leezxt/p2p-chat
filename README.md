@@ -44,6 +44,10 @@ Push token 與 notification outbox 契約見 [`docs/push_api.md`](docs/push_api.
 
 接手順序與逐項完成狀態見 [`docs/handoff_checklist.md`](docs/handoff_checklist.md)。每完成一項工作，需在同一次變更中勾選並更新相關文件。
 
+V1 候選版的建置、操作、真機驗收、發布 Gate 與已知限制見
+[`docs/release_candidate_v1.md`](docs/release_candidate_v1.md)。目前仍是內部 Android
+測試版；雙真機、正式簽章、真實 Push 與 iOS 實機 Gate 完成前不可對外標示為 V1 RC。
+
 ## 快速開始（mobile_desktop_app）
 
 需求：Flutter SDK 3.27.0 以上、Dart SDK 3.6.0 以上。本 repo 骨架不含編譯好的產物。
