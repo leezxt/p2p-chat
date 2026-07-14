@@ -22,7 +22,17 @@ APK 產物位於 `build/app/outputs/flutter-apk/app-debug.apk`。目前已驗證
   -ReceiverDevice emulator-5556
 ```
 
-Runner 會啟動乾淨的 test-profile H2 backend、等待兩端註冊、建立 contact ACL，然後執行 JWT signaling、offer/answer/ICE、真實 libsodium encrypted envelope 與 WebRTC DataChannel。實體裝置會自動設定並清除 `adb reverse`；需要 Git for Windows、GNU make 與兩個 `adb devices` 狀態為 `device` 的不同序號。Log 位於 `build/v1-android-e2e/`。此流程尚未涵蓋 mailbox/ACK、斷網、kill process 或資源量測，不能單獨視為 V1 真機發布驗收完成。
+Runner 會啟動乾淨的 test-profile H2 backend、等待兩端註冊、建立 contact ACL，然後執行 JWT signaling、offer/answer/ICE、真實 libsodium encrypted envelope 與 WebRTC DataChannel。實體裝置會自動設定並清除 `adb reverse`；需要 Git for Windows、GNU make 與兩個 `adb devices` 狀態為 `device` 的不同序號。Log 位於 `build/v1-android-e2e/`。
+
+Offline mailbox、ACK 遺失與 App process restart 使用另一個 runner：
+
+```powershell
+.\tool\verify_android_mailbox_recovery.ps1 `
+  -SenderDevice emulator-5554 `
+  -ReceiverDevice emulator-5556
+```
+
+它會上傳真實 sodium 密文，在接收端寫入 SQLite 後模擬 DELIVERED ACK 遺失，執行 `am force-stop`，再重啟同一 DB 驗證重投冪等、DELIVERED/READ 與 sender 本機 READ 狀態。雙 AVD 已通過；兩個 runner 都不能取代真機實際斷網、OS kill、USB `adb reverse` 與資源量測。
 
 ## Push notification 啟動流程
 

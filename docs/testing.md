@@ -92,7 +92,18 @@ cd mobile_desktop_app
   -ReceiverDevice <android-device-id-b>
 ```
 
-Runner 會使用乾淨 H2 backend 與 Flyway migration，自動建立雙向 contact ACL；Emulator 使用 `10.0.2.2`，USB 真機使用暫時的 `adb reverse`。2026-07-14 已在 `emulator-5554` / `emulator-5556` 通過。真機、mailbox/ACK、斷網與 kill-process 仍須另外驗收。
+Runner 會使用乾淨 H2 backend 與 Flyway migration，自動建立雙向 contact ACL；Emulator 使用 `10.0.2.2`，USB 真機使用暫時的 `adb reverse`。2026-07-14 已在 `emulator-5554` / `emulator-5556` 通過。真機與資源量測仍須另外驗收。
+
+Android 雙裝置 offline mailbox 與 process restart（PowerShell）：
+
+```powershell
+cd mobile_desktop_app
+.\tool\verify_android_mailbox_recovery.ps1 `
+  -SenderDevice <android-device-id-a> `
+  -ReceiverDevice <android-device-id-b>
+```
+
+此 runner 會上傳真實 sodium 密文，在接收端完成 SQLite message/replay/receipt 寫入後模擬 DELIVERED ACK 遺失，使用 `am force-stop` abrupt kill App，再重啟同一 DB 驗證重投冪等、DELIVERED/READ 與 sender 本機 READ 狀態。2026-07-14 已在兩台 Android 15 AVD 完整通過；AVD 不取代真機實際斷網、OS kill、USB `adb reverse` 與耗電/記憶體驗收。
 
 iOS 驗證：
 
