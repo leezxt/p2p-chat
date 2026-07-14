@@ -33,6 +33,7 @@ Production 預設改為 fail-closed：未指定 profile 時使用 `prod`、要�
 | Production surface | local registration 與 API docs 在 `prod` profile 均為 404 |
 | WebSocket origin policy | 精確 allowlist；未設定時 empty/same-origin，production 禁止 `*`，未列入來源握手回 403 |
 | Transport policy | Android release cleartext=false；iOS 使用預設 ATS 限制 |
+| Production deployment boundary | Caddy 僅公開 80/443，backend/PostgreSQL 無 host port；data network internal；backend read-only rootfs、drop capabilities、non-root `app`；preflight 強制 HTTPS origins 與 registry digests |
 
 ## 驗證結果
 
@@ -57,6 +58,7 @@ Built build/app/outputs/flutter-apk/app-debug.apk
 - V1 `P2P_BOX_V1` 使用長期裝置金鑰，不具 Double Ratchet 等級的 forward secrecy 或 post-compromise security。
 - FCM HTTP v1 worker 已完成自動化/PostgreSQL 驗證；真實 FCM credentials、APNs、兩台真機、iOS runtime、斷網/kill process 與資源耗電量測仍屬外部驗收。
 - `flutter_webrtc` 仍套用 Kotlin Gradle Plugin；目前 build 通過，但 Flutter 已警告未來版本將要求 plugin 遷移至 Built-in Kotlin。
+- Production Compose/Caddy 已通過 localhost TLS/WSS 隔離驗證，但公開 DNS、ACME certificate、firewall、registry digest、備份還原、log retention 與監控告警仍需部署環境驗收。
 
 ## 後續門檻
 
