@@ -12,7 +12,33 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-14 23:28 +08:00）
+## 目前交接（2026-07-15 01:08 +08:00）
+
+目前目標：建立 production PostgreSQL 可驗證備份／還原流程；所有測試只在隔離 DB
+執行，不覆寫 configured production source database。
+
+- [x] **已完成**：新增 `backup-production.ps1`，在 healthy PostgreSQL container 內使用 `pg_dump -Fc`、compression 9、排除 owner/privileges
+- [x] **已完成**：dump 建立後先以 `pg_restore --list` 驗證，再複製到 host 並產生 SHA-256/來源 commit/PostgreSQL version manifest
+- [x] **已完成**：backup manifest 敏感 marker 檢查通過；manifest 不含 DB password/JWT/push key，dump 明確標為需加密限制存取的敏感資料
+- [x] **已完成**：新增 `restore-production.ps1`；restore 前驗證 manifest/hash/custom format，預設只允許 `-CreateTargetDatabase` 建立新 DB
+- [x] **已完成**：既有 target 必須 `-ReplaceExistingTarget` 加區分大小寫 `REPLACE:<database>`；configured source DB 另需 `-AllowSourceDatabaseReplacement`
+- [x] **已完成**：修正不存在 target 的空 `psql` 輸出造成 `$null.Trim()`；回歸後正確回明確 create gate
+- [x] **已完成**：隔離 backup `8e69728c3698f5e8d48caba796b701b22211e80d095647b90334290af1c095a4` 建立並還原至 `p2p_chat_restore_verify`
+- [x] **已完成**：restore 通過 Flyway 1～9、10 public tables、`backup_restore_probe=verified` 與 source/target `app_metadata` 2 rows 一致
+- [x] **已完成**：新 DB restore、既有 test DB 精確確認 replacement、source DB 防護、缺少 create switch 與竄改 hash 負向案例均通過
+- [x] **已完成**：同步 backend README、testing、RC、安全稽核、成本、任務與交接文件
+- [ ] **已實作未驗證**：production 排程、加密 off-host storage、retention、最小權限、真實災難復原與定期 restore drill 尚未驗證
+
+Runtime：Compose test containers、networks、PostgreSQL/Caddy volumes 已以
+`down --volumes --remove-orphans` 清除；忽略目錄中的 test env 與本輪 dump/manifest 亦已
+刪除。Docker Desktop 已正常停止，且未殘留 `Docker Desktop` 或
+`com.docker.backend` process。
+
+下一步：同步 GitHub。正式部署後將 dump 移到加密 off-host storage，設定
+retention/排程，並在獨立 restore host 定期重跑相同 schema/data 驗收；Android 真機
+仍接續 V1-01/03/04。
+
+## 上次交接（2026-07-14 23:28 +08:00）
 
 目前目標：建立 fail-closed 的 production HTTPS/WSS deployment topology，在沒有公開
 DNS/registry/secrets 時先以 localhost 驗證 proxy、backend 與 PostgreSQL 邊界。

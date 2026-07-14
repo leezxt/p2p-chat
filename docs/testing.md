@@ -71,6 +71,22 @@ Preflight 拒絕 placeholder、短密碼、無效 base64 key、HTTP/wildcard Web
 WSS probe 回 `101` 只代表 TLS proxy 成功升級 transport；signaling client 仍必須在第一個
 frame 送 `AUTH`，backend 才以 JWT subject 與 device ownership 建立已認證 session。
 
+PostgreSQL backup/restore drill：
+
+```powershell
+cd java_backend
+.\scripts\backup-production.ps1 -EnvFile .\production.env
+.\scripts\restore-production.ps1 `
+  -BackupPath .\target\production-backups\<backup>.dump `
+  -TargetDatabase p2p_chat_restore_verify `
+  -EnvFile .\production.env `
+  -CreateTargetDatabase
+```
+
+Backup 需通過 `pg_restore --list`、SHA-256 與 manifest 敏感欄位檢查。Restore drill 必須
+使用獨立 DB，並比對 Flyway versions、public table count 與已知 probe data；不得只因
+`pg_restore` exit 0 就宣稱備份可用。任何既有 DB replacement 都需要精確確認字串。
+
 只需要驗證 Flutter client 與 Spring backend 契約、且不使用 Docker 時：
 
 ```powershell
