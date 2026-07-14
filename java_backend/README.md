@@ -36,6 +36,16 @@ mvn test
 .\scripts\smoke.ps1
 ```
 
+建立可追溯的 backend candidate JAR、Docker image 與 JSON manifest：
+
+```powershell
+.\scripts\build-candidate.ps1
+```
+
+Manifest 記錄來源 commit、backend version、JAR SHA-256、local image ID/RepoDigests、
+size 與 OCI labels，但不包含 `.env` 或任何 secret。本機 digest 不證明已發布，正式推送
+image 後仍需由 registry 另外確認並記錄 digest。
+
 不依賴 Docker、以 H2 test profile 驗證 Flutter HTTP client 與真實 Spring backend：
 
 ```powershell

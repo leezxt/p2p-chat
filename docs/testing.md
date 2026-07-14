@@ -45,6 +45,18 @@ cd java_backend
 .\scripts\smoke.ps1
 ```
 
+Backend 候選版 JAR、Docker image 與 checksum manifest：
+
+```powershell
+cd java_backend
+.\scripts\build-candidate.ps1
+```
+
+腳本預設要求乾淨 Git working tree 並執行完整 Maven tests；內部開發驗證才可使用
+`-AllowDirtyWorkingTree`。輸出 JSON 會將 local image ID/RepoDigests 與尚待驗證的 registry
+digest 分開，且不得包含資料庫密碼、JWT secret、push encryption key 或 Firebase
+credential。
+
 只需要驗證 Flutter client 與 Spring backend 契約、且不使用 Docker 時：
 
 ```powershell

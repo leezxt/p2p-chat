@@ -12,7 +12,36 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-14 20:13 +08:00）
+## 目前交接（2026-07-14 21:00 +08:00）
+
+目前目標：建立 backend V1 candidate JAR/Docker image 追溯資訊，並以 exact image 在
+PostgreSQL 18.4 + production profile 驗證 readiness、migration 與安全 surface。
+
+- [x] **已完成**：新增 `java_backend/scripts/build-candidate.ps1`，預設要求乾淨 working tree、執行 Maven tests、建立 executable JAR 與 Docker image
+- [x] **已完成**：以 XML parser 讀取 Maven version，輸出來源 commit/dirty、JAR SHA-256、local image ID/size/RepoDigests 與 OCI version/revision labels
+- [x] **已完成**：registry digest 維持 `null` 且 `registryDigestRequiredForRelease=true`；不把 Docker Desktop 的 local RepoDigests 誤報為已發布 registry digest
+- [x] **已完成**：未使用 `-AllowDirtyWorkingTree` 時，dirty source 在 Maven/Docker build 前 fail-closed
+- [x] **已完成**：manifest 敏感 marker 與 JAR checksum 驗證通過，不讀取或輸出 DB/JWT/push/Firebase secret
+- [x] **已完成**：完整 Maven suite 51 tests、0 failures/errors/skipped；候選 JAR 73,639,243 bytes，SHA-256 `6712d8c22f34d90b2d786b604ab96c8af5061d6e17a12b9ee62d579cf735289e`
+- [x] **已完成**：exact image `sha256:e3a5b062eb815bdddd172bd97f4f28494ac3bcd62427462766814d05a9c1a74b`（140,961,725 bytes）以 production profile 啟動，readiness `UP`
+- [x] **已完成**：PostgreSQL 18.4 Flyway 1～9 success、production `/v3/api-docs` 404、container user `app`
+- [x] **已完成**：同步 backend README、`testing.md` 與 `release_candidate_v1.md`；明列 local image ID/RepoDigests 不取代 registry digest
+- [ ] **已實作未驗證**：正式 registry push/digest、production HTTPS/WSS endpoint、監控/備份與真實 FCM credentials 尚未驗證
+
+BuildKit attestation 使相同 app layers 的重建 local image ID 改變；因此本輪在 manifest 修正
+後，另以 exact `e3a5…a74b` image 重啟第二個 backend 並重新完成所有 runtime checks，
+沒有沿用先前 `c9a4…cae58` 容器結果。
+
+Runtime：隔離 network `p2p_candidate_verify` 上的 PostgreSQL、舊 image backend 與 exact
+manifest image backend 均曾為 healthy；交接先行記錄後，三個容器與 network 已移除，
+本輪啟動的 Docker Desktop 已正常停止。不刪除 candidate image 或被 Git 忽略的
+JAR/manifest。
+
+下一步：同步 GitHub。取得 production registry 後推送 exact candidate image 並記錄
+registry-verified digest；取得 HTTPS/WSS deployment 與 Firebase credentials 後，
+再執行最後 production smoke。Android 真機仍接續 V1-01/03/04。
+
+## 上次交接（2026-07-14 20:13 +08:00）
 
 目前目標：建立可重現且不洩漏簽章憑證的 Android V1 候選版 artifact 流程；正式
 application ID/keystore 尚未提供時，只能輸出明確標示的內部 profile 產物。
@@ -254,7 +283,7 @@ Runtime：隔離 Compose project `p2p_fcm_worker_verify` 已在本文件停止�
 - [x] 完成安全與隱私稽核，確認私鑰、明文與敏感資料不上傳且不進 log
 - [ ] 量測並記錄冷啟動、閒置記憶體、背景連線、網路與電量
 - [ ] 完成斷網、殺程序、DB migration、重複訊息與 ACK 遺失的恢復測試（SQLite 重啟、ACK 遺失重投、v1～v5 migration matrix 已通過）
-- [ ] **已實作未驗證**：更新 README、架構、安全、成本、操作說明與已知限制；V1-05 RC 文件、Android fail-closed 簽章與 artifact/checksum manifest 流程已同步，真機 Gate、正式憑證、真實 Push/iOS 與最終 artifact 待完成
+- [ ] **已實作未驗證**：更新 README、架構、安全、成本、操作說明與已知限制；V1-05 RC 文件、Android/backend artifact manifest 流程已同步，真機 Gate、正式憑證與 registry、真實 Push/iOS 與最終 artifact 待完成
 - [ ] 完成 V1 release candidate 驗收
 
 ## 本次環境已知限制
