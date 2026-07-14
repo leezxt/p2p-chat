@@ -35,6 +35,20 @@ jobs:
       - name: Run backend tests
         run: mvn --batch-mode --no-transfer-progress test
 
+  backend-container-smoke:
+    name: PostgreSQL container smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: java_backend
+    steps:
+      - name: Check out source
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - name: Build and verify isolated containers
+        shell: pwsh
+        run: ./scripts/smoke.ps1
+
   flutter-tests:
     name: Flutter 3.44.6 checks
     runs-on: ubuntu-24.04

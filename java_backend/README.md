@@ -36,6 +36,10 @@ mvn test
 .\scripts\smoke.ps1
 ```
 
+Smoke 每次使用 process-only 隨機 credentials、獨立 Compose project 與可用 host ports，
+驗證 readiness、non-root `app`、Flyway 1～9 與 10 個 public tables。成功或失敗都移除
+本輪 containers/networks/test volume 並恢復呼叫端環境；失敗時會先輸出最後 200 行 logs。
+
 建立可追溯的 backend candidate JAR、Docker image 與 JSON manifest：
 
 ```powershell

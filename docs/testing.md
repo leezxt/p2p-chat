@@ -2,9 +2,10 @@
 
 本文件是 repository 的測試入口。各子專案 README 保留平台細節；日常變更應先跑與變更範圍相符的快速驗證，合併前再完成可用環境支援的完整驗證。
 
-Pull request 與 `main` push 會執行 `.github/workflows/v1-ci.yml`：Java 21 完整 tests，以及
-Flutter 3.44.6 的 locked dependency、format、analyze、unit/widget tests。CI 不取代
-PostgreSQL/Docker smoke、Android/iOS integration test 或真機 Gate。
+Pull request 與 `main` push 會執行 `.github/workflows/v1-ci.yml`：Java 21 完整 tests、
+Flutter 3.44.6 的 locked dependency/format/analyze/unit/widget tests，以及 isolated
+PostgreSQL container smoke。CI 不取代 production topology、Android/iOS integration test
+或真機 Gate。
 
 ## 測試矩陣
 
@@ -42,12 +43,18 @@ cd java_backend
 mvn test
 ```
 
-測試使用 `src/test/resources/application-test.yml` 與 H2，不需要先啟動 PostgreSQL。涉及 migration、容器設定或 production profile 的變更，還必須在 PowerShell 執行：
+測試使用 `src/test/resources/application-test.yml` 與 H2，不需要先啟動 PostgreSQL。涉及
+migration、容器設定或 production profile 的變更，還必須在 PowerShell 執行 isolated
+container smoke。腳本使用隨機 process-only credentials、獨立 Compose project 與可用
+host ports，完成後移除 test volumes 並恢復原環境：
 
 ```powershell
 cd java_backend
 .\scripts\smoke.ps1
 ```
+
+成功條件包含 readiness `UP`、backend user `app`、Flyway 1～9 與 10 個 public tables。
+失敗時先輸出最後 200 行 logs，再清除本輪 containers/networks/volumes。
 
 Backend 候選版 JAR、Docker image 與 checksum manifest：
 

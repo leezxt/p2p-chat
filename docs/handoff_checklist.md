@@ -12,7 +12,28 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-15 02:30 +08:00）
+## 目前交接（2026-07-15 06:22 +08:00）
+
+目前目標：將 Dockerfile、PostgreSQL、Flyway 與 container health 納入每個 PR/main push
+的 V1 CI，並修正原 smoke runner 的環境依賴、隔離及 test volume 清理問題。
+
+- [x] **已完成**：`smoke.ps1` 改用 process-only 隨機 credentials、獨立 Compose project 與自動可用 host ports，不讀取或覆寫 production secrets
+- [x] **已完成**：`up` 失敗、timeout 與驗證失敗都走 finally cleanup；移除 containers/networks/test volume 並恢復原 process environment
+- [x] **已完成**：smoke Gate 擴充為 readiness `UP`、backend user `app`、Flyway 1～9 與 10 public tables
+- [x] **已完成**：失敗時只輸出最後 200 行 bounded logs，再執行 cleanup 並保留非零結果
+- [x] **已完成**：V1 CI 新增 `PostgreSQL container smoke` Ubuntu job，外部 Action仍使用完整 commit SHA 與 `contents: read`
+- [x] **已完成**：GitHub run `29372616520` 三 jobs 全通過；container log 為 `PASS`/`app`/Flyway 1～9/10 tables
+- [x] **已完成**：GitHub log 確認 backend/postgres containers、test volume 與 network 均 Removed
+- [x] **已完成**：同步 backend README、testing、RC、V1 task 與交接文件
+- [ ] **未完成**：公開 production topology、Android/iOS native integration、兩台 Android 真機、真實 Push 與正式簽章 Gate 不由此 smoke 取代
+
+Runtime：本輪只使用 GitHub-hosted Ubuntu runner；runner job 已完成且 log 證明 Compose
+resources 清理。Windows 本機沒有啟動 Docker、ADB、AVD、App 或 backend runtime。
+
+下一步：有兩台 Android 真機時接續 V1-01/03/04；取得 credentials/production host 後
+完成真實 Push、iOS、正式簽章與公開 deployment Gate。
+
+## 上次交接（2026-07-15 02:30 +08:00）
 
 目前目標：補上 repository 缺少的 V1 continuous integration Gate，讓每個 PR 與 main
 push 自動驗證 Java backend 與 Flutter host tests；native/真機測試仍維持獨立 Gate。
