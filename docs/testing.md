@@ -105,6 +105,19 @@ cd mobile_desktop_app
 
 此 runner 會上傳真實 sodium 密文，在接收端完成 SQLite message/replay/receipt 寫入後模擬 DELIVERED ACK 遺失，使用 `am force-stop` abrupt kill App，再重啟同一 DB 驗證重投冪等、DELIVERED/READ 與 sender 本機 READ 狀態。2026-07-14 已在兩台 Android 15 AVD 完整通過；AVD 不取代真機實際斷網、OS kill、USB `adb reverse` 與耗電/記憶體驗收。
 
+Android V1 資源基線（PowerShell）：
+
+```powershell
+cd mobile_desktop_app
+flutter build apk --profile --target-platform android-x64
+.\tool\measure_android_resources.ps1 `
+  -Device <android-device-id> `
+  -ApkPath build\app\outputs\flutter-apk\app-profile.apk `
+  -ClearAppData
+```
+
+Runner 以五次 process-cold launch 的中位數檢查 3 秒目標，以 `dumpsys meminfo` 檢查 150MB 閒置目標，並在 65 秒背景窗檢查 App UID 的 established TCP 與 netstats。結果寫入 `build/v1-android-resources/`；AVD 基線與真機待驗項目見 [`resource_measurement_v1.md`](resource_measurement_v1.md)。
+
 iOS 驗證：
 
 ```bash

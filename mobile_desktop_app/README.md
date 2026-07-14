@@ -34,6 +34,18 @@ Offline mailbox、ACK 遺失與 App process restart 使用另一個 runner：
 
 它會上傳真實 sodium 密文，在接收端寫入 SQLite 後模擬 DELIVERED ACK 遺失，執行 `am force-stop`，再重啟同一 DB 驗證重投冪等、DELIVERED/READ 與 sender 本機 READ 狀態。雙 AVD 已通過；兩個 runner 都不能取代真機實際斷網、OS kill、USB `adb reverse` 與資源量測。
 
+V1 冷啟動、記憶體與背景連線基線可使用 profile APK 量測：
+
+```powershell
+flutter build apk --profile --target-platform android-x64
+.\tool\measure_android_resources.ps1 `
+  -Device emulator-5554 `
+  -ApkPath build\app\outputs\flutter-apk\app-profile.apk `
+  -ClearAppData
+```
+
+Runner 產生 JSON/Markdown 報告並依冷啟動中位數 3 秒、閒置 PSS 150MB、背景 established TCP 0 執行自動判定。兩次 Android 15 AVD 結果已通過自動門檻；最大單次啟動仍略高於 3 秒，且 Emulator 無法提供有效電量結果，因此 V1-03 仍需真機驗收。
+
 ## Push notification 啟動流程
 
 App 已提供 provider-neutral 的 notification launch adapter 邊界。只接受
