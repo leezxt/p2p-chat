@@ -21,15 +21,15 @@ push 自動驗證 Java backend 與 Flutter host tests；native/真機測試仍�
 - [x] **已完成**：新增 `.github/workflows/v1-ci.yml`，PR、main push 與手動觸發均執行
 - [x] **已完成**：Java 21 與 Flutter 3.44.6 分離 jobs，設定 timeout、concurrency cancellation 與 `contents: read` 最小權限
 - [x] **已完成**：checkout/setup-java/flutter-action 全部 pin 40-char commit SHA；Flutter dependency 使用 lockfile fail-closed
-- [x] **已完成**：GitHub run `29357810257` 通過；Java tests 69 秒、Flutter locked dependency/format/analyze/unit/widget tests 168 秒
+- [x] **已完成**：GitHub runs `29357810257`、`29358109443` 均通過；最新 head Java tests 41 秒、Flutter locked dependency/format/analyze/unit/widget tests 117 秒
 - [x] **已完成**：同步 testing、V1 task、RC 與交接文件；CI 明確不取代 Docker/native/真機 Gate
 - [ ] **未完成**：V1-01/03/04 仍需兩台 Android 真機；真實 Push、iOS、正式簽章與公開 production Gate 亦未完成
 
 Runtime：沒有 App/backend/Docker/AVD 執行；本輪檢查 Android 裝置時曾啟動 ADB
 server，但 `adb devices -l` 為空。ADB server 已停止，port 5037 無 listener。
 
-下一步：將 CI 結果提交至 PR #30，等待第二次文件-only CI 通過後合併；有兩台 Android
-真機時接續 V1-01/03/04。
+下一步：有兩台 Android 真機時接續 V1-01/03/04；取得 credentials/production host 後
+完成真實 Push、iOS、正式簽章與公開 deployment Gate。
 
 ## 上次交接（2026-07-15 01:22 +08:00）
 
