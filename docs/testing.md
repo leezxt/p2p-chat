@@ -118,6 +118,18 @@ flutter build apk --profile --target-platform android-x64
 
 Runner 以五次 process-cold launch 的中位數檢查 3 秒目標，以 `dumpsys meminfo` 檢查 150MB 閒置目標，並在 65 秒背景窗檢查 App UID 的 established TCP 與 netstats。結果寫入 `build/v1-android-resources/`；AVD 基線與真機待驗項目見 [`resource_measurement_v1.md`](resource_measurement_v1.md)。
 
+Android 候選版 artifact 與 checksum manifest：
+
+```powershell
+cd mobile_desktop_app
+.\tool\build_android_candidate.ps1 -Mode Profile -TargetPlatform android-arm64
+.\tool\build_android_candidate.ps1 -Mode Release -ApplicationId <production-application-id>
+```
+
+Profile 產物只標示為 `INTERNAL_PROFILE`。Release 模式必須使用乾淨工作樹、正式
+application ID 與被 Git 忽略的 `android/key.properties`，成功後才會標示為
+`RELEASE_CANDIDATE`。輸出的 JSON manifest 不包含簽章密碼或私鑰資料。
+
 iOS 驗證：
 
 ```bash
