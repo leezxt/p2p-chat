@@ -95,6 +95,32 @@ secret；WebSocket probe 只驗證 `101` transport upgrade，不送 `AUTH` frame
 備份預設位於被 Git 忽略的 `target/production-backups/`。Dump 含應用資料，即使訊息
 內容主要是密文，仍必須移至限制存取的加密儲存並設定 retention。
 
+Local staging retention 預設只規劃、不刪除。每份 dump 必須先由 off-host upload/verify
+流程在 `target/production-backup-receipts/` 建立同名
+`<dump>.offhost-receipt.json`，包含 schema 1、dump SHA-256、UTC `verifiedAt` 與非空的
+`storageReference`。Receipt 是外部儲存已核對 hash 的證明；不可只因本機複製命令 exit 0
+就建立。先執行 dry-run：
+
+```powershell
+.\scripts\prune-production-backups.ps1 `
+  -MaxAgeDays 30 `
+  -MinimumBackups 7
+```
+
+只有合法 dump/manifest/receipt、超過期限且不在最新保留數內的項目會列入 candidates。
+確認計畫後才可明確套用：
+
+```powershell
+.\scripts\prune-production-backups.ps1 `
+  -MaxAgeDays 30 `
+  -MinimumBackups 7 `
+  -Apply `
+  -Confirmation 'DELETE-VERIFIED-LOCAL-BACKUPS'
+```
+
+無 receipt、hash/size/schema 錯誤、orphan 或 reparse point 一律保留並列為 protected。
+本工具只管理本機 staging，不上傳或刪除 off-host object，也不代表排程已部署。
+
 還原演練預設只建立明確指定的新資料庫：
 
 ```powershell

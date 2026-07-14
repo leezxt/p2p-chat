@@ -45,6 +45,9 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - name: Test backup retention safety
+        shell: pwsh
+        run: ./scripts/test-backup-retention.ps1
       - name: Build and verify isolated containers
         shell: pwsh
         run: ./scripts/smoke.ps1

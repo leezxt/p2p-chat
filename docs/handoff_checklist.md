@@ -12,7 +12,29 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-15 06:22 +08:00）
+## 目前交接（2026-07-15 07:01 +08:00）
+
+目前目標：完成 production backup 的本機 staging retention 安全邊界，避免未上傳、
+未驗證或仍在最低保留數內的 backup 被自動刪除。
+
+- [x] **已完成**：新增 `prune-production-backups.ps1`；預設只 dry-run，Apply 必須同時提供 `-Apply` 與精確確認字串 `DELETE-VERIFIED-LOCAL-BACKUPS`
+- [x] **已完成**：候選檔必須通過 dump/manifest schema、filename、size、SHA-256、custom-format 與有效 off-host receipt 驗證，receipt hash 必須與 dump 相符
+- [x] **已完成**：超過 `MaxAgeDays` 且不在最新 `MinimumBackups` 內才可刪除；缺 receipt、corrupt/orphan、reparse point 與格式錯誤一律 protected
+- [x] **已完成**：Apply 前重新檢查檔案、reparse point、manifest/receipt/hash，避免掃描後置換；重跑維持冪等
+- [x] **已完成**：新增 Windows/Ubuntu 共用 fixture；dry-run candidates 2、deleted 2、protected remaining 4、錯誤確認拒絕與 idempotent 均通過
+- [x] **已完成**：PR #32 head GitHub run `29374714176` 的 Java 21、Flutter 3.44.6 與 PostgreSQL container smoke 三 jobs 全通過
+- [x] **已完成**：同步 backend README、testing、安全稽核、RC、V1 task、成本與交接文件
+- [x] **已完成**：本機 PowerShell parser、retention fixture、`git diff --check`、五份變更 Markdown 本機連結與新增行 secret scan 通過；codebase change detection 為 10 個預期檔案、0 impacted symbols
+- [ ] **已實作未驗證**：正式加密 off-host object storage、由 upload/verify 系統簽發 receipt、production 排程、外部告警、實際 retention policy 與災難復原演練
+- [ ] **未完成**：兩台 Android 真機 V1-01/03/04、真實 FCM/APNs、iPhone runtime、正式簽章、公開 DNS/ACME、registry digest 與最終 release artifacts
+
+Runtime：本輪功能與 retention fixture 已在 GitHub-hosted Ubuntu runner 完成；Windows
+本機沒有啟動 Docker、ADB、AVD、App 或 backend runtime。
+
+下一步：有兩台 Android 真機時接續 V1-01/03/04；取得 credentials/production host 後
+完成真實 Push、iOS、正式簽章、公開 deployment、off-host backup/receipt/排程與告警 Gate。
+
+## 上次交接（2026-07-15 06:22 +08:00）
 
 目前目標：將 Dockerfile、PostgreSQL、Flyway 與 container health 納入每個 PR/main push
 的 V1 CI，並修正原 smoke runner 的環境依賴、隔離及 test volume 清理問題。
