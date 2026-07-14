@@ -59,7 +59,7 @@ public class SignalingWebSocketHandler extends TextWebSocketHandler {
             if (previous != null && previous.isOpen()) previous.close(CloseStatus.POLICY_VIOLATION);
             ObjectNode response = json.createObjectNode();
             response.put("schemaVersion", 1).put("type", "AUTHENTICATED").put("deviceId", deviceId.toString());
-            session.sendMessage(new TextMessage(json.writeValueAsString(response)));
+            send(session, new TextMessage(json.writeValueAsString(response)));
         } catch (Exception e) { sendError(session, "AUTH_FAILED"); }
     }
 
@@ -80,13 +80,19 @@ public class SignalingWebSocketHandler extends TextWebSocketHandler {
                 .put("senderDeviceId", senderDevice).put("targetDeviceId", target);
         JsonNode payload = message.get("payload");
         if (payload != null) outbound.set("payload", payload);
-        recipient.sendMessage(new TextMessage(json.writeValueAsString(outbound)));
+        send(recipient, new TextMessage(json.writeValueAsString(outbound)));
     }
 
     private void sendError(WebSocketSession session, String code) throws IOException {
         ObjectNode error = json.createObjectNode();
         error.put("schemaVersion", 1).put("type", "ERROR").put("code", code);
-        session.sendMessage(new TextMessage(json.writeValueAsString(error)));
+        send(session, new TextMessage(json.writeValueAsString(error)));
+    }
+
+    void send(WebSocketSession session, TextMessage message) throws IOException {
+        synchronized (session) {
+            session.sendMessage(message);
+        }
     }
 
     private static String text(JsonNode node, String field) {
