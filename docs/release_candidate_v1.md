@@ -86,6 +86,10 @@ registry digest、firewall、備份/還原、監控與真實 HTTPS endpoint 仍�
 WebSocket 101 只驗證 transport upgrade；連線後仍須以第一個 `AUTH` frame 完成
 JWT/device ownership 認證。
 
+`backup-production.ps1` 與 `restore-production.ps1` 已在隔離 PostgreSQL 完成 custom dump、
+SHA-256、完整性檢查、新 DB restore、既有 test DB replacement、Flyway 1～9、10 tables
+與 probe data 比對。正式環境仍需加密 off-host storage、retention、排程與定期演練。
+
 Backend candidate 使用統一腳本執行 Maven tests、建立 executable JAR 與 Docker image，
 並輸出 JAR SHA-256、local image ID/size、OCI revision/version labels 與本機
 RepoDigests：
@@ -153,7 +157,7 @@ cd mobile_desktop_app
 - [ ] iPhone Keychain、libsodium、WebRTC、背景 sleep 與跨平台 E2E 通過。
 - [ ] 提供正式 Android application ID、version 與 release keystore；安全簽章設定骨架已完成。
 - [ ] 設定正式 iOS Bundle ID、version 與 distribution signing。
-- [ ] 以 production HTTPS/WSS + PostgreSQL 環境完成最後 smoke test；本機 TLS/WSS topology 與 backend candidate manifest 已通過，公開 DNS/ACME、registry、備份/監控待驗。
+- [ ] 以 production HTTPS/WSS + PostgreSQL 環境完成最後 smoke test；本機 TLS/WSS、candidate manifest 與 backup/restore drill 已通過，公開 DNS/ACME、registry、off-host backup/監控待驗。
 - [ ] 產生 Android/iOS 候選版 artifact，記錄 SHA-256、建置時間與來源 commit；Android 產物/manifest 腳本已完成，正式憑證待執行。
 - [ ] README、架構、安全、成本、操作說明與已知限制完成最終同步。
 

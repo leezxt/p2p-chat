@@ -67,6 +67,32 @@ user。正式環境不可使用 `-AllowLocalVerification`。
 retention、監控告警與憑證續期演練。停止服務時不要任意加 `--volumes`，否則會刪除
 PostgreSQL 與 Caddy certificate 資料。
 
+### PostgreSQL 備份與還原
+
+服務 healthy 時建立 PostgreSQL custom-format 壓縮 dump、SHA-256 manifest，並先執行
+`pg_restore --list` 完整性檢查：
+
+```powershell
+.\scripts\backup-production.ps1 -EnvFile .\production.env
+```
+
+備份預設位於被 Git 忽略的 `target/production-backups/`。Dump 含應用資料，即使訊息
+內容主要是密文，仍必須移至限制存取的加密儲存並設定 retention。
+
+還原演練預設只建立明確指定的新資料庫：
+
+```powershell
+.\scripts\restore-production.ps1 `
+  -BackupPath .\target\production-backups\<backup>.dump `
+  -TargetDatabase p2p_chat_restore_verify `
+  -EnvFile .\production.env `
+  -CreateTargetDatabase
+```
+
+既有 target 必須同時提供 `-ReplaceExistingTarget` 與區分大小寫的
+`-Confirmation 'REPLACE:<database>'`。設定中的 production source database 另需
+`-AllowSourceDatabaseReplacement`；一般演練不得使用此 switch。
+
 不依賴 Docker、以 H2 test profile 驗證 Flutter HTTP client 與真實 Spring backend：
 
 ```powershell
