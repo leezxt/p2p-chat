@@ -162,6 +162,7 @@ cd mobile_desktop_app
 - [ ] V1-04 真機 OS kill、實際斷網/恢復、重複訊息與 ACK 遺失復原通過。
 - [ ] 真實 Firebase credentials、FCM/APNs、通知權限拒絕與 cold/warm start 通過。
 - [ ] iPhone Keychain、libsodium、WebRTC、背景 sleep 與跨平台 E2E 通過。
+- [ ] 繁體中文與英文介面、系統語言偵測、App 內切換／跨重啟保存、fallback 與兩種語言 widget tests 通過。
 - [ ] 提供正式 Android application ID、version 與 release keystore；安全簽章設定骨架已完成。
 - [ ] 設定正式 iOS Bundle ID、version 與 distribution signing。
 - [ ] 以 production HTTPS/WSS + PostgreSQL 環境完成最後 smoke test；本機 TLS/WSS、candidate manifest、backup/restore、staging retention、log rotation 與 monitor 已通過，公開 DNS/ACME、registry、真實 off-host object/receipt、排程與外部告警待驗。
