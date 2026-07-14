@@ -79,6 +79,19 @@ Production backend 不得使用 H2、local development key 或 HTTP。正式環�
 PostgreSQL、JWT secret、HTTPS/WSS endpoint 與精確 WebSocket origin allowlist。環境變數
 與容器檢查方式見 [`../java_backend/README.md`](../java_backend/README.md)。
 
+Backend candidate 使用統一腳本執行 Maven tests、建立 executable JAR 與 Docker image，
+並輸出 JAR SHA-256、local image ID/size、OCI revision/version labels 與本機
+RepoDigests：
+
+```powershell
+cd java_backend
+.\scripts\build-candidate.ps1
+```
+
+產物位於被 Git 忽略的 `target/v1-release-candidate/`。本機 Docker image ID 或
+RepoDigests 不等於 registry 已接受的證明；正式推送 image 後仍必須從 registry 記錄部署
+所用 digest，不能以 local 值冒充。
+
 ### iOS 開發候選版
 
 ```bash
@@ -133,7 +146,7 @@ cd mobile_desktop_app
 - [ ] iPhone Keychain、libsodium、WebRTC、背景 sleep 與跨平台 E2E 通過。
 - [ ] 提供正式 Android application ID、version 與 release keystore；安全簽章設定骨架已完成。
 - [ ] 設定正式 iOS Bundle ID、version 與 distribution signing。
-- [ ] 以 production HTTPS/WSS + PostgreSQL 環境完成最後 smoke test。
+- [ ] 以 production HTTPS/WSS + PostgreSQL 環境完成最後 smoke test；本機 backend candidate JAR/image manifest 流程已完成。
 - [ ] 產生 Android/iOS 候選版 artifact，記錄 SHA-256、建置時間與來源 commit；Android 產物/manifest 腳本已完成，正式憑證待執行。
 - [ ] README、架構、安全、成本、操作說明與已知限制完成最終同步。
 
