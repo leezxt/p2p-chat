@@ -1,5 +1,11 @@
 name: p2p-chat-production
 
+x-logging: &production-logging
+  driver: json-file
+  options:
+    max-size: ${LOG_MAX_SIZE:-10m}
+    max-file: "${LOG_MAX_FILES:-5}"
+
 services:
   proxy:
     image: ${CADDY_IMAGE:?Set a registry-pinned CADDY_IMAGE}
@@ -25,6 +31,7 @@ services:
       - /tmp:noexec,nosuid,size=32m
     security_opt:
       - no-new-privileges:true
+    logging: *production-logging
 
   backend:
     image: ${BACKEND_IMAGE:?Set a registry-pinned BACKEND_IMAGE}
@@ -55,6 +62,7 @@ services:
       - ALL
     security_opt:
       - no-new-privileges:true
+    logging: *production-logging
 
   postgres:
     image: ${POSTGRES_IMAGE:?Set a registry-pinned POSTGRES_IMAGE}
@@ -75,6 +83,7 @@ services:
       - data
     security_opt:
       - no-new-privileges:true
+    logging: *production-logging
 
 networks:
   edge:

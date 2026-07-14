@@ -12,7 +12,28 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-15 01:08 +08:00）
+## 目前交接（2026-07-15 01:22 +08:00）
+
+目前目標：建立 production 有界 log retention 與可供排程/告警使用的外部 one-shot
+HTTPS/WSS monitor；公開 DNS 與告警服務尚未提供，因此只做 localhost topology 驗證。
+
+- [x] **已完成**：三個 production services 共用 Docker `json-file` rotation，預設 `10m` × 5，避免 host log 無上限成長
+- [x] **已完成**：preflight 驗證所有服務的 rendered logging policy，並限制 `LOG_MAX_SIZE` 格式與 `LOG_MAX_FILES` 2～20
+- [x] **已完成**：新增 `monitor-production.ps1`，驗證 HTTP redirect、HTTPS readiness、HSTS/`nosniff`/移除 `Server` 與 WSS 101
+- [x] **已完成**：monitor 成功輸出 `PASS`/exit 0；失敗輸出不含 secret 的 JSON `FAIL`/非零 exit code，可接排程與外部告警
+- [x] **已完成**：localhost TLS topology 正向四項 checks 通過；未啟動 endpoint 與 production mode 使用 localhost 的負向案例通過
+- [x] **已完成**：三個實際 containers 經 `docker inspect` 均為 `json-file|10m|5`；非法 `0m`/1 file preflight 正確拒絕
+- [x] **已完成**：同步 backend README、testing、RC、安全稽核、成本、任務與交接文件
+- [ ] **已實作未驗證**：公開 endpoint、正常 ACME certificate、外部 probe host、排程頻率、告警接收/升級與長期 log rotation 仍待 production 驗收
+
+Runtime：localhost production topology 已以 `down --volumes --remove-orphans` 清除全部
+containers、networks、PostgreSQL/Caddy test volumes；兩份 ignored test env 亦已刪除。
+Docker Desktop 已正常停止，未保留本輪 runtime 資料。
+
+下一步：同步 GitHub。取得公開 DNS/registry 後，從 deployment host 外部定期執行
+monitor 並接告警；Android 真機仍接續 V1-01/03/04。
+
+## 上次交接（2026-07-15 01:08 +08:00）
 
 目前目標：建立 production PostgreSQL 可驗證備份／還原流程；所有測試只在隔離 DB
 執行，不覆寫 configured production source database。

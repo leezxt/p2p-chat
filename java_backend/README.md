@@ -63,9 +63,21 @@ certificate、代理 HTTPS/WSS、加入 HSTS/安全 headers 並移除 `Server` h
 使用 `prod` profile、read-only root filesystem、drop all capabilities 與 non-root `app`
 user。正式環境不可使用 `-AllowLocalVerification`。
 
-正式啟動前仍需另外完成 DNS、firewall、registry access、volume backup/restore、log
-retention、監控告警與憑證續期演練。停止服務時不要任意加 `--volumes`，否則會刪除
-PostgreSQL 與 Caddy certificate 資料。
+三個 production containers 預設使用 Docker `json-file` rotation（每檔 `10m`、保留 5
+檔），可用 `LOG_MAX_SIZE` 與 `LOG_MAX_FILES` 調整；preflight 限制 size 格式與 2～20
+檔，避免誤設為無界限。正式啟動前仍需另外完成 DNS、firewall、registry access、
+volume backup/restore、外部告警接收器與憑證續期演練。停止服務時不要任意加
+`--volumes`，否則會刪除 PostgreSQL 與 Caddy certificate 資料。
+
+啟動後可由另一台主機執行 one-shot probe；成功回 `PASS`/exit 0，任何 HTTP redirect、
+readiness、security header 或 WSS upgrade 問題都回 `FAIL`/非零 exit code：
+
+```powershell
+.\scripts\monitor-production.ps1 -EnvFile .\production.env
+```
+
+將此命令接至既有監控排程與告警通道。輸出的 endpoint 與 check 狀態不含 DB/JWT/push
+secret；WebSocket probe 只驗證 `101` transport upgrade，不送 `AUTH` frame。
 
 ### PostgreSQL 備份與還原
 

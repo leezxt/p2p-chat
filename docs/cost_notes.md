@@ -42,6 +42,9 @@
   自動 ACME certificate 不代表主機或網域免費。
 - 備份成本至少包含加密 off-host object storage、版本 retention 與定期 restore drill 的
   暫存資料庫空間；不能只保留與 production volume 同一主機上的 dump。
+- Production containers 已限制本機 JSON log 為每服務預設 5 × 10 MiB；one-shot monitor
+  可接既有排程。若採用付費 log aggregation、uptime/告警服務，仍須另外估算 ingest、
+  retention、probe frequency 與通知成本。
 
 正式發布前需依預估活躍裝置數、mailbox 留存量、request rate、log/monitoring 與備份
 需求建立月成本上限；候選版 Gate 見 [`release_candidate_v1.md`](release_candidate_v1.md)。
