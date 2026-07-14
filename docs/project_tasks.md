@@ -117,10 +117,10 @@
 
 | ID | 任務 | 依賴 | 驗收條件 |
 |---|---|---|---|
-| V1-01 | 🚧 建立兩台真機的完整 E2E 測試腳本 | S8-05 | 共用 Android runner 已在雙 AVD 通過 registration、contact ACL、JWT signaling、offer/answer/ICE、libsodium 密文與 DataChannel；兩台真機、離線 mailbox、DELIVERED/READ 全流程待驗 |
+| V1-01 | 🚧 建立兩台真機的完整 E2E 測試腳本 | S8-05 | 雙 AVD 已分別通過 encrypted P2P runner，以及真實 sodium offline mailbox、ACK 遺失、App force-stop/restart、DELIVERED/READ 與 sender 本機 READ 狀態；兩台真機、實際斷網與資源量測待驗 |
 | V1-02 | ✅ 安全與隱私稽核 | S6-06,S7-06,S8-05 | 私鑰/明文不上傳、不進 log；修復 ACK/origin/cursor、push token at-rest、共享 mailbox rate limit 與 FCM outbox worker；Java 51 tests、Flutter 82 tests、analyze 通過，殘餘風險見 `security_audit_v1.md` |
 | V1-03 | 資源目標量測 | V1-01 | 冷啟動、閒置記憶體、背景連線、網路與電量結果寫入 docs |
-| V1-04 | 🚧 故障恢復與資料完整性測試 | V1-01 | SQLite 關閉／重開、ACK 遺失重投與 v1～v5 升級至 v6 的資料完整性測試已通過；真機殺程序與實際斷網待驗 |
+| V1-04 | 🚧 故障恢復與資料完整性測試 | V1-01 | SQLite 關閉／重開、ACK 遺失重投、v1～v5 升級至 v6，以及 Android AVD `am force-stop` 後同一 DB 重啟與 READ 閉環已通過；真機 OS kill 與實際斷網待驗 |
 | V1-05 | 發布候選版文件與已知限制 | V1-02..04 | README、架構、安全、成本、操作說明與已知限制同步更新 |
 
 ## V1.5 安全與省資源（P1）
