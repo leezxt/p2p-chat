@@ -12,7 +12,7 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-15 07:13 +08:00）
+## 目前交接（2026-07-15 07:19 +08:00）
 
 目前目標：修正 backup retention 合併後 `main` CI 揭露的 signaling WebSocket 並行
 寫入 race，恢復 Java Gate 的可重現穩定性。
@@ -23,14 +23,16 @@
 - [x] **已完成**：三條輸出路徑收斂至同一 session lock，確保 handler 對每個 session 序列化送出 frame
 - [x] **已完成**：新增受控並行回歸測試；第一筆 write 阻塞時第二筆不得進入底層 WebSocket send
 - [x] **已完成**：專項測試與完整 Maven suite 52 tests 全通過，0 failures/errors/skipped；`git diff --check` 通過
-- [ ] **已實作未驗證**：`codex/serialize-websocket-writes` 尚待 GitHub PR 的 Java、Flutter 與 PostgreSQL container smoke 驗證
+- [x] **已完成**：PR #33 run `29375556941` 三 jobs 全通過，已合併為 `main` commit `8f20e81`
+- [x] **已完成**：`main` run `29375675896` 的 Java 52 tests、Flutter 3.44.6 checks、retention fixture 與 PostgreSQL container smoke 全通過，原 race 未再出現
 - [ ] **未完成**：兩台 Android 真機 V1-01/03/04、真實 FCM/APNs、iPhone runtime、正式簽章、公開 production 與最終 release artifacts
 
 Runtime：本輪只執行本機 Maven tests，測試用 Spring/Tomcat process 已隨 suite 正常結束；
 沒有啟動 Docker、ADB、AVD、App 或常駐 backend runtime。
 
-下一步：提交並推送 signaling fix，確認 PR 三項 CI 後合併；再確認 `main` CI 全綠。
-外部環境可用時仍以 Android 真機與 production/credentials Gate 為優先。
+下一步：目前沒有可取代外部 Gate 的本機模擬項目；有兩台 Android 真機時接續
+V1-01/03/04，取得 credentials/production host 後完成 Push、iOS、簽章、公開 deployment、
+off-host backup/receipt/排程、告警與最終 artifacts。
 
 ## 上次交接（2026-07-15 07:01 +08:00）
 
