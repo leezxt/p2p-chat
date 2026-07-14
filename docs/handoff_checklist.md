@@ -12,7 +12,26 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-15 01:22 +08:00）
+## 目前交接（2026-07-15 02:30 +08:00）
+
+目前目標：補上 repository 缺少的 V1 continuous integration Gate，讓每個 PR 與 main
+push 自動驗證 Java backend 與 Flutter host tests；native/真機測試仍維持獨立 Gate。
+
+- [x] **已完成**：確認 Android SDK 存在但沒有連接裝置，V1-01/03/04 本輪不可冒充真機驗收
+- [x] **已完成**：新增 `.github/workflows/v1-ci.yml`，PR、main push 與手動觸發均執行
+- [x] **已完成**：Java 21 與 Flutter 3.44.6 分離 jobs，設定 timeout、concurrency cancellation 與 `contents: read` 最小權限
+- [x] **已完成**：checkout/setup-java/flutter-action 全部 pin 40-char commit SHA；Flutter dependency 使用 lockfile fail-closed
+- [x] **已完成**：GitHub runs `29357810257`、`29358109443` 均通過；最新 head Java tests 41 秒、Flutter locked dependency/format/analyze/unit/widget tests 117 秒
+- [x] **已完成**：同步 testing、V1 task、RC 與交接文件；CI 明確不取代 Docker/native/真機 Gate
+- [ ] **未完成**：V1-01/03/04 仍需兩台 Android 真機；真實 Push、iOS、正式簽章與公開 production Gate 亦未完成
+
+Runtime：沒有 App/backend/Docker/AVD 執行；本輪檢查 Android 裝置時曾啟動 ADB
+server，但 `adb devices -l` 為空。ADB server 已停止，port 5037 無 listener。
+
+下一步：有兩台 Android 真機時接續 V1-01/03/04；取得 credentials/production host 後
+完成真實 Push、iOS、正式簽章與公開 deployment Gate。
+
+## 上次交接（2026-07-15 01:22 +08:00）
 
 目前目標：建立 production 有界 log retention 與可供排程/告警使用的外部 one-shot
 HTTPS/WSS monitor；公開 DNS 與告警服務尚未提供，因此只做 localhost topology 驗證。

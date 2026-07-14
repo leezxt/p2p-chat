@@ -2,6 +2,10 @@
 
 本文件是 repository 的測試入口。各子專案 README 保留平台細節；日常變更應先跑與變更範圍相符的快速驗證，合併前再完成可用環境支援的完整驗證。
 
+Pull request 與 `main` push 會執行 `.github/workflows/v1-ci.yml`：Java 21 完整 tests，以及
+Flutter 3.44.6 的 locked dependency、format、analyze、unit/widget tests。CI 不取代
+PostgreSQL/Docker smoke、Android/iOS integration test 或真機 Gate。
+
 ## 測試矩陣
 
 | 範圍 | 快速驗證 | 完整驗證 | 主要覆蓋 |
