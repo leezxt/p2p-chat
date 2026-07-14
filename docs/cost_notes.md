@@ -41,7 +41,9 @@
   授權費，但需要網域、主機、持久磁碟、備份、log/monitoring 與對外流量預算；Caddy
   自動 ACME certificate 不代表主機或網域免費。
 - 備份成本至少包含加密 off-host object storage、版本 retention 與定期 restore drill 的
-  暫存資料庫空間；不能只保留與 production volume 同一主機上的 dump。
+  暫存資料庫空間；不能只保留與 production volume 同一主機上的 dump。本機 staging
+  retention 工具已能只清除具有效 off-host receipt 的過期驗證備份，但不負責上傳或刪除
+  遠端 object；正式成本仍須包含遠端 object 驗證、receipt 簽發、排程與告警。
 - Production containers 已限制本機 JSON log 為每服務預設 5 × 10 MiB；one-shot monitor
   可接既有排程。若採用付費 log aggregation、uptime/告警服務，仍須另外估算 ingest、
   retention、probe frequency 與通知成本。

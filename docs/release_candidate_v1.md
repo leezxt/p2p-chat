@@ -91,7 +91,10 @@ JWT/device ownership 認證。
 
 `backup-production.ps1` 與 `restore-production.ps1` 已在隔離 PostgreSQL 完成 custom dump、
 SHA-256、完整性檢查、新 DB restore、既有 test DB replacement、Flyway 1～9、10 tables
-與 probe data 比對。正式環境仍需加密 off-host storage、retention、排程與定期演練。
+與 probe data 比對。`prune-production-backups.ps1` 已以 Windows fixture 與 GitHub-hosted
+Ubuntu runner 驗證本機 staging retention：預設 dry-run，只有具有效 off-host receipt、
+通過 manifest/hash/custom-format 驗證、超過期限且不在最新保留數內的 backup 才能在
+精確確認後刪除。正式環境仍需加密 off-host storage、外部 receipt 簽發、排程與定期演練。
 
 Backend candidate 使用統一腳本執行 Maven tests、建立 executable JAR 與 Docker image，
 並輸出 JAR SHA-256、local image ID/size、OCI revision/version labels 與本機
@@ -161,7 +164,7 @@ cd mobile_desktop_app
 - [ ] iPhone Keychain、libsodium、WebRTC、背景 sleep 與跨平台 E2E 通過。
 - [ ] 提供正式 Android application ID、version 與 release keystore；安全簽章設定骨架已完成。
 - [ ] 設定正式 iOS Bundle ID、version 與 distribution signing。
-- [ ] 以 production HTTPS/WSS + PostgreSQL 環境完成最後 smoke test；本機 TLS/WSS、candidate manifest、backup/restore、log rotation 與 monitor 已通過，公開 DNS/ACME、registry、off-host backup/外部告警待驗。
+- [ ] 以 production HTTPS/WSS + PostgreSQL 環境完成最後 smoke test；本機 TLS/WSS、candidate manifest、backup/restore、staging retention、log rotation 與 monitor 已通過，公開 DNS/ACME、registry、真實 off-host object/receipt、排程與外部告警待驗。
 - [ ] 產生 Android/iOS 候選版 artifact，記錄 SHA-256、建置時間與來源 commit；Android 產物/manifest 腳本已完成，正式憑證待執行。
 - [ ] README、架構、安全、成本、操作說明與已知限制完成最終同步。
 
