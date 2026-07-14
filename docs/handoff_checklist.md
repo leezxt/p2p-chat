@@ -12,7 +12,25 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-14 19:18 +08:00）
+## 目前交接（2026-07-14 19:54 +08:00）
+
+目前目標：建立 V1-03 Android 資源量測入口，先以 Android 15 AVD/profile APK 建立可重現基線，不以 Emulator 取代真機 release 與電量驗收。
+
+- [x] **已完成**：確認規格 §21 門檻為冷啟動 3 秒、閒置記憶體 150MB、背景 P2P 0、前景 heartbeat 60 秒
+- [x] **已完成**：新增 `measure_android_resources.ps1`，量測五次 process-cold launch、前景/背景 PSS、App UID established TCP 與背景 netstats，輸出 JSON/Markdown
+- [x] **已完成**：profile x86_64 APK 建置通過；App lifecycle、Presence 與 P2P sleep 相關 13 tests 通過；PowerShell parser 通過
+- [x] **已完成**：Android 15 AVD 兩次自動基線通過；冷啟動中位數 2646/2690ms、閒置 PSS 110.22/111.54MB、背景 TCP 0，第二次背景網路增量 0 bytes
+- [x] **已完成**：新增 `resource_measurement_v1.md`，記錄方法、完整樣本、最大啟動 3275/3067ms 與 release 驗收限制
+- [ ] **已實作未驗證**：兩台 Android 真機的 profile/release 冷啟動、低記憶體裝置、Wi-Fi/行動網路、長時間耗電與背景行為
+- [x] **已完成**：資源量測 commit `af74009` 經 PR #22 合併至 `main`，merge commit `5ad67d7`
+
+驗證：兩次 `measure_android_resources.ps1 -Device emulator-5554 -ClearAppData` 均 exit 0；第二次報告為 cold median 2690ms、maximum 3067ms、foreground PSS 111.54MB、background PSS 117.21MB、background TCP 0、network delta 0 bytes。自動 gate 使用五次中位數；最大值超過 3 秒已明確保留，不能宣稱所有冷啟動均達標。Emulator battery 結果不具意義，未量測。
+
+Runtime：`emulator-5554` 已在本段先行記錄後乾淨關閉，`adb devices` 無殘留裝置。續接命令與完整限制見 `docs/resource_measurement_v1.md`。
+
+下一步：接上兩台 USB Android 真機重跑 encrypted P2P、mailbox recovery 與 resource runner，再執行實際斷網、OS kill 與長時間電量量測；完成後更新 V1-01/V1-03/V1-04，最後整理 V1-05 release candidate。
+
+## 上次交接（2026-07-14 19:18 +08:00）
 
 目前目標：以兩台 Android AVD 驗證真實 offline mailbox、DELIVERED/READ 狀態與 App process force-stop 後的 SQLite/ACK 復原；模擬器結果不取代兩台真機的斷網、OS kill 與資源驗收。
 
