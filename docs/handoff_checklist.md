@@ -12,7 +12,23 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-15 21:02 +08:00）
+## 目前交接（2026-07-15 21:15 +08:00）
+
+目前目標：在 GitHub-hosted Windows runner 啟動真實 Flutter App integration test，補上
+不需手機的 Credential Manager、libsodium failure paths 與 WebRTC DataChannel 驗證。
+
+- [x] **已完成**：codebase graph 確認既有 `android_crypto_runtime_test.dart` 已使用 production `FlutterSecureKeyValueStore`，並以 `RUNTIME_PLATFORM` 支援非 Android host
+- [ ] **已實作未驗證**：Windows CI 在 native crypto unit tests 與 Desktop build 後，以 `-d windows` 啟動既有 integration test
+- [x] **已完成**：測試會清除專用 Credential Manager key；文件明列 CI 不取代使用者工作站跨重啟、帳號政策或 Credential Guard 驗收
+- [ ] **未完成**：提交 PR、依 Windows integration log 修正相容問題、通過後更新 S6-02 與發布 Gate，再合併並驗證 `main`
+
+Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或 backend；本機缺 Visual Studio C++，
+Windows App integration 將由 GitHub-hosted runner 執行。
+
+下一步：推送 `codex/windows-native-integration`，監看 Windows App 啟動、Credential Manager、
+libsodium 與 WebRTC 測試結果；通過後更新交接狀態並合併。
+
+## 上次交接（2026-07-15 21:02 +08:00）
 
 目前目標：利用 GitHub-hosted Windows runner 補上不需手機的 libsodium native runtime
 測試，關閉本機因缺 Visual Studio C++ toolchain 無法執行的 Windows crypto 驗證缺口。

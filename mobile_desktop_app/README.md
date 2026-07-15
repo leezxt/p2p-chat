@@ -77,6 +77,11 @@ Pull request 與 `main` CI 會在 GitHub-hosted Windows 2022 runner 執行相同
 Credential Manager 持久化驗收；Build Gate 也不代表 Desktop Link、多裝置同步或桌面資源
 量測已完成。
 
+Windows CI 另以 `-d windows` 啟動 native integration test，使用 production
+`FlutterSecureKeyValueStore` 驗證 Credential Manager 寫入／讀回與清除，並在同一 App
+process 驗證 libsodium failure paths 及 encrypted WebRTC DataChannel。這仍不取代使用者
+工作站的跨重啟、帳號政策或企業 Credential Guard 相容性驗收。
+
 ## Push notification 啟動流程
 
 App 已提供 provider-neutral 的 notification launch adapter 邊界。只接受
