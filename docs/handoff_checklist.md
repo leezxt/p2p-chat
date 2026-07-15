@@ -12,7 +12,7 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-15 20:41 +08:00）
+## 目前交接（2026-07-15 21:02 +08:00）
 
 目前目標：利用 GitHub-hosted Windows runner 補上不需手機的 libsodium native runtime
 測試，關閉本機因缺 Visual Studio C++ toolchain 無法執行的 Windows crypto 驗證缺口。
@@ -21,13 +21,15 @@
 - [x] **已完成**：Windows Desktop CI job 在 locked dependency 後執行 `flutter test --no-pub test/modules/device_key_service_test.dart`；PR #43 run `29416283272` 的 5 tests 於 59 秒內全通過
 - [x] **已完成**：測試矩陣與 mobile README 已明列此測試使用真實 Windows libsodium native asset、記憶體 secure store，不取代 Credential Manager 持久化驗收
 - [x] **已完成**：commit `10f21e8` 已推送並建立 draft PR #43；Java／Flutter／PostgreSQL／Windows Desktop 四個 jobs 全通過，Windows build 在專項後亦成功
-- [ ] **未完成**：推送 S6-02 驗收狀態、確認最新 PR head、合併並驗證 `main`
+- [x] **已完成**：最新 PR head run `29416691705` 四項 CI 全通過；PR #43 已 squash merge 為 `main` commit `0c67c1f`
+- [x] **已完成**：合併後 `main` run `29417187712` 的 Windows native crypto 5 tests、Desktop build、Java／Flutter／PostgreSQL jobs 全通過
 
 Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或 backend；本機缺 Visual Studio C++，
 Windows native test 將由 GitHub-hosted runner 執行。
 
-下一步：推送 S6-02 驗收狀態並確認最新 PR head；四項 CI 全綠後合併 PR #43，最後
-確認 `main` Gate。Windows Credential Manager 與手機 secure storage 實機驗收仍保留。
+下一步：Windows native libsodium 測試缺口已關閉。Windows Credential Manager 與手機
+secure storage 實機驗收仍保留；其餘 V1 未完成項目需要合格手機、Firebase/APNs、正式
+簽章或 production 外部環境。
 
 ## 上次交接（2026-07-15 20:29 +08:00）
 
