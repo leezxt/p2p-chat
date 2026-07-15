@@ -106,3 +106,17 @@ jobs:
           flutter test --no-pub -d windows
           --dart-define=RUNTIME_PLATFORM=Windows
           integration_test/android_crypto_runtime_test.dart
+      - name: Verify Windows secure storage across App processes
+        shell: pwsh
+        run: |
+          flutter test --no-pub -d windows `
+            --dart-define=RUNTIME_PLATFORM=Windows `
+            --dart-define=SECURE_STORAGE_PHASE=write `
+            integration_test/android_crypto_runtime_test.dart
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          flutter test --no-pub -d windows `
+            --dart-define=RUNTIME_PLATFORM=Windows `
+            --dart-define=SECURE_STORAGE_PHASE=verify `
+            integration_test/android_crypto_runtime_test.dart
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

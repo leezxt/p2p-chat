@@ -30,8 +30,9 @@
 - Android 15 AVD profile 資源基線；數值與限制見
   [`resource_measurement_v1.md`](resource_measurement_v1.md)。
 - GitHub Actions V1 CI：Java 21 backend tests、Flutter 3.44.6 locked dependency/format/
-  analyze/unit/widget tests、Windows libsodium/Credential Manager/WebRTC native integration
-  與 Desktop debug build，以及 isolated PostgreSQL container smoke。
+  analyze/unit/widget tests、Windows libsodium/Credential Manager/WebRTC native integration、
+  Credential Manager 跨獨立 App process 持久化與 Desktop debug build，以及 isolated
+  PostgreSQL container smoke。
 
 ## 建置與安裝
 
@@ -159,7 +160,7 @@ cd mobile_desktop_app
 ## 發布 Gate
 
 - [x] V1-02 安全與隱私稽核、自動化測試通過。
-- [x] GitHub Actions Java/Flutter host CI、Windows libsodium/Credential Manager/WebRTC integration、Desktop build 與 PostgreSQL container smoke 通過；不取代 production、使用者工作站政策與手機真機 Gate。
+- [x] GitHub Actions Java/Flutter host CI、Windows libsodium/Credential Manager/WebRTC integration、Desktop build 與 PostgreSQL container smoke 通過；Credential Manager 跨獨立 App process Gate 已實作待 CI 驗證；不取代 production、Windows OS 重開機／使用者工作站政策與手機真機 Gate。
 - [ ] V1-01 兩台 Android 真機 encrypted P2P 與 mailbox recovery runner 通過。
 - [ ] V1-03 真機冷啟動、記憶體、背景連線、網路與長時間耗電達標。
 - [ ] V1-04 真機 OS kill、實際斷網/恢復、重複訊息與 ACK 遺失復原通過。

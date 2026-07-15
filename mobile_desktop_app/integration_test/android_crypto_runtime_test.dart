@@ -19,6 +19,11 @@ import 'package:sodium/sodium.dart';
 
 const _platformLabel =
     String.fromEnvironment('RUNTIME_PLATFORM', defaultValue: 'Android');
+const _secureStoragePhase =
+    String.fromEnvironment('SECURE_STORAGE_PHASE', defaultValue: 'full');
+const _runtimeDeviceId = 'android-runtime-test-device';
+const _runtimeKey = 'p2p.crypto.device.$_runtimeDeviceId.v1';
+const _runtimeMarkerKey = 'p2p.crypto.test.$_runtimeDeviceId.fingerprint';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -28,11 +33,51 @@ void main() {
     final sodium = await SodiumInit.init();
     final store = FlutterSecureKeyValueStore();
     final service = DeviceKeyService(sodium: sodium, store: store);
-    const deviceId = 'android-runtime-test-device';
-    await store.delete('p2p.crypto.device.$deviceId.v1');
 
-    final first = await service.getOrCreate(deviceId);
-    final second = await service.getOrCreate(deviceId);
+    if (_secureStoragePhase == 'write') {
+      await store.delete(_runtimeKey);
+      await store.delete(_runtimeMarkerKey);
+      DeviceKeyMaterial? material;
+      var persisted = false;
+      try {
+        material = await service.getOrCreate(_runtimeDeviceId);
+        await store.write(_runtimeMarkerKey, material.fingerprint);
+        expect(await store.read(_runtimeMarkerKey), material.fingerprint);
+        persisted = true;
+      } finally {
+        material?.dispose();
+        if (!persisted) {
+          await store.delete(_runtimeKey);
+          await store.delete(_runtimeMarkerKey);
+        }
+      }
+      return;
+    }
+
+    if (_secureStoragePhase == 'verify') {
+      DeviceKeyMaterial? material;
+      try {
+        final expectedFingerprint = await store.read(_runtimeMarkerKey);
+        expect(expectedFingerprint, isNotNull,
+            reason: 'The write phase did not persist its marker.');
+        material = await service.getOrCreate(_runtimeDeviceId);
+        expect(material.fingerprint, expectedFingerprint);
+      } finally {
+        material?.dispose();
+        await store.delete(_runtimeKey);
+        await store.delete(_runtimeMarkerKey);
+      }
+      return;
+    }
+
+    if (_secureStoragePhase != 'full') {
+      fail('Unsupported SECURE_STORAGE_PHASE: $_secureStoragePhase');
+    }
+
+    await store.delete(_runtimeKey);
+
+    final first = await service.getOrCreate(_runtimeDeviceId);
+    final second = await service.getOrCreate(_runtimeDeviceId);
     try {
       expect(second.publicKey, orderedEquals(first.publicKey));
       expect(second.secretKey, first.secretKey);
@@ -40,7 +85,7 @@ void main() {
     } finally {
       first.dispose();
       second.dispose();
-      await store.delete('p2p.crypto.device.$deviceId.v1');
+      await store.delete(_runtimeKey);
     }
   });
 
@@ -133,7 +178,7 @@ void main() {
       keyA.dispose();
       keyB.dispose();
     }
-  });
+  }, skip: _secureStoragePhase != 'full');
 
   testWidgets('$_platformLabel 真實 WebRTC DataChannel 傳送並解密 sodium envelope',
       (tester) async {
@@ -219,7 +264,7 @@ void main() {
       keyA.dispose();
       keyB.dispose();
     }
-  });
+  }, skip: _secureStoragePhase != 'full');
 }
 
 const _message = MessageEnvelope(

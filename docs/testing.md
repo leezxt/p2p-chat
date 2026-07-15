@@ -161,6 +161,12 @@ Windows 若未安裝 Visual Studio Desktop development with C++，完整 `flutte
 tests，但必須保留該 native Gate 為未驗證，不能以 `NIX_SKIP_SODIUM_BUILD_HOOKS=1`
 取代 Android/iOS runtime 驗收。
 
+Windows CI 會額外以兩個獨立 App process 執行 secure storage phase。`write` phase 清除
+專用測試 key、建立裝置金鑰並保存非秘密 fingerprint marker；`verify` phase 由新的 App
+process 重載同一金鑰、比對 fingerprint，並在 `finally` 清除兩筆 Credential Manager
+測試資料。此 Gate 驗證 process restart persistence，不等於 Windows OS reboot 或企業
+Credential Guard／帳號政策驗收。
+
 完成變更時仍應回到完整 `flutter test`，避免跨模組生命週期或 Event Bus 回歸。
 
 ## Native 與端對端測試

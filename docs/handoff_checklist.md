@@ -12,7 +12,25 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-15 21:34 +08:00）
+## 目前交接（2026-07-15 22:09 +08:00）
+
+目前目標：補上不需手機的 Windows Credential Manager 跨獨立 App process 持久化
+Gate，確認第二次啟動能重載第一次啟動建立的 production 裝置金鑰。
+
+- [x] **已完成**：codebase graph 確認現有 native integration 只在同一 process 內呼叫兩次 `DeviceKeyService.getOrCreate`，且測試結束即清除 key，未覆蓋 process restart persistence
+- [x] **已完成**：新增 `SECURE_STORAGE_PHASE=write|verify`；write phase 清除專用 key、建立金鑰並保存非秘密 fingerprint marker，verify phase 由新的 App process 重載、比對並在 `finally` 清除兩筆 Credential Manager 測試資料
+- [x] **已完成**：既有 full phase 的 libsodium failure paths 與 encrypted WebRTC DataChannel 維持原流程；write／verify phase 只執行 secure storage 專項，避免重複高成本 native tests
+- [x] **已完成**：本機 locked dependencies、Dart formatter、`flutter analyze` 與 `git diff --check` 通過
+- [ ] **已實作未驗證**：本機缺 Visual Studio C++ workload，兩次獨立 Windows App process 的 runtime Gate 待 GitHub-hosted Windows runner 執行
+- [ ] **未完成**：推送 PR、確認四組 CI、合併並驗證 `main`
+
+Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或 backend；本機 Flutter analyze 程序已正常
+結束。Windows native App 仍只由 GitHub-hosted runner 啟動。
+
+下一步：推送 branch 並以 Windows runner 執行 full、write、verify 三次 App integration；
+通過後更新本段狀態並合併。Windows OS reboot／企業政策仍保留為外部補充驗收。
+
+## 上次交接（2026-07-15 21:34 +08:00）
 
 目前目標：在 GitHub-hosted Windows runner 啟動真實 Flutter App integration test，補上
 不需手機的 Credential Manager、libsodium failure paths 與 WebRTC DataChannel 驗證。
