@@ -18,15 +18,16 @@
 不需手機的 Credential Manager、libsodium failure paths 與 WebRTC DataChannel 驗證。
 
 - [x] **已完成**：codebase graph 確認既有 `android_crypto_runtime_test.dart` 已使用 production `FlutterSecureKeyValueStore`，並以 `RUNTIME_PLATFORM` 支援非 Android host
-- [ ] **已實作未驗證**：Windows CI 在 native crypto unit tests 與 Desktop build 後，以 `-d windows` 啟動既有 integration test
+- [x] **已完成**：PR #45 run `29418495593` 在 native crypto unit tests 與 Desktop build 後，以 `-d windows` 啟動 integration test，3 組 native tests 於 28 秒內全通過
 - [x] **已完成**：測試會清除專用 Credential Manager key；文件明列 CI 不取代使用者工作站跨重啟、帳號政策或 Credential Guard 驗收
-- [ ] **未完成**：提交 PR、依 Windows integration log 修正相容問題、通過後更新 S6-02 與發布 Gate，再合併並驗證 `main`
+- [x] **已完成**：Windows Credential Manager 寫入／讀回／清除、libsodium 竄改／錯 key／replay failure paths 與 encrypted WebRTC DataChannel 均通過
+- [ ] **未完成**：推送 S6-02/S6-04 與發布 Gate 狀態、確認最新 PR head、合併並驗證 `main`
 
 Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或 backend；本機缺 Visual Studio C++，
 Windows App integration 將由 GitHub-hosted runner 執行。
 
-下一步：推送 `codex/windows-native-integration`，監看 Windows App 啟動、Credential Manager、
-libsodium 與 WebRTC 測試結果；通過後更新交接狀態並合併。
+下一步：推送 Windows integration 驗收狀態並確認最新 PR head；全綠後合併 PR #45 並
+驗證 `main`。使用者工作站跨重啟／政策、Android/iOS 真機與跨裝置 Gate 仍保留。
 
 ## 上次交接（2026-07-15 21:02 +08:00）
 
