@@ -19,16 +19,17 @@ Flutter App 能在 Windows target 編譯，再保留 Desktop Link／多裝置同
 
 - [x] **已完成**：以專案鎖定的 Flutter 3.44.6 產生標準 `windows/` runner，保留既有 iOS migration metadata，視窗與 executable metadata 使用 P2P Messenger 品牌名稱
 - [x] **已完成**：Windows plugin registrant 已包含 `flutter_secure_storage_windows`、`flutter_webrtc` 與 `jni` FFI；文件列出 Visual Studio 2022 C++、CMake 與 Windows SDK 前置需求
-- [ ] **已實作未驗證**：V1 CI 新增 GitHub-hosted `windows-2022` debug build job，使用 locked dependencies 與既有完整 40 字元 action SHA；需 PR run 實際通過後才可標記完成
+- [x] **已完成**：V1 CI 新增 GitHub-hosted `windows-2022` debug build job，使用 locked dependencies 與既有完整 40 字元 action SHA；PR #41 run `29413886573` 已成功編譯 Windows bundle
 - [x] **已完成**：本機 `flutter pub get --enforce-lockfile`、129 檔 format、`flutter analyze` 與排除 Windows native libsodium 單檔後的 90 項 host tests 全通過
 - [ ] **已實作未驗證**：本機完整 `flutter test` 與 Windows build 缺 Visual Studio Desktop development with C++／`vswhere`，無法載入 sodium native asset；改由 GitHub Windows runner 驗證
-- [ ] **未完成**：提交分支、建立 PR、確認 Java／Flutter／PostgreSQL／Windows Desktop 四個 CI jobs，通過後合併並確認 `main` Gate
+- [x] **已完成**：commit `64263cf` 已推送並建立 draft PR #41；head run `29413886573` 的 Java／Flutter／PostgreSQL／Windows Desktop 四個 CI jobs 全通過
+- [ ] **未完成**：提交驗收狀態更新、確認最新 PR head 四項 CI、合併並確認 `main` Gate
 
 Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或 backend；Flutter 驗證程序均已結束，
 沒有殘留常駐程序。
 
-下一步：提交 `codex/windows-desktop-runner`、建立 PR 並監看 Windows debug build；若 native
-plugin 編譯失敗，依 Windows runner log 修正。四個 jobs 全綠後更新 Desktop 狀態並合併。
+下一步：推送驗收狀態更新並確認最新 PR head 四項 CI；全部通過後合併 PR #41，最後確認
+`main` 的 Java／Flutter／PostgreSQL／Windows Desktop Gate。
 
 ## 上次交接（2026-07-15 19:49 +08:00）
 

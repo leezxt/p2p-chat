@@ -65,13 +65,13 @@
 | S4-04 | ✅ 實作邀請碼與 QR payload 加好友 | S3-04,S4-03 | 兩台測試裝置能建立聯絡人 |
 | S4-05 | ✅ 建立整合測試 | S4-04 | Flutter client/backend 與雙 Android AVD 邀請、雙向聯絡人/fingerprint 同步通過；真機納入 V1-01 |
 
-### EPIC-05 Signaling 與 WebRTC P2P（Sprint 5，P0）— IN PROGRESS（Android 雙 AVD 完成，Desktop/真機資源待驗）
+### EPIC-05 Signaling 與 WebRTC P2P（Sprint 5，P0）— IN PROGRESS（Android 雙 AVD 與 Windows build 完成，真機資源待驗）
 
 | ID | 任務 | 依賴 | 驗收條件 |
 |---|---|---|---|
 | S5-01 | ✅ 定義 signaling message schema 與 session 狀態機 | S4-05 | offer、answer、ICE、close、error 具版本與關聯 ID |
 | S5-02 | ✅ 實作 Spring WebSocket signaling | S3-05,S5-01 | 僅驗證過的聯絡人裝置可交換 signaling；production 使用精確 origin allowlist 並禁止 `*` |
-| S5-03 | ✅ Flutter 整合 WebRTC DataChannel | S5-01 | Android production adapter、debug build 與雙 AVD encrypted DataChannel 通過；Desktop 另行驗收 |
+| S5-03 | ✅ Flutter 整合 WebRTC DataChannel | S5-01 | Android production adapter、debug build 與雙 AVD encrypted DataChannel 通過；Windows runner、WebRTC plugin 與 native assets 已由 CI debug build 驗證 |
 | S5-04 | ✅ 實作 P2P session lifecycle | S5-02,S5-03 | close、sleep、timeout、有限重試、error 與 App 背景釋放測試通過 |
 | S5-05 | ✅ 經 P2P 傳送文字 envelope | S2-02,S5-04 | deterministic two-device envelope test 通過；實機由 S5-06 驗收 |
 | S5-06 | 🚧 雙裝置端對端測試與資源檢查 | S5-05 | 雙 Android AVD authenticated encrypted E2E 通過；兩台真機與資源量測納入 V1-01/V1-03 |
@@ -122,7 +122,7 @@
 | V1-03 | 🚧 資源目標量測 | V1-01 | Android 15 AVD profile 基線已重跑兩次：冷啟動中位數 2646/2690ms、閒置 PSS 110.22/111.54MB、背景 TCP 0；真機 release candidate、最差啟動時間、實際網路與電量仍待驗 |
 | V1-04 | 🚧 故障恢復與資料完整性測試 | V1-01 | SQLite 關閉／重開、ACK 遺失重投、v1～v5 升級至 v7，以及 Android AVD `am force-stop` 後同一 DB 重啟與 READ 閉環已通過；真機 OS kill 與實際斷網待驗 |
 | V1-06 | ✅ 已完成：多語言介面與語言切換 | S2-03 | Flutter gen-l10n/ARB 首批支援繁體中文與英文；預設跟隨系統，App 內可切換並以 SQLite 跨重啟保存；主要 UI、日期、訊息狀態、Presence、錯誤與 tooltips 已 localization；unsupported locale fallback 至 `zh_TW`，7 項 localization 專項、本機 90 項可執行 host tests、analyze 與 GitHub Flutter 完整 checks 通過 |
-| V1-05 | 🚧 發布候選版文件與已知限制 | V1-02..04,V1-06 | RC、artifacts、Java/Flutter/PostgreSQL CI、Compose/Caddy/preflight、backup/restore、staging retention、bounded logs/monitor 與多語言介面已建立；localhost TLS/WSS、restore drill 與 retention fixtures 通過。V1-01/03/04 真機、正式簽章/registry、公開 DNS/ACME、真實 off-host object/receipt、排程/外部告警、Push/iOS 與最終 artifact 待完成 |
+| V1-05 | 🚧 發布候選版文件與已知限制 | V1-02..04,V1-06 | RC、artifacts、Java/Flutter/PostgreSQL/Windows Desktop CI、Compose/Caddy/preflight、backup/restore、staging retention、bounded logs/monitor 與多語言介面已建立；localhost TLS/WSS、restore drill、retention fixtures 與 Windows debug build 通過。V1-01/03/04 真機、正式簽章/registry、公開 DNS/ACME、真實 off-host object/receipt、排程/外部告警、Push/iOS 與最終 artifact 待完成 |
 
 ## V1.5 安全與省資源（P1）
 
