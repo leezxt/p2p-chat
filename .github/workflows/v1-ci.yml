@@ -97,5 +97,7 @@ jobs:
         run: flutter config --enable-windows-desktop
       - name: Resolve locked dependencies
         run: flutter pub get --enforce-lockfile
+      - name: Run Windows native crypto tests
+        run: flutter test --no-pub test/modules/device_key_service_test.dart
       - name: Build Windows Desktop debug bundle
         run: flutter build windows --debug --no-pub

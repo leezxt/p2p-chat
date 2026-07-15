@@ -13,7 +13,7 @@ Android/iOS integration test 或真機 Gate。
 |---|---|---|---|
 | Java backend | `mvn test` | `scripts/smoke.ps1` | REST/WebSocket、JWT、ACL、mailbox、presence、push、PostgreSQL migration |
 | Flutter/Dart | `dart analyze`、相關 `flutter test <file>` | `flutter test` | Core lifecycle、SQLite、localization、crypto schema、P2P、mailbox、presence、push |
-| Windows Desktop | `flutter pub get --enforce-lockfile` | `flutter build windows --debug --no-pub` | Runner、SQLite FFI、secure storage、libsodium native asset、WebRTC plugin 編譯 |
+| Windows Desktop | `flutter test --no-pub test/modules/device_key_service_test.dart` | `flutter build windows --debug --no-pub` | libsodium native runtime、裝置金鑰 failure paths、Runner、SQLite FFI、secure storage 與 WebRTC plugin 編譯 |
 | Android native | 相關 Dart 單元測試 | `integration_test/android_crypto_runtime_test.dart`、雙 AVD E2E | libsodium、secure storage、WebRTC DataChannel、完整訊息流程 |
 | iOS native | `bash tool/verify_ios.sh` | 設定 `IOS_DEVICE_ID` 後執行同一腳本 | build、Keychain、libsodium、WebRTC |
 | Backend + App | `scripts/app-integration.ps1` | Android 雙裝置流程 | 真實 HTTP、JWT、邀請碼與裝置註冊 |
