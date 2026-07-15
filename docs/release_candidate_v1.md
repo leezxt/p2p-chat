@@ -160,7 +160,7 @@ cd mobile_desktop_app
 ## 發布 Gate
 
 - [x] V1-02 安全與隱私稽核、自動化測試通過。
-- [x] GitHub Actions Java/Flutter host CI、Windows libsodium/Credential Manager/WebRTC integration、Desktop build 與 PostgreSQL container smoke 通過；Credential Manager 跨獨立 App process Gate 已實作待 CI 驗證；不取代 production、Windows OS 重開機／使用者工作站政策與手機真機 Gate。
+- [x] GitHub Actions Java/Flutter host CI、Windows libsodium/Credential Manager/WebRTC integration、Credential Manager 跨獨立 App process 持久化、Desktop build 與 PostgreSQL container smoke 通過；不取代 production、Windows OS 重開機／使用者工作站政策與手機真機 Gate。
 - [ ] V1-01 兩台 Android 真機 encrypted P2P 與 mailbox recovery runner 通過。
 - [ ] V1-03 真機冷啟動、記憶體、背景連線、網路與長時間耗電達標。
 - [ ] V1-04 真機 OS kill、實際斷網/恢復、重複訊息與 ACK 遺失復原通過。
