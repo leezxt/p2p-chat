@@ -12,7 +12,7 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-15 18:55 +08:00）
+## 目前交接（2026-07-15 19:01 +08:00）
 
 目前目標：完成 V1-06 多語言介面與語言切換，更新 V1 發布 Gate，並將分支送交
 GitHub CI 驗證。工作分支為 `codex/v1-localization`。
@@ -22,8 +22,9 @@ GitHub CI 驗證。工作分支為 `codex/v1-localization`。
 - [x] **已完成**：聊天列表、聊天頁、邀請／同步錯誤、日期時間、訊息狀態、Presence、tooltips 與新聊天室預設名稱已 localization；`lib/` UI 字串稽核未發現剩餘可見硬編碼文字
 - [x] **已完成**：7 項 localization 專項通過；`flutter gen-l10n`、129 檔 format、`flutter analyze` 及排除 Windows native libsodium 單檔後的 90 項 host tests 全通過
 - [x] **已完成**：SQLite migration matrix 與既有 schema tests 改用 `kCurrentDbVersion`，v1～v5 升級至 v7、`app_settings` 建立及語言偏好重啟保存均通過
+- [x] **已完成**：PR #36 第一輪 run `29410019494` 全通過；Java 21 tests 48 秒、Flutter 3.44.6 完整 checks 2 分 14 秒、PostgreSQL container smoke 1 分 34 秒
 - [ ] **已實作未驗證**：Windows `device_key_service_test.dart` 仍缺 Visual Studio Desktop development with C++，無法載入 sodium native asset；不影響本次純 Dart／SQLite／widget 變更，Android 真實 libsodium 沿用既有雙 AVD 驗收
-- [ ] **未完成**：提交、推送、PR、V1 CI 與合併後 `main` CI
+- [ ] **未完成**：PR #36 最終文件提交後 CI、合併與合併後 `main` CI
 - [ ] **未完成**：兩台 Android 真機 V1-01/03/04、真實 FCM/APNs、iPhone runtime、正式簽章、公開 production 與最終 release artifacts
 
 Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或常駐 backend；Flutter 測試程序均已正常結束。
