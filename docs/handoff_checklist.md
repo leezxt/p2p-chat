@@ -12,7 +12,7 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-15 19:42 +08:00）
+## 目前交接（2026-07-15 19:49 +08:00）
 
 目前目標：完成不需手機的 V1 CI 維護，移除 GitHub-hosted runner 對 Node.js 20 action
 runtime 的 deprecation annotation，同時維持 supply-chain SHA pin 與既有 Gate。
@@ -21,14 +21,14 @@ runtime 的 deprecation annotation，同時維持 supply-chain SHA pin 與既有
 - [x] **已完成**：以 GitHub API 查證 `actions/setup-java` 最新正式版為 `v5.5.0`、verified commit `0f481fcb613427c0f801b606911222b5b6f3083a`，action metadata 使用 `node24`
 - [x] **已完成**：V1 CI 三個 checkout steps 與一個 setup-java step 已更新至上述完整 commit SHA；`contents: read`、Ubuntu 24.04、timeouts、Java/Maven cache 與 Flutter pin 均未改動
 - [x] **已完成**：本機確認所有 5 個外部 actions 都使用完整 40 字元 SHA、舊 SHA 已移除，`git diff --check` 通過；本機沒有 `actionlint`，YAML/runtime 由 PR CI 驗證
-- [x] **已完成**：PR #39 run `29412385681` 全通過；Java 58 秒、PostgreSQL container smoke 1 分 42 秒、Flutter 2 分 16 秒，三個 check-runs annotations 都是 `0`，Node.js 20 warning 已消失
-- [ ] **未完成**：最終文件提交後 CI、合併與合併後 `main` CI
+- [x] **已完成**：PR #39 最終 head run `29412613173` 全通過並合併為 `main` commit `62956ce`；Java 46 秒、PostgreSQL 1 分 35 秒、Flutter 2 分 18 秒，三個 check-runs annotations 都是 `0`
+- [x] **已完成**：合併後 `main` run `29412813706` 全通過；Java 55 秒、PostgreSQL 1 分 53 秒、Flutter 1 分 57 秒，三個 check-runs annotations 仍全部為 `0`
 
 Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或 backend；只讀取 GitHub 官方 release、
 tag、action metadata 與 verified commit 資訊。
 
-下一步：推送最終交接文件並等待 PR CI；通過後合併 PR #39，再確認合併後 `main`
-三項 jobs 全綠且 annotations 維持為零。
+下一步：Node.js 24 CI 維護已關閉。重新盤點 V1 未完成項目，只接續不依賴 Android／
+iPhone 真機、Firebase/APNs credentials、正式簽章資料或公開 production host 的工作。
 
 ## 上次交接（2026-07-15 19:27 +08:00）
 
