@@ -12,7 +12,25 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-15 19:07 +08:00）
+## 目前交接（2026-07-15 19:27 +08:00）
+
+目前目標：使用目前唯一連接的 Android 真機執行 V1 native 與資源驗收，並確認裝置
+是否符合最低執行版本。
+
+- [x] **已完成**：Windows ADB 已辨識並授權 OPPO X9079（serial `4ef95b58`）；裝置為 Android 5.1.1、API 22、`arm64-v8a`，開機狀態正常
+- [x] **已完成**：確認手機未安裝 `com.p2pchat.p2p_chat_app`，本輪未覆蓋或清除既有 Messenger App 資料
+- [ ] **已實作未驗證**：`android_crypto_runtime_test.dart` 在啟動 App 前被 Flutter 拒絕，明確錯誤為目標 API 22 過舊、需要 API 24 以上；secure storage、libsodium failure paths 與同機 WebRTC 均未在此真機執行
+- [ ] **已實作未驗證**：profile APK 冷啟動、PSS、背景 TCP／網路與手動耗電量測同樣受最低 API 24 限制，未安裝或清除 App 資料
+- [ ] **未完成**：此 API 22 真機不能作為真機＋模擬器 runner 的其中一端，也不能關閉 V1-01/03/04；需 Android 7.0（API 24）以上真機
+
+Runtime：本輪只啟動 ADB server 進行授權與裝置查詢；沒有啟動 Docker、AVD、App 或
+backend。ADB server 已在交接更新後正常停止。
+
+下一步：連接 Android 7.0（API 24）以上真機，先跑
+`integration_test/android_crypto_runtime_test.dart`，再執行 profile 資源量測；若只有一台
+合格真機，可搭配一台 AVD 跑 encrypted P2P 與 mailbox recovery，但不能取代雙真機 Gate。
+
+## 上次交接（2026-07-15 19:07 +08:00）
 
 目前目標：完成 V1-06 多語言介面與語言切換、V1 發布 Gate、GitHub PR 與合併後
 `main` 驗證。最終功能已合併至 `main` commit `252972c`。
