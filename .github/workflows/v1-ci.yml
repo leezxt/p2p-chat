@@ -76,3 +76,26 @@ jobs:
         run: flutter analyze
       - name: Run unit and widget tests
         run: flutter test
+
+  windows-desktop-build:
+    name: Windows Desktop debug build
+    runs-on: windows-2022
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: mobile_desktop_app
+    steps:
+      - name: Check out source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Set up Flutter 3.44.6
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          channel: stable
+          flutter-version: 3.44.6
+          cache: true
+      - name: Enable Windows Desktop
+        run: flutter config --enable-windows-desktop
+      - name: Resolve locked dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Build Windows Desktop debug bundle
+        run: flutter build windows --debug --no-pub

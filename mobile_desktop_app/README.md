@@ -59,6 +59,21 @@ flutter build apk --profile --target-platform android-x64
 
 Runner 產生 JSON/Markdown 報告並依冷啟動中位數 3 秒、閒置 PSS 150MB、背景 established TCP 0 執行自動判定。兩次 Android 15 AVD 結果已通過自動門檻；最大單次啟動仍略高於 3 秒，且 Emulator 無法提供有效電量結果，因此 V1-03 仍需真機驗收。
 
+## Windows Desktop 建置
+
+`windows/` runner 由專案鎖定的 Flutter 3.44.6 建立。Windows 開發主機需要 Visual
+Studio 2022 的 Desktop development with C++ workload、CMake tools 與 Windows SDK：
+
+```powershell
+flutter config --enable-windows-desktop
+flutter pub get --enforce-lockfile
+flutter build windows --debug --no-pub
+```
+
+Pull request 與 `main` CI 會在 GitHub-hosted Windows 2022 runner 執行相同 debug build，
+驗證 runner、SQLite FFI、secure storage、libsodium native asset 與 WebRTC plugins 可共同
+編譯。Build Gate 不代表 Desktop Link、多裝置同步或桌面資源量測已完成。
+
 ## Push notification 啟動流程
 
 App 已提供 provider-neutral 的 notification launch adapter 邊界。只接受

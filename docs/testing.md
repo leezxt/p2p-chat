@@ -3,9 +3,9 @@
 本文件是 repository 的測試入口。各子專案 README 保留平台細節；日常變更應先跑與變更範圍相符的快速驗證，合併前再完成可用環境支援的完整驗證。
 
 Pull request 與 `main` push 會執行 `.github/workflows/v1-ci.yml`：Java 21 完整 tests、
-Flutter 3.44.6 的 locked dependency/format/analyze/unit/widget tests，以及 isolated
-PostgreSQL container smoke。CI 不取代 production topology、Android/iOS integration test
-或真機 Gate。
+Flutter 3.44.6 的 locked dependency/format/analyze/unit/widget tests、Windows Desktop
+debug build，以及 isolated PostgreSQL container smoke。CI 不取代 production topology、
+Android/iOS integration test 或真機 Gate。
 
 ## 測試矩陣
 
@@ -13,6 +13,7 @@ PostgreSQL container smoke。CI 不取代 production topology、Android/iOS inte
 |---|---|---|---|
 | Java backend | `mvn test` | `scripts/smoke.ps1` | REST/WebSocket、JWT、ACL、mailbox、presence、push、PostgreSQL migration |
 | Flutter/Dart | `dart analyze`、相關 `flutter test <file>` | `flutter test` | Core lifecycle、SQLite、localization、crypto schema、P2P、mailbox、presence、push |
+| Windows Desktop | `flutter pub get --enforce-lockfile` | `flutter build windows --debug --no-pub` | Runner、SQLite FFI、secure storage、libsodium native asset、WebRTC plugin 編譯 |
 | Android native | 相關 Dart 單元測試 | `integration_test/android_crypto_runtime_test.dart`、雙 AVD E2E | libsodium、secure storage、WebRTC DataChannel、完整訊息流程 |
 | iOS native | `bash tool/verify_ios.sh` | 設定 `IOS_DEVICE_ID` 後執行同一腳本 | build、Keychain、libsodium、WebRTC |
 | Backend + App | `scripts/app-integration.ps1` | Android 雙裝置流程 | 真實 HTTP、JWT、邀請碼與裝置註冊 |
@@ -23,6 +24,7 @@ PostgreSQL container smoke。CI 不取代 production topology、Android/iOS inte
 - Flutter app：Flutter 3.27.0 以上、Dart 3.6.0 以上。
 - PostgreSQL smoke test：Docker 與 Docker Compose。
 - Android native：Android SDK 36、Build Tools 36.0.0、NDK 28.2.13676358。
+- Windows Desktop：Visual Studio 2022 Desktop development with C++、CMake tools、Windows SDK。
 - iOS native：macOS、Xcode、CocoaPods；實機驗證另需 signing 設定。
 
 先確認工具版本，避免把「工具不存在」誤判成程式測試失敗：
