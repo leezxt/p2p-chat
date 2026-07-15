@@ -12,7 +12,7 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-15 22:16 +08:00）
+## 目前交接（2026-07-15 22:32 +08:00）
 
 目前目標：補上不需手機的 Windows Credential Manager 跨獨立 App process 持久化
 Gate，確認第二次啟動能重載第一次啟動建立的 production 裝置金鑰。
@@ -23,13 +23,15 @@ Gate，確認第二次啟動能重載第一次啟動建立的 production 裝置�
 - [x] **已完成**：本機 locked dependencies、Dart formatter、`flutter analyze` 與 `git diff --check` 通過
 - [x] **已完成**：PR #47 run `29422374003` 的 full integration 與兩次獨立 App process 均通過；write／verify 各為 1 passed、2 skipped，第二個 process 成功重載第一個 process 留下的同一 fingerprint
 - [x] **已完成**：同一 run 的 Java、Flutter、PostgreSQL 與 Windows Desktop 四組 jobs 全綠；Windows job 亦通過 native crypto tests、Desktop build、libsodium failure paths 與 encrypted WebRTC
-- [ ] **未完成**：推送最新驗收狀態、確認 PR head、合併並驗證 `main`
+- [x] **已完成**：最新 PR #47 head run `29422871161` 四組 CI 全綠；Windows full integration、跨 process write／verify、native crypto 與 Desktop build 全部通過
+- [x] **已完成**：PR #47 已 squash merge 為 `main` commit `3700ba6`；合併後 run `29423517867` 的 Java、Flutter、PostgreSQL 與 Windows Desktop 四組 jobs 全綠，跨 process Gate 再次通過
 
 Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或 backend；本機 Flutter analyze 程序已正常
 結束。Windows native App 仍只由 GitHub-hosted runner 啟動。
 
-下一步：推送最新驗收狀態；PR head 全綠後合併並驗證 `main`。Windows OS reboot／企業
-政策仍保留為外部補充驗收。
+下一步：Windows App process restart persistence 缺口已關閉。目前無其他可在缺手機、
+credentials 與 production host 下關閉的 V1 Gate；Windows OS reboot／企業政策仍保留為
+外部補充驗收。
 
 ## 上次交接（2026-07-15 21:34 +08:00）
 
