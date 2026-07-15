@@ -12,22 +12,24 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-15 21:15 +08:00）
+## 目前交接（2026-07-15 21:34 +08:00）
 
 目前目標：在 GitHub-hosted Windows runner 啟動真實 Flutter App integration test，補上
 不需手機的 Credential Manager、libsodium failure paths 與 WebRTC DataChannel 驗證。
 
 - [x] **已完成**：codebase graph 確認既有 `android_crypto_runtime_test.dart` 已使用 production `FlutterSecureKeyValueStore`，並以 `RUNTIME_PLATFORM` 支援非 Android host
-- [x] **已完成**：PR #45 run `29418495593` 在 native crypto unit tests 與 Desktop build 後，以 `-d windows` 啟動 integration test，3 組 native tests 於 28 秒內全通過
+- [x] **已完成**：PR #45 head run `29418892313` 在 native crypto unit tests 與 Desktop build 後，以 `-d windows` 啟動 integration test，3 組 native tests 於約 29 秒內全通過
 - [x] **已完成**：測試會清除專用 Credential Manager key；文件明列 CI 不取代使用者工作站跨重啟、帳號政策或 Credential Guard 驗收
 - [x] **已完成**：Windows Credential Manager 寫入／讀回／清除、libsodium 竄改／錯 key／replay failure paths 與 encrypted WebRTC DataChannel 均通過
-- [ ] **未完成**：推送 S6-02/S6-04 與發布 Gate 狀態、確認最新 PR head、合併並驗證 `main`
+- [x] **已完成**：PR #45 已 squash merge 為 `main` commit `9448af2`；合併後 run `29419257887` 的 Java、Flutter、PostgreSQL、Windows native integration 與 Desktop build 四個 jobs 全通過
+- [x] **已完成**：重新盤點 V1；Windows/host、Docker/localhost production、Android AVD 與自動化可取代的驗證均已完成，目前沒有其他可在缺手機及外部 credentials／production host 下關閉的 Gate
+- [ ] **已實作未驗證**：兩台 Android API 24+ 真機的 E2E／斷網／OS kill／資源與耗電、iPhone runtime、真實 FCM/APNs、正式 Android/iOS 簽章、公開 DNS/ACME／registry、加密 off-host backup receipt／排程／外部告警與最終 artifacts
 
 Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或 backend；本機缺 Visual Studio C++，
 Windows App integration 將由 GitHub-hosted runner 執行。
 
-下一步：推送 Windows integration 驗收狀態並確認最新 PR head；全綠後合併 PR #45 並
-驗證 `main`。使用者工作站跨重啟／政策、Android/iOS 真機與跨裝置 Gate 仍保留。
+下一步：取得任一缺少的外部條件後再續接對應 Gate；若先有 Android API 24+ 真機，優先
+執行 V1-01/03/04。使用者工作站跨重啟／政策相容性仍屬補充驗收，不取代雙真機 Gate。
 
 ## 上次交接（2026-07-15 21:02 +08:00）
 
