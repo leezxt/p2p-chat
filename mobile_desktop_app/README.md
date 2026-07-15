@@ -72,7 +72,10 @@ flutter build windows --debug --no-pub
 
 Pull request 與 `main` CI 會在 GitHub-hosted Windows 2022 runner 執行相同 debug build，
 驗證 runner、SQLite FFI、secure storage、libsodium native asset 與 WebRTC plugins 可共同
-編譯。Build Gate 不代表 Desktop Link、多裝置同步或桌面資源量測已完成。
+編譯，並執行 `device_key_service_test.dart` 驗證 Windows libsodium runtime、裝置金鑰穩定
+載入、損壞資料拒絕與 storage failure paths。測試使用記憶體 secure store，不取代 Windows
+Credential Manager 持久化驗收；Build Gate 也不代表 Desktop Link、多裝置同步或桌面資源
+量測已完成。
 
 ## Push notification 啟動流程
 
