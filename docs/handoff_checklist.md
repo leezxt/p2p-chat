@@ -12,25 +12,26 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-15 07:34 +08:00）
+## 目前交接（2026-07-15 19:01 +08:00）
 
-目前目標：依使用者指示把多語言介面納入 v1.2 藍圖的 V1 必要實作範圍；本輪只更新
-任務與交接，不開始修改 Flutter 程式。
+目前目標：完成 V1-06 多語言介面與語言切換，更新 V1 發布 Gate，並將分支送交
+GitHub CI 驗證。工作分支為 `codex/v1-localization`。
 
-- [x] **已完成**：確認目前 `MaterialApp` 沒有 localization delegates、supported locales、locale resolution 或語言切換
-- [x] **已完成**：確認 repository 沒有 ARB、`l10n.yaml` 或 `AppLocalizations`；聊天 UI 文字目前直接寫死為繁體中文
-- [x] **已完成**：新增 V1-06 多語言介面工作，首批語言為繁體中文與英文，後續語言沿用 ARB 擴充
-- [x] **已完成**：V1-06 驗收包含系統語言偵測、App 內切換與跨重啟保存、完整 UI/date/status/error/accessibility localization、fallback、widget tests 與 analyze
-- [x] **已完成**：將 V1-06 加入 V1-05 release candidate 依賴與發布 Gate
-- [ ] **未完成**：建立 Flutter gen-l10n/ARB 基礎、繁中/英文資源與 `MaterialApp` localization 設定
-- [ ] **未完成**：移除主要畫面硬編碼文字，加入語言選擇與保存機制，補齊兩種語言及 fallback tests
+- [x] **已完成**：加入 `flutter_localizations`、gen-l10n、`l10n.yaml` 與繁中／英文 ARB；`MaterialApp` 已設定 delegates、supported locales、localized title 與 locale resolution
+- [x] **已完成**：新增 `LocaleController` 與 SQLite v7 `app_settings`；預設跟隨系統，App 內可選繁中／英文並跨重啟保存，unsupported locale fallback 至 `zh_TW`
+- [x] **已完成**：聊天列表、聊天頁、邀請／同步錯誤、日期時間、訊息狀態、Presence、tooltips 與新聊天室預設名稱已 localization；`lib/` UI 字串稽核未發現剩餘可見硬編碼文字
+- [x] **已完成**：7 項 localization 專項通過；`flutter gen-l10n`、129 檔 format、`flutter analyze` 及排除 Windows native libsodium 單檔後的 90 項 host tests 全通過
+- [x] **已完成**：SQLite migration matrix 與既有 schema tests 改用 `kCurrentDbVersion`，v1～v5 升級至 v7、`app_settings` 建立及語言偏好重啟保存均通過
+- [x] **已完成**：PR #36 第一輪 run `29410019494` 全通過；Java 21 tests 48 秒、Flutter 3.44.6 完整 checks 2 分 14 秒、PostgreSQL container smoke 1 分 34 秒
+- [ ] **已實作未驗證**：Windows `device_key_service_test.dart` 仍缺 Visual Studio Desktop development with C++，無法載入 sodium native asset；不影響本次純 Dart／SQLite／widget 變更，Android 真實 libsodium 沿用既有雙 AVD 驗收
+- [ ] **未完成**：PR #36 最終文件提交後 CI、合併與合併後 `main` CI
 - [ ] **未完成**：兩台 Android 真機 V1-01/03/04、真實 FCM/APNs、iPhone runtime、正式簽章、公開 production 與最終 release artifacts
 
-Runtime：本輪只讀取與更新文件，沒有啟動 Docker、ADB、AVD、App、backend 或測試程序。
+Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或常駐 backend；Flutter 測試程序均已正常結束。
 
-下一步：從 `main` 建立多語言功能分支；先設定 `flutter_localizations`、gen-l10n、
-`l10n.yaml`、繁中/英文 ARB 與 `MaterialApp` delegates/locales，再逐頁搬移 UI 文字並加入
-語言偏好保存與 widget tests。
+下一步：完成 Git diff、Markdown link、secret 與 codebase change 檢查後提交並推送
+`codex/v1-localization`，建立 PR，等待 Java、Flutter 與 PostgreSQL container smoke 三項
+V1 CI 通過後合併並確認 `main` CI。
 
 ## 上次交接（2026-07-15 07:19 +08:00）
 

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:p2p_chat_app/core/events/event_bus.dart';
+import 'package:p2p_chat_app/l10n/app_localizations.dart';
 import 'package:p2p_chat_app/modules/chat/data/chat_repository.dart';
 import 'package:p2p_chat_app/modules/chat/presentation/conversation_list_page.dart';
 import 'package:p2p_chat_app/shared/utils/id_generator.dart';
@@ -64,6 +65,9 @@ void main() {
 
 Widget _app({required Future<void> Function() syncMailbox}) {
   return MaterialApp(
+    locale: const Locale('zh', 'TW'),
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
     home: ConversationListPage(
       repository: ChatRepository(FakeChatDao(), EventBus()),
       ids: IdGenerator(),

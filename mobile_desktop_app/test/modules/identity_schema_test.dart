@@ -1,14 +1,16 @@
 import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:p2p_chat_app/core/database/database_service.dart';
+import 'package:p2p_chat_app/core/database/migrations.dart';
 import 'package:p2p_chat_app/core/logging/logging_service.dart';
 import 'package:p2p_chat_app/modules/identity/data/identity_repository.dart';
 import 'package:p2p_chat_app/shared/utils/id_generator.dart';
 
 void main() {
   sqfliteFfiInit();
-  test('schema v6 建立 identity、device、contact、crypto 與 mailbox 資料表', () async {
+  test('目前 schema 建立 identity、device、contact、crypto、mailbox 與設定資料表', () async {
     final directory =
         await Directory.systemTemp.createTemp('p2p_identity_schema_');
     final service = DatabaseService(
@@ -28,9 +30,10 @@ void main() {
             'crypto_replay_records',
             'remote_key_trust',
             'mailbox_pending_queue',
-            'mailbox_receipts'
+            'mailbox_receipts',
+            'app_settings',
           ]));
-      expect(await service.db.getVersion(), 6);
+      expect(await service.db.getVersion(), kCurrentDbVersion);
       final repository = IdentityRepository(service.db);
       final first = await repository.getOrCreateLocalIdentity(IdGenerator());
       final second = await repository.getOrCreateLocalIdentity(IdGenerator());

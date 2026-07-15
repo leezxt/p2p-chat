@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:p2p_chat_app/core/database/database_service.dart';
+import 'package:p2p_chat_app/core/database/migrations.dart';
 import 'package:p2p_chat_app/core/logging/logging_service.dart';
 import 'package:p2p_chat_app/modules/crypto/domain/encrypted_envelope.dart';
 import 'package:p2p_chat_app/modules/crypto/domain/encrypted_message_service.dart';
@@ -53,7 +54,7 @@ void main() {
       expect(client.acks.last.status, MailboxDeliveryState.read);
       await service.syncSenderStatuses();
       expect(statuses, [MessageStatus.delivered, MessageStatus.read]);
-      expect(await database.db.getVersion(), 6);
+      expect(await database.db.getVersion(), kCurrentDbVersion);
     } finally {
       await database.close();
       await directory.delete(recursive: true);

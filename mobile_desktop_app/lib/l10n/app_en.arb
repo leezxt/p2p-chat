@@ -1,0 +1,49 @@
+{
+  "@@locale": "en",
+  "appTitle": "P2P Messenger",
+  "chatListTitle": "Chats",
+  "syncMessages": "Sync messages",
+  "messagesSynced": "Messages synced",
+  "syncFailed": "Unable to sync messages. Local chats remain available.",
+  "createInvite": "Create invite code",
+  "inviteCode": "Invite code",
+  "close": "Close",
+  "inviteCreateFailed": "Unable to create an invite code",
+  "addContact": "Add contact",
+  "inviteInvalid": "The invite code is invalid, used, or failed key verification",
+  "noConversations": "No chats yet. Use the add button to create one.",
+  "noMessages": "No messages",
+  "online": "Online",
+  "recentlyOnline": "Recently online",
+  "offline": "Offline",
+  "newConversationTitle": "Chat {count}",
+  "@newConversationTitle": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "language": "Language",
+  "followSystem": "Follow system",
+  "traditionalChinese": "Traditional Chinese",
+  "english": "English",
+  "newConversation": "New chat",
+  "chatEmpty": "No messages yet. Start the conversation.",
+  "messageInputHint": "Type a message",
+  "sendMessage": "Send message",
+  "statusPending": "Waiting to send",
+  "statusSent": "Sent",
+  "statusStored": "Stored in offline mailbox",
+  "statusDelivered": "Delivered",
+  "statusRead": "Read",
+  "statusFailed": "Failed to send",
+  "statusExpired": "Expired",
+  "unsupportedMessageType": "[{type}]",
+  "@unsupportedMessageType": {
+    "placeholders": {
+      "type": { "type": "String" }
+    }
+  },
+  "inviteCodeOrQr": "Invite code or QR content",
+  "cancel": "Cancel",
+  "join": "Add"
+}

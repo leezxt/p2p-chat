@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../shared/models/message_envelope.dart';
 import '../../../shared/models/message_status.dart';
 import '../../../shared/utils/time_format.dart';
@@ -59,7 +60,9 @@ class _ChatPageState extends State<ChatPage> {
               builder: (context, _) {
                 final messages = widget.controller.messages;
                 if (messages.isEmpty && !widget.controller.loading) {
-                  return const Center(child: Text('還沒有訊息，開始聊天吧'));
+                  return Center(
+                    child: Text(AppLocalizations.of(context).chatEmpty),
+                  );
                 }
                 return ListView.builder(
                   controller: _scrollController,
@@ -87,6 +90,7 @@ class _MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     return Align(
       alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -101,12 +105,14 @@ class _MessageBubble extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(message.text ?? '[${message.type.wire}]'),
+            Text(
+              message.text ?? l10n.unsupportedMessageType(message.type.wire),
+            ),
             const SizedBox(height: 4),
             Text(
               mine
-                  ? '${formatChatTime(message.createdAt)} · ${_statusLabel(message.status)}'
-                  : formatChatTime(message.createdAt),
+                  ? '${formatChatTime(context, message.createdAt)} · ${_statusLabel(l10n, message.status)}'
+                  : formatChatTime(context, message.createdAt),
               style: Theme.of(context).textTheme.labelSmall,
             ),
           ],
@@ -115,14 +121,15 @@ class _MessageBubble extends StatelessWidget {
     );
   }
 
-  String _statusLabel(MessageStatus status) => switch (status) {
-        MessageStatus.pending => '等待傳送',
-        MessageStatus.sent => '已傳送',
-        MessageStatus.stored => '已存入離線信箱',
-        MessageStatus.delivered => '已送達',
-        MessageStatus.read => '已讀',
-        MessageStatus.failed => '傳送失敗',
-        MessageStatus.expired => '已過期',
+  String _statusLabel(AppLocalizations l10n, MessageStatus status) =>
+      switch (status) {
+        MessageStatus.pending => l10n.statusPending,
+        MessageStatus.sent => l10n.statusSent,
+        MessageStatus.stored => l10n.statusStored,
+        MessageStatus.delivered => l10n.statusDelivered,
+        MessageStatus.read => l10n.statusRead,
+        MessageStatus.failed => l10n.statusFailed,
+        MessageStatus.expired => l10n.statusExpired,
       };
 }
 
@@ -133,6 +140,7 @@ class _InputBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(8),
@@ -143,15 +151,19 @@ class _InputBar extends StatelessWidget {
                 controller: controller,
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => onSend(),
-                decoration: const InputDecoration(
-                  hintText: '輸入訊息',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  hintText: l10n.messageInputHint,
+                  border: const OutlineInputBorder(),
                   isDense: true,
                 ),
               ),
             ),
             const SizedBox(width: 8),
-            IconButton.filled(onPressed: onSend, icon: const Icon(Icons.send)),
+            IconButton.filled(
+              onPressed: onSend,
+              tooltip: l10n.sendMessage,
+              icon: const Icon(Icons.send),
+            ),
           ],
         ),
       ),

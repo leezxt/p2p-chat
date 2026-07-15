@@ -117,6 +117,19 @@ flutter test
 flutter test test/modules/two_device_p2p_test.dart
 ```
 
+## 多語言介面
+
+V1 使用 Flutter gen-l10n/ARB 支援繁體中文與英文。預設跟隨系統，也可從聊天列表的
+語言選單切換；偏好保存於 SQLite，App 重啟後仍有效。不支援的系統語言會 fallback
+至繁體中文。修改 `lib/l10n/*.arb` 後執行：
+
+```powershell
+flutter gen-l10n
+flutter test test/core/locale_controller_test.dart `
+  test/modules/locale_preference_store_test.dart `
+  test/modules/localization_ui_test.dart
+```
+
 `two_device_p2p_test.dart` 會建立兩個獨立裝置 session，走完 offer、answer 與文字 envelope 傳送。真實 Android WebRTC plugin 已以雙 AVD 補充驗證；兩台真機與 Desktop runner 仍待驗。
 
 `device_key_service_test.dart` 會載入原生 libsodium；Windows 執行測試需要 Visual Studio 的 Desktop development with C++ workload。缺少該 workload 時仍可建置 Android，但不可把 Windows 測試標記為通過。
@@ -126,8 +139,8 @@ SQLite DB，驗證 server 重投不會重複建立 conversation/message/replay/r
 且 App 重啟後仍會補送 DELIVERED ACK。
 
 `database_migration_matrix_test.dart` 會建立 v1～v5 舊版 SQLite fixtures，逐一
-升級至目前 v6，驗證聊天、身份、聯絡人、replay、key trust 與 mailbox queue
-資料保留，以及 contact key trust backfill。
+升級至目前 v7，驗證聊天、身份、聯絡人、replay、key trust、mailbox queue 與
+語言偏好設定表的資料保留，以及 contact key trust backfill。
 
 `p2p_session_lifecycle_test.dart` 驗證連線完成前禁止傳訊、offer 有限重試、timeout/error 釋放資源、close 與 sleep 後重新連線。
 

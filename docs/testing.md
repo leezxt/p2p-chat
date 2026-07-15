@@ -12,7 +12,7 @@ PostgreSQL container smoke。CI 不取代 production topology、Android/iOS inte
 | 範圍 | 快速驗證 | 完整驗證 | 主要覆蓋 |
 |---|---|---|---|
 | Java backend | `mvn test` | `scripts/smoke.ps1` | REST/WebSocket、JWT、ACL、mailbox、presence、push、PostgreSQL migration |
-| Flutter/Dart | `dart analyze`、相關 `flutter test <file>` | `flutter test` | Core lifecycle、SQLite、crypto schema、P2P、mailbox、presence、push |
+| Flutter/Dart | `dart analyze`、相關 `flutter test <file>` | `flutter test` | Core lifecycle、SQLite、localization、crypto schema、P2P、mailbox、presence、push |
 | Android native | 相關 Dart 單元測試 | `integration_test/android_crypto_runtime_test.dart`、雙 AVD E2E | libsodium、secure storage、WebRTC DataChannel、完整訊息流程 |
 | iOS native | `bash tool/verify_ios.sh` | 設定 `IOS_DEVICE_ID` 後執行同一腳本 | build、Keychain、libsodium、WebRTC |
 | Backend + App | `scripts/app-integration.ps1` | Android 雙裝置流程 | 真實 HTTP、JWT、邀請碼與裝置註冊 |
@@ -144,6 +144,20 @@ flutter test test/modules/pending_mailbox_queue_test.dart
 flutter test test/modules/p2p_session_lifecycle_test.dart
 flutter test test/core/app_lifecycle_coordinator_test.dart
 ```
+
+Localization 變更需重新產生程式碼，並驗證語言解析、SQLite 偏好保存與兩種語言 UI：
+
+```bash
+flutter gen-l10n
+flutter test test/core/locale_controller_test.dart \
+  test/modules/locale_preference_store_test.dart \
+  test/modules/localization_ui_test.dart
+```
+
+Windows 若未安裝 Visual Studio Desktop development with C++，完整 `flutter test` 會因
+無法建立 sodium native asset 而停在 `device_key_service_test.dart`。可先執行其他 host
+tests，但必須保留該 native Gate 為未驗證，不能以 `NIX_SKIP_SODIUM_BUILD_HOOKS=1`
+取代 Android/iOS runtime 驗收。
 
 完成變更時仍應回到完整 `flutter test`，避免跨模組生命週期或 Event Bus 回歸。
 

@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 
 import '../../core/database/database_service.dart';
+import '../../core/localization/locale_controller.dart';
 import '../../core/events/event_bus.dart';
 import '../../core/module/app_module.dart';
 import '../../core/module/module_context.dart';
@@ -95,6 +96,7 @@ class ChatModule implements AppModule {
               presenceService: _services.isRegistered<PresenceService>()
                   ? _services.get<PresenceService>()
                   : null,
+              localeController: _services.get<LocaleController>(),
             ));
   }
 

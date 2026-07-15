@@ -3,10 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'core/lifecycle/app_lifecycle_coordinator.dart';
+import 'core/localization/app_language.dart';
+import 'core/localization/locale_controller.dart';
 import 'core/module/module_lifecycle.dart';
 import 'core/module/module_registry.dart';
 import 'core/routing/route_registry.dart';
 import 'core/di/service_locator.dart';
+import 'l10n/app_localizations.dart';
 import 'modules/chat/chat_module.dart';
 import 'modules/mailbox/domain/mailbox_refresh_service.dart';
 import 'modules/push/domain/notification_launch_source.dart';
@@ -33,6 +36,7 @@ class P2pChatApp extends StatefulWidget {
 
 class _P2pChatAppState extends State<P2pChatApp> with WidgetsBindingObserver {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  late final LocaleController _localeController;
   PushLaunchCoordinator? _pushLaunchCoordinator;
   late final AppLifecycleCoordinator _lifecycle = AppLifecycleCoordinator(
     onBackground: () async {
@@ -62,6 +66,7 @@ class _P2pChatAppState extends State<P2pChatApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    _localeController = widget.services.get<LocaleController>();
     WidgetsBinding.instance.addObserver(this);
     if (widget.services.isRegistered<MailboxRefreshService>()) {
       _pushLaunchCoordinator = PushLaunchCoordinator(
@@ -119,17 +124,24 @@ class _P2pChatAppState extends State<P2pChatApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: _navigatorKey,
-      title: 'P2P Messenger',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorSchemeSeed: const Color(0xFF3A6EA5),
-        useMaterial3: true,
+    return AnimatedBuilder(
+      animation: _localeController,
+      builder: (context, _) => MaterialApp(
+        navigatorKey: _navigatorKey,
+        onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+        debugShowCheckedModeBanner: false,
+        locale: _localeController.locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        localeListResolutionCallback: resolveSupportedLocale,
+        theme: ThemeData(
+          colorSchemeSeed: const Color(0xFF3A6EA5),
+          useMaterial3: true,
+        ),
+        // 首頁為聊天室列表（Chat Module 註冊的路由）。
+        initialRoute: ChatModule.route,
+        onGenerateRoute: widget.routes.onGenerateRoute,
       ),
-      // 首頁為聊天室列表（Chat Module 註冊的路由）。
-      initialRoute: ChatModule.route,
-      onGenerateRoute: widget.routes.onGenerateRoute,
     );
   }
 }

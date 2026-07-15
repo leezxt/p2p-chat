@@ -1,0 +1,49 @@
+{
+  "@@locale": "zh",
+  "appTitle": "P2P 通訊軟體",
+  "chatListTitle": "聊天",
+  "syncMessages": "同步訊息",
+  "messagesSynced": "訊息已同步",
+  "syncFailed": "無法同步訊息，本機聊天仍可使用",
+  "createInvite": "建立邀請碼",
+  "inviteCode": "邀請碼",
+  "close": "關閉",
+  "inviteCreateFailed": "無法建立邀請碼",
+  "addContact": "加入聯絡人",
+  "inviteInvalid": "邀請碼無效、已使用或金鑰驗證失敗",
+  "noConversations": "尚無聊天室，請使用新增按鈕建立",
+  "noMessages": "尚無訊息",
+  "online": "在線",
+  "recentlyOnline": "剛剛在線",
+  "offline": "離線",
+  "newConversationTitle": "聊天室 {count}",
+  "@newConversationTitle": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "language": "語言",
+  "followSystem": "跟隨系統",
+  "traditionalChinese": "繁體中文",
+  "english": "英文",
+  "newConversation": "新增聊天室",
+  "chatEmpty": "還沒有訊息，開始聊天吧",
+  "messageInputHint": "輸入訊息",
+  "sendMessage": "傳送訊息",
+  "statusPending": "等待傳送",
+  "statusSent": "已傳送",
+  "statusStored": "已存入離線信箱",
+  "statusDelivered": "已送達",
+  "statusRead": "已讀",
+  "statusFailed": "傳送失敗",
+  "statusExpired": "已過期",
+  "unsupportedMessageType": "[{type}]",
+  "@unsupportedMessageType": {
+    "placeholders": {
+      "type": { "type": "String" }
+    }
+  },
+  "inviteCodeOrQr": "邀請碼或 QR 內容",
+  "cancel": "取消",
+  "join": "加入"
+}

@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 
 import 'presence_client.dart';
 
+enum ContactPresenceState { online, recentlyOnline, offline }
+
 class PresenceService extends ChangeNotifier {
   PresenceService({
     required PresenceClient client,
@@ -62,13 +64,17 @@ class PresenceService extends ChangeNotifier {
     }
   }
 
-  String labelFor(String userId) {
+  ContactPresenceState stateFor(String userId) {
     final lastSeen = _contacts[userId]?.lastSeenAt;
-    if (lastSeen == null) return '離線';
+    if (lastSeen == null) return ContactPresenceState.offline;
     final age = _clock().toUtc().difference(lastSeen.toUtc());
-    if (age <= const Duration(seconds: 90)) return '在線';
-    if (age <= const Duration(minutes: 5)) return '剛剛在線';
-    return '離線';
+    if (age <= const Duration(seconds: 90)) {
+      return ContactPresenceState.online;
+    }
+    if (age <= const Duration(minutes: 5)) {
+      return ContactPresenceState.recentlyOnline;
+    }
+    return ContactPresenceState.offline;
   }
 
   @override
