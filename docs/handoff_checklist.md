@@ -12,7 +12,7 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-15 20:01 +08:00）
+## 目前交接（2026-07-15 20:29 +08:00）
 
 目前目標：完成不需手機的 Windows Desktop runner 與可重現 CI build Gate，先驗證
 Flutter App 能在 Windows target 編譯，再保留 Desktop Link／多裝置同步於 V3 backlog。
@@ -23,13 +23,14 @@ Flutter App 能在 Windows target 編譯，再保留 Desktop Link／多裝置同
 - [x] **已完成**：本機 `flutter pub get --enforce-lockfile`、129 檔 format、`flutter analyze` 與排除 Windows native libsodium 單檔後的 90 項 host tests 全通過
 - [ ] **已實作未驗證**：本機完整 `flutter test` 與 Windows build 缺 Visual Studio Desktop development with C++／`vswhere`，無法載入 sodium native asset；改由 GitHub Windows runner 驗證
 - [x] **已完成**：commit `64263cf` 已推送並建立 draft PR #41；head run `29413886573` 的 Java／Flutter／PostgreSQL／Windows Desktop 四個 CI jobs 全通過
-- [ ] **未完成**：提交驗收狀態更新、確認最新 PR head 四項 CI、合併並確認 `main` Gate
+- [x] **已完成**：最新 PR head run `29414355119` 四項 CI 全通過；PR #41 已 squash merge 為 `main` commit `220b2fc`
+- [x] **已完成**：合併後 `main` run `29414746310` 的 Java／Flutter／PostgreSQL／Windows Desktop 四個 jobs 全通過
 
 Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或 backend；Flutter 驗證程序均已結束，
 沒有殘留常駐程序。
 
-下一步：推送驗收狀態更新並確認最新 PR head 四項 CI；全部通過後合併 PR #41，最後確認
-`main` 的 Java／Flutter／PostgreSQL／Windows Desktop Gate。
+下一步：Windows Desktop runner 與 CI Gate 已關閉。重新盤點仍可在無手機、無 Firebase／
+APNs credentials、無正式簽章與無公開 production host 條件下完成的 V1 項目。
 
 ## 上次交接（2026-07-15 19:49 +08:00）
 
