@@ -81,7 +81,7 @@
 | ID | 任務 | 依賴 | 驗收條件 |
 |---|---|---|---|
 | S6-01 | ✅ 撰寫 threat model 與選定加密協定/函式庫 | S4-05 | 定義 `P2P_BOX_V1`、重放防護、輪替、遺失與限制；選用 libsodium 高階 API |
-| S6-02 | 🚧 產生裝置金鑰並接 Android Keystore / iOS Keychain | S6-01 | 已實作 libsodium `SecureKey`、平台 secure storage、穩定錯誤碼與 Android native build；Windows CI 的真實 libsodium runtime、5 項裝置金鑰測試與 Credential Manager App integration 通過，使用者工作站跨重啟政策與 Android/iOS secure storage 實機待驗 |
+| S6-02 | 🚧 產生裝置金鑰並接 Android Keystore / iOS Keychain | S6-01 | 已實作 libsodium `SecureKey`、平台 secure storage、穩定錯誤碼與 Android native build；Windows CI 的真實 libsodium runtime、5 項裝置金鑰測試、Credential Manager App integration 與跨獨立 App process 持久化均通過；Windows OS 重開機／工作站政策與 Android/iOS secure storage 實機待驗 |
 | S6-03 | ✅ 實作有版本的 encrypted envelope | S6-01 | `P2P_BOX_V1`、24-byte nonce、sender/recipient key id、combined MAC+ciphertext、版本與大小驗證；5 項 schema tests 通過 |
 | S6-04 | ✅ P2P 改傳密文並驗證完整性 | S5-05,S6-02,S6-03 | Android 與 Windows 真實 libsodium failure paths、SQLite replay、encrypted-only DataChannel 通過；Android 兩個 AVD/App process authenticated E2E 通過，iOS 由 S6-IOS tasks 驗收 |
 | S6-05 | ✅ 建立 key fingerprint 與變更偵測 | S6-02 | App 本機重算 fingerprint；同裝置 key 變更保存 pending、發出安全事件並阻斷傳送，明確重新信任後才啟用 |

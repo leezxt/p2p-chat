@@ -79,8 +79,10 @@ Credential Manager 持久化驗收；Build Gate 也不代表 Desktop Link、多�
 
 Windows CI 另以 `-d windows` 啟動 native integration test，使用 production
 `FlutterSecureKeyValueStore` 驗證 Credential Manager 寫入／讀回與清除，並在同一 App
-process 驗證 libsodium failure paths 及 encrypted WebRTC DataChannel。這仍不取代使用者
-工作站的跨重啟、帳號政策或企業 Credential Guard 相容性驗收。
+process 驗證 libsodium failure paths 及 encrypted WebRTC DataChannel。CI 也會以兩次獨立
+App process 分別執行 `write`／`verify` phase，確認第二個 process 可重載第一個 process
+留下的裝置金鑰，完成後清除專用 Credential Manager 測試資料。這仍不取代 Windows OS
+重新開機、使用者工作站帳號政策或企業 Credential Guard 相容性驗收。
 
 ## Push notification 啟動流程
 
