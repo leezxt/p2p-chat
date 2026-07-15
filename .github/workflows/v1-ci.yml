@@ -101,3 +101,8 @@ jobs:
         run: flutter test --no-pub test/modules/device_key_service_test.dart
       - name: Build Windows Desktop debug bundle
         run: flutter build windows --debug --no-pub
+      - name: Run Windows secure storage and WebRTC integration
+        run: >-
+          flutter test --no-pub -d windows
+          --dart-define=RUNTIME_PLATFORM=Windows
+          integration_test/android_crypto_runtime_test.dart
