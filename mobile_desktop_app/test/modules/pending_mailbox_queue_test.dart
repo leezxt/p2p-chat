@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:p2p_chat_app/core/database/database_service.dart';
+import 'package:p2p_chat_app/core/database/migrations.dart';
 import 'package:p2p_chat_app/core/logging/logging_service.dart';
 import 'package:p2p_chat_app/modules/mailbox/data/sqlite_pending_mailbox_queue.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -55,7 +56,7 @@ void main() {
       expect(retried!.attemptCount, 1);
       await afterRestart.markSucceeded(retried.id);
       expect(await afterRestart.claimNext(now: 1000), isNull);
-      expect(await database.db.getVersion(), 6);
+      expect(await database.db.getVersion(), kCurrentDbVersion);
     } finally {
       await database.close();
       await directory.delete(recursive: true);

@@ -10,7 +10,8 @@ void main() {
   sqfliteFfiInit();
 
   for (var oldVersion = 1; oldVersion < kCurrentDbVersion; oldVersion++) {
-    test('schema v$oldVersion upgrades to v6 without losing existing data',
+    test(
+        'schema v$oldVersion upgrades to v$kCurrentDbVersion without losing existing data',
         () async {
       final directory = await Directory.systemTemp.createTemp(
         'p2p_migration_v${oldVersion}_',
@@ -72,6 +73,7 @@ void main() {
             'remote_key_trust',
             'mailbox_pending_queue',
             'mailbox_receipts',
+            'app_settings',
           ]),
         );
       } finally {

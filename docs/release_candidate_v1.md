@@ -24,6 +24,8 @@
 - P2P 失敗後 offline mailbox fallback、SQLite replay protection、
   `STORED -> DELIVERED -> READ`、ACK 遺失後冪等復原。
 - App 進入背景後釋放 P2P，前景 Presence 最快每 60 秒更新。
+- Flutter gen-l10n/ARB 繁體中文與英文介面；支援跟隨系統、App 內切換、SQLite
+  跨重啟保存與 unsupported locale fallback 至 `zh_TW`。
 - 安全與隱私自動化稽核；殘餘風險見 [`security_audit_v1.md`](security_audit_v1.md)。
 - Android 15 AVD profile 資源基線；數值與限制見
   [`resource_measurement_v1.md`](resource_measurement_v1.md)。
@@ -162,7 +164,7 @@ cd mobile_desktop_app
 - [ ] V1-04 真機 OS kill、實際斷網/恢復、重複訊息與 ACK 遺失復原通過。
 - [ ] 真實 Firebase credentials、FCM/APNs、通知權限拒絕與 cold/warm start 通過。
 - [ ] iPhone Keychain、libsodium、WebRTC、背景 sleep 與跨平台 E2E 通過。
-- [ ] 繁體中文與英文介面、系統語言偵測、App 內切換／跨重啟保存、fallback 與兩種語言 widget tests 通過。
+- [x] 繁體中文與英文介面、系統語言偵測、App 內切換／跨重啟保存、fallback 與兩種語言 widget tests 通過。
 - [ ] 提供正式 Android application ID、version 與 release keystore；安全簽章設定骨架已完成。
 - [ ] 設定正式 iOS Bundle ID、version 與 distribution signing。
 - [ ] 以 production HTTPS/WSS + PostgreSQL 環境完成最後 smoke test；本機 TLS/WSS、candidate manifest、backup/restore、staging retention、log rotation 與 monitor 已通過，公開 DNS/ACME、registry、真實 off-host object/receipt、排程與外部告警待驗。

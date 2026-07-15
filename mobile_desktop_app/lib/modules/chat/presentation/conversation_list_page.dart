@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../../core/localization/app_language.dart';
+import '../../../core/localization/locale_controller.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../shared/utils/id_generator.dart';
 import '../../../shared/utils/time_format.dart';
 import '../data/chat_repository.dart';
@@ -27,6 +30,7 @@ class ConversationListPage extends StatefulWidget {
     this.syncMailbox,
     this.contactService,
     this.presenceService,
+    this.localeController,
   });
 
   final ChatRepository repository;
@@ -39,6 +43,7 @@ class ConversationListPage extends StatefulWidget {
   final Future<void> Function()? syncMailbox;
   final ContactService? contactService;
   final PresenceService? presenceService;
+  final LocaleController? localeController;
 
   @override
   State<ConversationListPage> createState() => _ConversationListPageState();
@@ -74,14 +79,16 @@ class _ConversationListPageState extends State<ConversationListPage> {
       await widget.syncMailbox!.call();
       await _controller.load();
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('訊息已同步')),
+          SnackBar(content: Text(l10n.messagesSynced)),
         );
       }
     } catch (_) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('無法同步訊息，本機聊天仍可使用')),
+          SnackBar(content: Text(l10n.syncFailed)),
         );
       }
     } finally {
@@ -97,7 +104,8 @@ class _ConversationListPageState extends State<ConversationListPage> {
 
   Future<void> _createConversation() async {
     final count = _controller.conversations.length + 1;
-    final conv = await _controller.createLocalConversation('聊天室 $count');
+    final title = AppLocalizations.of(context).newConversationTitle(count);
+    final conv = await _controller.createLocalConversation(title);
     if (mounted) await _openChat(conv);
   }
 
@@ -109,21 +117,25 @@ class _ConversationListPageState extends State<ConversationListPage> {
       if (!mounted) return;
       await showDialog<void>(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('邀請碼'),
-          content: SelectableText(invite.code),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('關閉'),
-            ),
-          ],
-        ),
+        builder: (context) {
+          final l10n = AppLocalizations.of(context);
+          return AlertDialog(
+            title: Text(l10n.inviteCode),
+            content: SelectableText(invite.code),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(l10n.close),
+              ),
+            ],
+          );
+        },
       );
     } catch (_) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('無法建立邀請碼')),
+          SnackBar(content: Text(l10n.inviteCreateFailed)),
         );
       }
     }
@@ -146,8 +158,9 @@ class _ConversationListPageState extends State<ConversationListPage> {
       if (mounted) await _openChat(conversation);
     } catch (_) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('邀請碼無效、已使用或金鑰驗證失敗')),
+          SnackBar(content: Text(l10n.inviteInvalid)),
         );
       }
     }
@@ -177,14 +190,15 @@ class _ConversationListPageState extends State<ConversationListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('聊天'),
+        title: Text(l10n.chatListTitle),
         actions: [
           IconButton(
             onPressed:
                 widget.syncMailbox == null || _syncing ? null : _syncMailbox,
-            tooltip: '同步訊息',
+            tooltip: l10n.syncMessages,
             icon: _syncing
                 ? const SizedBox.square(
                     dimension: 20,
@@ -194,14 +208,39 @@ class _ConversationListPageState extends State<ConversationListPage> {
           ),
           IconButton(
             onPressed: widget.contactService == null ? null : _createInvite,
-            tooltip: '建立邀請碼',
+            tooltip: l10n.createInvite,
             icon: const Icon(Icons.ios_share),
           ),
           IconButton(
             onPressed: widget.contactService == null ? null : _redeemInvite,
-            tooltip: '加入聯絡人',
+            tooltip: l10n.addContact,
             icon: const Icon(Icons.person_add_alt_1),
           ),
+          if (widget.localeController case final controller?)
+            PopupMenuButton<AppLanguage>(
+              tooltip: l10n.language,
+              icon: const Icon(Icons.language),
+              initialValue: controller.language,
+              onSelected: (language) =>
+                  unawaited(controller.setLanguage(language)),
+              itemBuilder: (context) => [
+                _languageItem(
+                  controller,
+                  AppLanguage.system,
+                  l10n.followSystem,
+                ),
+                _languageItem(
+                  controller,
+                  AppLanguage.traditionalChinese,
+                  l10n.traditionalChinese,
+                ),
+                _languageItem(
+                  controller,
+                  AppLanguage.english,
+                  l10n.english,
+                ),
+              ],
+            ),
         ],
       ),
       body: AnimatedBuilder(
@@ -215,7 +254,7 @@ class _ConversationListPageState extends State<ConversationListPage> {
           }
           final items = _controller.conversations;
           if (items.isEmpty) {
-            return const Center(child: Text('尚無聊天室，點右下角 + 建立'));
+            return Center(child: Text(l10n.noConversations));
           }
           return ListView.separated(
             itemCount: items.length,
@@ -227,14 +266,14 @@ class _ConversationListPageState extends State<ConversationListPage> {
                 title: Text(c.title),
                 subtitle: Text(
                   c.peerUserId == null
-                      ? c.lastMessagePreview ?? '尚無訊息'
-                      : '${widget.presenceService?.labelFor(c.peerUserId!) ?? '離線'}\n${c.lastMessagePreview ?? '尚無訊息'}',
+                      ? c.lastMessagePreview ?? l10n.noMessages
+                      : '${_presenceLabel(l10n, c.peerUserId!)}\n${c.lastMessagePreview ?? l10n.noMessages}',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 trailing: c.lastMessageAt == null
                     ? null
-                    : Text(formatChatTime(c.lastMessageAt!)),
+                    : Text(formatChatTime(context, c.lastMessageAt!)),
                 onTap: () => unawaited(_openChat(c)),
               );
             },
@@ -243,9 +282,32 @@ class _ConversationListPageState extends State<ConversationListPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _createConversation,
+        tooltip: l10n.newConversation,
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  PopupMenuItem<AppLanguage> _languageItem(
+    LocaleController controller,
+    AppLanguage language,
+    String label,
+  ) {
+    return CheckedPopupMenuItem<AppLanguage>(
+      value: language,
+      checked: controller.language == language,
+      child: Text(label),
+    );
+  }
+
+  String _presenceLabel(AppLocalizations l10n, String userId) {
+    final state = widget.presenceService?.stateFor(userId) ??
+        ContactPresenceState.offline;
+    return switch (state) {
+      ContactPresenceState.online => l10n.online,
+      ContactPresenceState.recentlyOnline => l10n.recentlyOnline,
+      ContactPresenceState.offline => l10n.offline,
+    };
   }
 }
 
@@ -267,21 +329,22 @@ class _InviteCodeDialogState extends State<_InviteCodeDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AlertDialog(
-      title: const Text('加入聯絡人'),
+      title: Text(l10n.addContact),
       content: TextField(
         controller: _controller,
         autofocus: true,
-        decoration: const InputDecoration(labelText: '邀請碼或 QR 內容'),
+        decoration: InputDecoration(labelText: l10n.inviteCodeOrQr),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
+          child: Text(l10n.cancel),
         ),
         FilledButton(
           onPressed: () => Navigator.pop(context, _controller.text.trim()),
-          child: const Text('加入'),
+          child: Text(l10n.join),
         ),
       ],
     );

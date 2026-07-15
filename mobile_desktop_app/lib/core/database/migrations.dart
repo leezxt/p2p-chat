@@ -9,7 +9,7 @@ class Migration {
 }
 
 /// 目前 schema 版本。每次新增 migration 時 +1。
-const int kCurrentDbVersion = 6;
+const int kCurrentDbVersion = 7;
 
 /// 依版本排序的 migration 清單。
 const List<Migration> kMigrations = [
@@ -155,6 +155,15 @@ const List<Migration> kMigrations = [
       mailbox_message_id TEXT NOT NULL UNIQUE,
       acknowledging_device_id TEXT NOT NULL,
       ack_status TEXT NOT NULL CHECK (ack_status IN ('DELIVERED', 'READ')),
+      updated_at INTEGER NOT NULL
+    )
+    ''',
+  ]),
+  Migration(7, [
+    '''
+    CREATE TABLE app_settings (
+      setting_key TEXT PRIMARY KEY,
+      setting_value TEXT NOT NULL,
       updated_at INTEGER NOT NULL
     )
     ''',

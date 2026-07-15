@@ -54,10 +54,10 @@ void main() {
 
     await service.refresh();
 
-    expect(service.labelFor('online'), '在線');
-    expect(service.labelFor('recent'), '剛剛在線');
-    expect(service.labelFor('offline'), '離線');
-    expect(service.labelFor('unknown'), '離線');
+    expect(service.stateFor('online'), ContactPresenceState.online);
+    expect(service.stateFor('recent'), ContactPresenceState.recentlyOnline);
+    expect(service.stateFor('offline'), ContactPresenceState.offline);
+    expect(service.stateFor('unknown'), ContactPresenceState.offline);
     service.dispose();
   });
 
