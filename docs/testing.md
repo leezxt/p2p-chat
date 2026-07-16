@@ -15,6 +15,7 @@ Android/iOS integration test 或真機 Gate。
 | Flutter/Dart | `dart analyze`、相關 `flutter test <file>` | `flutter test` | Core lifecycle、SQLite、localization、crypto schema、P2P、mailbox、presence、push |
 | Windows Desktop | `flutter test --no-pub test/modules/device_key_service_test.dart` | `flutter build windows --debug --no-pub`；`flutter test --no-pub -d windows --dart-define=RUNTIME_PLATFORM=Windows integration_test/android_crypto_runtime_test.dart` | libsodium native runtime、Credential Manager、crypto failure paths、WebRTC DataChannel、Runner 與 plugins 編譯 |
 | Android native | 相關 Dart 單元測試 | `integration_test/android_crypto_runtime_test.dart`、雙 AVD E2E | libsodium、secure storage、WebRTC DataChannel、完整訊息流程 |
+| Android cloud device | `bash tool/build_firebase_test_lab.sh` | `Firebase Test Lab Android` 手動 workflow | instrumentation APK、遠端實體機 secure storage、libsodium、replay、WebRTC |
 | iOS native | `bash tool/verify_ios.sh` | 設定 `IOS_DEVICE_ID` 後執行同一腳本 | build、Keychain、libsodium、WebRTC |
 | Backend + App | `scripts/app-integration.ps1` | Android 雙裝置流程 | 真實 HTTP、JWT、邀請碼與裝置註冊 |
 
@@ -177,6 +178,18 @@ Android crypto runtime：
 cd mobile_desktop_app
 flutter test integration_test/android_crypto_runtime_test.dart -d <android-device-id>
 ```
+
+沒有本機手機時，可先建立 Firebase Test Lab app/test APK：
+
+```bash
+cd mobile_desktop_app
+bash tool/build_firebase_test_lab.sh
+```
+
+GitHub 手動 workflow 只接受 `main`，使用 OIDC 而非 service-account JSON key，且會拒絕
+非實體 Test Lab model。設定、IAM、裝置選擇與 artifact 證據見
+[`firebase_test_lab.md`](firebase_test_lab.md)。首次真正送測前維持「已實作未驗證」；單一
+雲端實體機也不取代雙裝置 E2E、真實斷網、OS kill、行動網路與耗電量測。
 
 Android 雙裝置 encrypted P2P（PowerShell）：
 

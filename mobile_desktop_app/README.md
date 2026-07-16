@@ -47,6 +47,20 @@ Offline mailbox、ACK 遺失與 App process restart 使用另一個 runner：
 
 它會上傳真實 sodium 密文，在接收端寫入 SQLite 後模擬 DELIVERED ACK 遺失，執行 `am force-stop`，再重啟同一 DB 驗證重投冪等、DELIVERED/READ 與 sender 本機 READ 狀態。雙 AVD 已通過；兩個 runner 都不能取代真機實際斷網、OS kill、USB `adb reverse` 與資源量測。
 
+## Firebase Test Lab 遠端實體裝置
+
+沒有本機 Android 手機時，可將 crypto runtime suite 建成 instrumentation APK：
+
+```bash
+bash tool/build_firebase_test_lab.sh
+```
+
+GitHub 的 **Firebase Test Lab Android** workflow 會透過 OIDC 登入 Google Cloud，先確認
+使用者輸入的 model/version 是 Test Lab catalog 中的實體裝置，再送出 production secure
+storage、libsodium failure paths、SQLite replay 與 encrypted WebRTC DataChannel 測試。
+Google Cloud IAM、repository variables、執行方法及不涵蓋的雙裝置／耗電 Gate 見
+[`../docs/firebase_test_lab.md`](../docs/firebase_test_lab.md)。
+
 V1 冷啟動、記憶體與背景連線基線可使用 profile APK 量測：
 
 ```powershell

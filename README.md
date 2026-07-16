@@ -42,6 +42,9 @@ Push token 與 notification outbox 契約見 [`docs/push_api.md`](docs/push_api.
 
 日常、完整、native 與端對端測試指令及結果判讀見 [`docs/testing.md`](docs/testing.md)。
 
+不持有本機 Android 手機時，可使用 GitHub OIDC 將 instrumentation APK 送至 Firebase
+Test Lab 實體裝置；設定與限制見 [`docs/firebase_test_lab.md`](docs/firebase_test_lab.md)。
+
 接手順序與逐項完成狀態見 [`docs/handoff_checklist.md`](docs/handoff_checklist.md)。每完成一項工作，需在同一次變更中勾選並更新相關文件。
 
 V1 候選版的建置、操作、真機驗收、發布 Gate 與已知限制見

@@ -37,6 +37,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
@@ -74,4 +75,11 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Flutter 3.44.6 integration_test constrains these versions on debugRuntimeClasspath.
+    androidTestImplementation("androidx.test:runner:1.3.0")
+    androidTestImplementation("androidx.test:rules:1.2.0")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
 }

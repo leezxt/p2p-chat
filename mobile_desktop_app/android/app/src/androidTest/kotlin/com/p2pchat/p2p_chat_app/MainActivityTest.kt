@@ -1,0 +1,17 @@
+package com.p2pchat.p2p_chat_app
+
+import androidx.test.rule.ActivityTestRule
+import dev.flutter.plugins.integration_test.FlutterTestRunner
+import org.junit.Rule
+import org.junit.runner.RunWith
+
+@RunWith(FlutterTestRunner::class)
+class MainActivityTest {
+    @Rule
+    @JvmField
+    val rule = ActivityTestRule(
+        MainActivity::class.java,
+        true,
+        false,
+    )
+}
