@@ -12,7 +12,7 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-16 21:54 +08:00）
+## 目前交接（2026-07-16 23:48 +08:00）
 
 目前目標：在不持有本機手機的條件下，建立 Firebase Test Lab 遠端 Android 實體裝置
 instrumentation Gate，先覆蓋 crypto runtime，再保留雙裝置與資源驗收邊界。
@@ -24,15 +24,18 @@ instrumentation Gate，先覆蓋 crypto runtime，再保留雙裝置與資源驗
 - [x] **已完成**：新增只允許 `main` 手動執行的 `firebase-test-lab.yml`；OIDC WIF、pinned actions/gcloud、physical model/version catalog 驗證、10 分鐘 device timeout、7 天 evidence artifact 與 fail-closed variables 已完成
 - [x] **已完成**：新增 Google Cloud IAM、results bucket、GitHub variables、裝置選擇、執行與限制文件；不提交 service-account JSON key
 - [x] **已完成**：133 個 Dart 檔案 formatter 零變更、`flutter analyze` 零問題；workflow YAML 結構／權限／action SHA pin、文件連結、shell syntax、非法 target exit 2 與 `git diff --check` 均通過
+- [x] **已完成**：Windows 已安裝 workflow 鎖定的 Google Cloud CLI `576.0.0` 與 platform components，使用者 PATH 可解析 `gcloud`；目前沒有登入帳號且 project 為 unset
+- [x] **已完成**：GitHub repository variables 稽核確認 `GCP_PROJECT_ID`、WIF provider、service account 與 results bucket 均尚未設定，workflow 會在送測前 fail-closed
 - [ ] **已實作未驗證**：缺 `GCP_PROJECT_ID`、WIF provider、service account 與 results bucket，尚未送出真實 Test Lab physical-device matrix；不得勾選 V1 真機 Gate
 - [x] **已完成**：PR [#49](https://github.com/leezxt/p2p-chat/pull/49) 最終 head `e2b0072` run `29503017933` 的 Java、Flutter、PostgreSQL container smoke 與 Windows Desktop 四組 V1 CI 全綠
 - [x] **已完成**：PR #49 已 squash merge 為 `main` commit `bdc3dd6`；合併後 run `29503705387` 四組 V1 CI 全綠，本機 `main` 已 fast-forward 同步
 
-Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或 backend；兩次本機 instrumentation build
-程序已結束，第二次成功。`build/firebase-test-lab/` 為 ignored 本機產物，不提交 repository。
+Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或 backend；Google Cloud installer 已結束，
+沒有殘留安裝程序。`build/firebase-test-lab/` 為 ignored 本機產物，不提交 repository。
 
-下一步：由使用者建立／指定 Google Cloud 專案、results bucket 與 WIF variables，再從
-`main` 手動執行首次 physical-device matrix。本機沒有 `actionlint`／
+下一步：取得使用者對 Google 帳號登入的明確授權後執行 `gcloud auth login`，再選擇或建立
+Google Cloud 專案、results bucket 與 WIF variables，最後從 `main` 手動執行首次
+physical-device matrix。本機沒有 `actionlint`／
 `shellcheck`；workflow 的 GitHub schema/runtime 仍由 GitHub Actions 驗證。
 
 ## 上次交接（2026-07-15 22:32 +08:00）
