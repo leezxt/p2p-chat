@@ -12,7 +12,7 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-16 23:48 +08:00）
+## 目前交接（2026-07-16 23:51 +08:00）
 
 目前目標：在不持有本機手機的條件下，建立 Firebase Test Lab 遠端 Android 實體裝置
 instrumentation Gate，先覆蓋 crypto runtime，再保留雙裝置與資源驗收邊界。
@@ -24,7 +24,8 @@ instrumentation Gate，先覆蓋 crypto runtime，再保留雙裝置與資源驗
 - [x] **已完成**：新增只允許 `main` 手動執行的 `firebase-test-lab.yml`；OIDC WIF、pinned actions/gcloud、physical model/version catalog 驗證、10 分鐘 device timeout、7 天 evidence artifact 與 fail-closed variables 已完成
 - [x] **已完成**：新增 Google Cloud IAM、results bucket、GitHub variables、裝置選擇、執行與限制文件；不提交 service-account JSON key
 - [x] **已完成**：133 個 Dart 檔案 formatter 零變更、`flutter analyze` 零問題；workflow YAML 結構／權限／action SHA pin、文件連結、shell syntax、非法 target exit 2 與 `git diff --check` 均通過
-- [x] **已完成**：Windows 已安裝 workflow 鎖定的 Google Cloud CLI `576.0.0` 與 platform components，使用者 PATH 可解析 `gcloud`；目前沒有登入帳號且 project 為 unset
+- [x] **已完成**：Windows 已安裝 workflow 鎖定的 Google Cloud CLI `576.0.0` 與 platform components，使用者 PATH 可解析 `gcloud`；Google OAuth 登入成功，project 仍為 unset
+- [x] **已完成**：登入帳號可見 3 個 active projects；只有通用名稱 `My First Project` 的 `project-82336e39-f6c7-4970-a7c` 已啟用 billing，是否共用或另建專案待使用者決定
 - [x] **已完成**：GitHub repository variables 稽核確認 `GCP_PROJECT_ID`、WIF provider、service account 與 results bucket 均尚未設定，workflow 會在送測前 fail-closed
 - [ ] **已實作未驗證**：缺 `GCP_PROJECT_ID`、WIF provider、service account 與 results bucket，尚未送出真實 Test Lab physical-device matrix；不得勾選 V1 真機 Gate
 - [x] **已完成**：PR [#49](https://github.com/leezxt/p2p-chat/pull/49) 最終 head `e2b0072` run `29503017933` 的 Java、Flutter、PostgreSQL container smoke 與 Windows Desktop 四組 V1 CI 全綠
@@ -33,8 +34,8 @@ instrumentation Gate，先覆蓋 crypto runtime，再保留雙裝置與資源驗
 Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或 backend；Google Cloud installer 已結束，
 沒有殘留安裝程序。`build/firebase-test-lab/` 為 ignored 本機產物，不提交 repository。
 
-下一步：取得使用者對 Google 帳號登入的明確授權後執行 `gcloud auth login`，再選擇或建立
-Google Cloud 專案、results bucket 與 WIF variables，最後從 `main` 手動執行首次
+下一步：由使用者決定共用現有 billing-enabled project，或建立專用 Test Lab project 並綁定
+billing；確認後建立 results bucket 與 WIF variables，最後從 `main` 手動執行首次
 physical-device matrix。本機沒有 `actionlint`／
 `shellcheck`；workflow 的 GitHub schema/runtime 仍由 GitHub Actions 驗證。
 
