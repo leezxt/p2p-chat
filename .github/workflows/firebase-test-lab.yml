@@ -16,6 +16,11 @@ on:
         required: true
         default: zh_TW
         type: string
+      submit_test:
+        description: Submit the paid physical-device matrix after preflight
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -38,6 +43,7 @@ jobs:
       DEVICE_MODEL: ${{ inputs.device_model }}
       ANDROID_VERSION: ${{ inputs.android_version }}
       TEST_LOCALE: ${{ inputs.locale }}
+      SUBMIT_TEST: ${{ inputs.submit_test }}
     steps:
       - name: Check out source
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -68,6 +74,10 @@ jobs:
           fi
           if (( 10#$ANDROID_VERSION < 24 )); then
             echo "Android Test Lab version must be API 24 or newer." >&2
+            exit 1
+          fi
+          if [[ "$SUBMIT_TEST" != "true" && "$SUBMIT_TEST" != "false" ]]; then
+            echo "submit_test must be true or false." >&2
             exit 1
           fi
 
@@ -113,7 +123,23 @@ jobs:
               exit 1
             }
 
+      - name: Validate results bucket access
+        working-directory: mobile_desktop_app
+        shell: bash
+        run: |
+          set -euo pipefail
+          results_dir="p2p-chat/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          object_uri="${FTL_RESULTS_BUCKET}/${results_dir}/preflight.txt"
+          printf 'run_id=%s\nrun_attempt=%s\nsubmit_test=%s\n' \
+            "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$SUBMIT_TEST" \
+            > build/firebase-test-lab/preflight.txt
+          gcloud storage cp build/firebase-test-lab/preflight.txt "$object_uri" 2>&1 \
+            | tee build/firebase-test-lab/bucket-preflight.log
+          gcloud storage rm "$object_uri" 2>&1 \
+            | tee -a build/firebase-test-lab/bucket-preflight.log
+
       - name: Run Android crypto suite on Firebase Test Lab
+        if: ${{ inputs.submit_test }}
         working-directory: mobile_desktop_app
         shell: bash
         run: |
@@ -131,7 +157,7 @@ jobs:
             --client-details="matrixLabel=${matrix_label}" \
             --quiet 2>&1 | tee build/firebase-test-lab/test-lab.log
 
-      - name: Preserve submission evidence
+      - name: Preserve workflow evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

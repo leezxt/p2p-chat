@@ -12,10 +12,10 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-16 23:51 +08:00）
+## 目前交接（2026-07-17 00:16 +08:00）
 
-目前目標：在不持有本機手機的條件下，建立 Firebase Test Lab 遠端 Android 實體裝置
-instrumentation Gate，先覆蓋 crypto runtime，再保留雙裝置與資源驗收邊界。
+目前目標：完成專用 Firebase Test Lab cloud project、billing、WIF 與 results bucket，並在
+首次可能產生費用的實體裝置 matrix 前加入預設不送測的 dry-run Gate。
 
 - [x] **已完成**：依 Flutter 3.44 與 Firebase Test Lab 2026-06 官方文件建立 Android instrumentation runner、app/test APK build 流程與 `gcloud firebase test android run` 契約
 - [x] **已完成**：新增 `build_firebase_test_lab.sh`；target 限制於 `integration_test/*_test.dart`，使用 locked dependencies，輸出 app/test APK 與 SHA-256
@@ -24,20 +24,23 @@ instrumentation Gate，先覆蓋 crypto runtime，再保留雙裝置與資源驗
 - [x] **已完成**：新增只允許 `main` 手動執行的 `firebase-test-lab.yml`；OIDC WIF、pinned actions/gcloud、physical model/version catalog 驗證、10 分鐘 device timeout、7 天 evidence artifact 與 fail-closed variables 已完成
 - [x] **已完成**：新增 Google Cloud IAM、results bucket、GitHub variables、裝置選擇、執行與限制文件；不提交 service-account JSON key
 - [x] **已完成**：133 個 Dart 檔案 formatter 零變更、`flutter analyze` 零問題；workflow YAML 結構／權限／action SHA pin、文件連結、shell syntax、非法 target exit 2 與 `git diff --check` 均通過
-- [x] **已完成**：Windows 已安裝 workflow 鎖定的 Google Cloud CLI `576.0.0` 與 platform components，使用者 PATH 可解析 `gcloud`；Google OAuth 登入成功，project 仍為 unset
-- [x] **已完成**：登入帳號可見 3 個 active projects；只有通用名稱 `My First Project` 的 `project-82336e39-f6c7-4970-a7c` 已啟用 billing，是否共用或另建專案待使用者決定
-- [x] **已完成**：GitHub repository variables 稽核確認 `GCP_PROJECT_ID`、WIF provider、service account 與 results bucket 均尚未設定，workflow 會在送測前 fail-closed
-- [ ] **已實作未驗證**：缺 `GCP_PROJECT_ID`、WIF provider、service account 與 results bucket，尚未送出真實 Test Lab physical-device matrix；不得勾選 V1 真機 Gate
+- [x] **已完成**：Windows 已安裝 workflow 鎖定的 Google Cloud CLI `576.0.0`，Google OAuth 登入成功
+- [x] **已完成**：建立專用 project `p2p-chat-ftl-1298124041`（number `160867304686`）、綁定 billing、啟用 Firebase 與 Test Lab APIs；Firebase 狀態為 `ACTIVE`，Google Analytics 停用
+- [x] **已完成**：建立 `ftl-github@p2p-chat-ftl-1298124041.iam.gserviceaccount.com`、最小必要 Test Lab roles，以及 `ASIA-EAST1` results bucket `gs://p2p-chat-ftl-1298124041-results`；bucket 禁止公開存取並套用 30 天 lifecycle
+- [x] **已完成**：建立只允許 `leezxt/p2p-chat` repository ID、owner ID 與 `refs/heads/main` 的 GitHub WIF provider，且未建立 service-account JSON key
+- [x] **已完成**：GitHub repository variables `GCP_PROJECT_ID`、`GCP_WORKLOAD_IDENTITY_PROVIDER`、`GCP_SERVICE_ACCOUNT` 與 `FTL_RESULTS_BUCKET` 已設定並回讀
+- [ ] **已實作未驗證**：workflow 已加入預設 `submit_test=false`；dry-run 會建置 APK、驗證 OIDC／實體 catalog／bucket 寫入刪除，只有明確設為 `true` 才送出可能計費的 10 分鐘 matrix
+- [x] **已完成**：本輪 YAML parse、5 個 bash run blocks syntax、Markdown 本機連結與 `git diff --check` 通過；cloud 回讀確認 project/billing/WIF/bucket 與 repository variables 狀態
+- [ ] **未完成**：分支 CI、合併後 `main` dry-run 與首次真實 Test Lab physical-device matrix 尚未執行；不得勾選 V1 真機 Gate
 - [x] **已完成**：PR [#49](https://github.com/leezxt/p2p-chat/pull/49) 最終 head `e2b0072` run `29503017933` 的 Java、Flutter、PostgreSQL container smoke 與 Windows Desktop 四組 V1 CI 全綠
 - [x] **已完成**：PR #49 已 squash merge 為 `main` commit `bdc3dd6`；合併後 run `29503705387` 四組 V1 CI 全綠，本機 `main` 已 fast-forward 同步
 
-Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或 backend；Google Cloud installer 已結束，
-沒有殘留安裝程序。`build/firebase-test-lab/` 為 ignored 本機產物，不提交 repository。
+Runtime：本輪沒有啟動 Docker、ADB、AVD、App、backend 或 Test Lab matrix；Google Cloud
+設定命令均已結束。`build/firebase-test-lab/` 與 lifecycle JSON 為 ignored 本機產物。
 
-下一步：由使用者決定共用現有 billing-enabled project，或建立專用 Test Lab project 並綁定
-billing；確認後建立 results bucket 與 WIF variables，最後從 `main` 手動執行首次
-physical-device matrix。本機沒有 `actionlint`／
-`shellcheck`；workflow 的 GitHub schema/runtime 仍由 GitHub Actions 驗證。
+下一步：驗證 YAML／shell／文件與 diff，推送本分支並建立 draft PR；CI 與合併完成後，
+從 `main` 以 `CPH2449`／Android 34／`zh_TW`／`submit_test=false` 執行 dry-run。只有在另行
+確認裝置、10 分鐘 timeout 與可能費用後，才執行 `submit_test=true`。
 
 ## 上次交接（2026-07-15 22:32 +08:00）
 
