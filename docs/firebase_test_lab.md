@@ -4,6 +4,10 @@
 執行遠端實體裝置驗收。Workflow 只允許從 `main` 手動啟動，且送測前會查詢 Test Lab
 catalog，拒絕 virtual model 或不支援的 model/version 組合。
 
+Workflow 預設只執行免費 preflight，不建立 Test Lab matrix。Preflight 會建置 APK、以
+GitHub OIDC 驗證 WIF、查詢實體裝置 catalog，並對 results bucket 寫入後刪除一個探測
+物件。只有手動將 `submit_test` 設為 `true` 才會提交可能產生費用的實體裝置測試。
+
 目前送測目標是 `integration_test/android_crypto_runtime_test.dart`，覆蓋 production
 Android secure storage、真實 libsodium failure paths、SQLite replay protection 與
 encrypted WebRTC DataChannel。單一遠端裝置不能取代雙裝置 E2E、實際斷網、OS kill、
@@ -54,6 +58,7 @@ locale。若 catalog 回傳的 `form` 不是 `PHYSICAL`，workflow 會在付費�
 - `device_model`：physical `MODEL_ID`
 - `android_version`：該 model 支援的 `OS_VERSION_ID`，且不得低於 API 24
 - `locale`：預設 `zh_TW`
+- `submit_test`：預設 `false`；確認裝置、10 分鐘 timeout 與可能費用後才設為 `true`
 
 也可使用 GitHub CLI：
 
@@ -62,12 +67,14 @@ gh workflow run firebase-test-lab.yml \
   --ref main \
   -f device_model=<MODEL_ID> \
   -f android_version=<OS_VERSION_ID> \
-  -f locale=zh_TW
+  -f locale=zh_TW \
+  -f submit_test=false
 ```
 
-Workflow 會建立 debug app/test APK、SHA-256、catalog JSON 與 Test Lab submission log，
-並保存為 7 天 GitHub artifact。詳細裝置 logs、影片與 screenshots 位於設定的 results
-bucket；`gcloud` 只有 exit code `0` 才算通過。
+Dry-run 會建立 debug app/test APK、SHA-256、catalog JSON、bucket preflight log，並保存為
+7 天 GitHub artifact，但不會建立 Test Lab matrix。`submit_test=true` 時才會額外保存 Test
+Lab submission log；詳細裝置 logs、影片與 screenshots 位於設定的 results bucket，且
+`gcloud` 只有 exit code `0` 才算通過。
 
 ## 本機只建置 APK
 

@@ -187,7 +187,8 @@ bash tool/build_firebase_test_lab.sh
 ```
 
 GitHub 手動 workflow 只接受 `main`，使用 OIDC 而非 service-account JSON key，且會拒絕
-非實體 Test Lab model。設定、IAM、裝置選擇與 artifact 證據見
+非實體 Test Lab model。預設 `submit_test=false` 只驗證 APK、OIDC、catalog 與 results
+bucket，不建立付費 matrix；確認費用後才可改為 `true`。設定、IAM、裝置選擇與 artifact 證據見
 [`firebase_test_lab.md`](firebase_test_lab.md)。首次真正送測前維持「已實作未驗證」；單一
 雲端實體機也不取代雙裝置 E2E、真實斷網、OS kill、行動網路與耗電量測。
 
