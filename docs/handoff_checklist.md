@@ -25,13 +25,14 @@ instrumentation Gate，先覆蓋 crypto runtime，再保留雙裝置與資源驗
 - [x] **已完成**：新增 Google Cloud IAM、results bucket、GitHub variables、裝置選擇、執行與限制文件；不提交 service-account JSON key
 - [x] **已完成**：133 個 Dart 檔案 formatter 零變更、`flutter analyze` 零問題；workflow YAML 結構／權限／action SHA pin、文件連結、shell syntax、非法 target exit 2 與 `git diff --check` 均通過
 - [ ] **已實作未驗證**：缺 `GCP_PROJECT_ID`、WIF provider、service account 與 results bucket，尚未送出真實 Test Lab physical-device matrix；不得勾選 V1 真機 Gate
-- [ ] **未完成**：推送 draft PR，確認既有 V1 CI，並在合併後確認 `main` CI
+- [x] **已完成**：功能 commit `e7681c8` 已推送至 `codex/firebase-test-lab`，並建立 draft PR [#49](https://github.com/leezxt/p2p-chat/pull/49)
+- [ ] **已實作未驗證**：等待 PR #49 最終 head 的既有 V1 CI，並在合併後確認 `main` CI
 
 Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或 backend；兩次本機 instrumentation build
 程序已結束，第二次成功。`build/firebase-test-lab/` 為 ignored 本機產物，不提交 repository。
 
-下一步：推送 draft PR 並確認既有 V1 CI。合併後由使用者建立／指定 Google Cloud 專案與
-WIF variables，再從 `main` 手動執行首次 physical-device matrix。本機沒有 `actionlint`／
+下一步：確認 PR #49 最終 head 的既有 V1 CI。合併後由使用者建立／指定 Google Cloud 專案
+與 WIF variables，再從 `main` 手動執行首次 physical-device matrix。本機沒有 `actionlint`／
 `shellcheck`；workflow 的 GitHub schema/runtime 仍由 GitHub Actions 驗證。
 
 ## 上次交接（2026-07-15 22:32 +08:00）
