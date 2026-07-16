@@ -1,0 +1,141 @@
+name: Firebase Test Lab Android
+
+on:
+  workflow_dispatch:
+    inputs:
+      device_model:
+        description: Physical Android MODEL_ID from the Test Lab catalog
+        required: true
+        type: string
+      android_version:
+        description: Supported OS_VERSION_ID for the selected model
+        required: true
+        type: string
+      locale:
+        description: Test Lab locale identifier
+        required: true
+        default: zh_TW
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: firebase-test-lab-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  android-physical-device:
+    name: Android physical device crypto runtime
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_SERVICE_ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT }}
+      FTL_RESULTS_BUCKET: ${{ vars.FTL_RESULTS_BUCKET }}
+      DEVICE_MODEL: ${{ inputs.device_model }}
+      ANDROID_VERSION: ${{ inputs.android_version }}
+      TEST_LOCALE: ${{ inputs.locale }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Validate dispatch and configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "Firebase Test Lab must run from main." >&2
+            exit 1
+          fi
+          for name in GCP_PROJECT_ID GCP_WORKLOAD_IDENTITY_PROVIDER GCP_SERVICE_ACCOUNT FTL_RESULTS_BUCKET; do
+            if [[ -z "${!name}" ]]; then
+              echo "Missing required repository variable: $name" >&2
+              exit 1
+            fi
+          done
+          if [[ ! "$FTL_RESULTS_BUCKET" =~ ^gs://[a-z0-9][a-z0-9._-]{1,220}[a-z0-9]$ ]]; then
+            echo "FTL_RESULTS_BUCKET must be a gs:// bucket URI." >&2
+            exit 1
+          fi
+          if [[ ! "$DEVICE_MODEL" =~ ^[A-Za-z0-9._-]+$ ]] ||
+             [[ ! "$ANDROID_VERSION" =~ ^[0-9]+$ ]] ||
+             [[ ! "$TEST_LOCALE" =~ ^[A-Za-z0-9_-]+$ ]]; then
+            echo "Invalid Test Lab device input." >&2
+            exit 1
+          fi
+          if (( 10#$ANDROID_VERSION < 24 )); then
+            echo "Android Test Lab version must be API 24 or newer." >&2
+            exit 1
+          fi
+
+      - name: Set up Flutter 3.44.6
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          channel: stable
+          flutter-version: 3.44.6
+          cache: true
+
+      - name: Build instrumentation APKs
+        working-directory: mobile_desktop_app
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash tool/build_firebase_test_lab.sh 2>&1 | tee build-firebase-test-lab.log
+          mv build-firebase-test-lab.log build/firebase-test-lab/build.log
+
+      - name: Authenticate to Google Cloud with OIDC
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          version: 576.0.0
+
+      - name: Validate physical device selection
+        working-directory: mobile_desktop_app
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud firebase test android models describe "$DEVICE_MODEL" \
+            --format=json > build/firebase-test-lab/device-model.json
+          jq -e --arg version "$ANDROID_VERSION" \
+            '.form == "PHYSICAL" and (.supportedVersionIds | index($version)) != null' \
+            build/firebase-test-lab/device-model.json >/dev/null || {
+              echo "Selected model/version is not an available physical-device combination." >&2
+              exit 1
+            }
+
+      - name: Run Android crypto suite on Firebase Test Lab
+        working-directory: mobile_desktop_app
+        shell: bash
+        run: |
+          set -o pipefail
+          results_dir="p2p-chat/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          matrix_label="p2p-chat-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          gcloud firebase test android run \
+            --type=instrumentation \
+            --app=build/firebase-test-lab/app-debug.apk \
+            --test=build/firebase-test-lab/app-debug-androidTest.apk \
+            --device="model=${DEVICE_MODEL},version=${ANDROID_VERSION},locale=${TEST_LOCALE},orientation=portrait" \
+            --timeout=10m \
+            --results-bucket="$FTL_RESULTS_BUCKET" \
+            --results-dir="$results_dir" \
+            --client-details="matrixLabel=${matrix_label}" \
+            --quiet 2>&1 | tee build/firebase-test-lab/test-lab.log
+
+      - name: Preserve submission evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: firebase-test-lab-${{ github.run_id }}-${{ github.run_attempt }}
+          path: mobile_desktop_app/build/firebase-test-lab/
+          if-no-files-found: warn
+          retention-days: 7

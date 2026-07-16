@@ -35,3 +35,4 @@ cloudflare_worker/.wrangler/
 *.jks
 **/google-services.json
 **/GoogleService-Info.plist
+gha-creds-*.json
