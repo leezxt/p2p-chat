@@ -12,7 +12,7 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-16 21:45 +08:00）
+## 目前交接（2026-07-16 21:37 +08:00）
 
 目前目標：在不持有本機手機的條件下，建立 Firebase Test Lab 遠端 Android 實體裝置
 instrumentation Gate，先覆蓋 crypto runtime，再保留雙裝置與資源驗收邊界。
@@ -26,13 +26,14 @@ instrumentation Gate，先覆蓋 crypto runtime，再保留雙裝置與資源驗
 - [x] **已完成**：133 個 Dart 檔案 formatter 零變更、`flutter analyze` 零問題；workflow YAML 結構／權限／action SHA pin、文件連結、shell syntax、非法 target exit 2 與 `git diff --check` 均通過
 - [ ] **已實作未驗證**：缺 `GCP_PROJECT_ID`、WIF provider、service account 與 results bucket，尚未送出真實 Test Lab physical-device matrix；不得勾選 V1 真機 Gate
 - [x] **已完成**：功能 commit `e7681c8` 已推送至 `codex/firebase-test-lab`，並建立 draft PR [#49](https://github.com/leezxt/p2p-chat/pull/49)
-- [ ] **已實作未驗證**：等待 PR #49 最終 head 的既有 V1 CI，並在合併後確認 `main` CI
+- [x] **已完成**：PR #49 head `85fdeac` run `29502492142` 的 Java、Flutter、PostgreSQL container smoke 與 Windows Desktop 四組 V1 CI 全綠
+- [ ] **已實作未驗證**：本次只更新交接狀態；合併前仍需確認 PR latest head CI，合併後確認 `main` CI
 
 Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或 backend；兩次本機 instrumentation build
 程序已結束，第二次成功。`build/firebase-test-lab/` 為 ignored 本機產物，不提交 repository。
 
-下一步：確認 PR #49 最終 head 的既有 V1 CI。合併後由使用者建立／指定 Google Cloud 專案
-與 WIF variables，再從 `main` 手動執行首次 physical-device matrix。本機沒有 `actionlint`／
+下一步：確認 PR #49 latest head CI 後再合併。合併後由使用者建立／指定 Google Cloud 專案與
+WIF variables，再從 `main` 手動執行首次 physical-device matrix。本機沒有 `actionlint`／
 `shellcheck`；workflow 的 GitHub schema/runtime 仍由 GitHub Actions 驗證。
 
 ## 上次交接（2026-07-15 22:32 +08:00）
