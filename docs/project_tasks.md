@@ -117,7 +117,7 @@
 
 | ID | 任務 | 依賴 | 驗收條件 |
 |---|---|---|---|
-| V1-01 | 🚧 建立兩台真機的完整 E2E 測試腳本 | S8-05 | 雙 AVD 已分別通過 encrypted P2P runner，以及真實 sodium offline mailbox、ACK 遺失、App force-stop/restart、DELIVERED/READ 與 sender 本機 READ 狀態；Firebase Test Lab 專用 project、billing、WIF、results bucket 與單一實體機 instrumentation workflow 已建立，免費 dry-run 已通過且付費 step 為 skipped，真實 matrix 待明確費用確認；兩台真機、實際斷網與資源量測仍待驗 |
+| V1-01 | 🚧 建立兩台真機的完整 E2E 測試腳本 | S8-05 | 雙 AVD 已分別通過 encrypted P2P runner，以及真實 sodium offline mailbox、ACK 遺失、App force-stop/restart、DELIVERED/READ 與 sender 本機 READ 狀態；Firebase Test Lab 專用 project、billing、WIF、results bucket 與單一實體機 instrumentation workflow 已建立，免費 dry-run 已通過；首次真實 matrix 因 `CPH2449` 低容量排隊超過 GitHub 45 分鐘上限而取消，未開始 device execution，需先修正等待／取消策略；兩台真機、實際斷網與資源量測仍待驗 |
 | V1-02 | ✅ 安全與隱私稽核 | S6-06,S7-06,S8-05 | 私鑰/明文不上傳、不進 log；修復 ACK/origin/cursor、signaling concurrent writes、push token at-rest、共享 mailbox rate limit 與 FCM outbox worker；Java 52 tests、Flutter 82 tests、analyze 通過，殘餘風險見 `security_audit_v1.md` |
 | V1-03 | 🚧 資源目標量測 | V1-01 | Android 15 AVD profile 基線已重跑兩次：冷啟動中位數 2646/2690ms、閒置 PSS 110.22/111.54MB、背景 TCP 0；真機 release candidate、最差啟動時間、實際網路與電量仍待驗 |
 | V1-04 | 🚧 故障恢復與資料完整性測試 | V1-01 | SQLite 關閉／重開、ACK 遺失重投、v1～v5 升級至 v7，以及 Android AVD `am force-stop` 後同一 DB 重啟與 READ 閉環已通過；真機 OS kill 與實際斷網待驗 |
