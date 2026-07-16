@@ -12,7 +12,7 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-17 00:16 +08:00）
+## 目前交接（2026-07-17 00:46 +08:00）
 
 目前目標：完成專用 Firebase Test Lab cloud project、billing、WIF 與 results bucket，並在
 首次可能產生費用的實體裝置 matrix 前加入預設不送測的 dry-run Gate。
@@ -29,18 +29,23 @@
 - [x] **已完成**：建立 `ftl-github@p2p-chat-ftl-1298124041.iam.gserviceaccount.com`、最小必要 Test Lab roles，以及 `ASIA-EAST1` results bucket `gs://p2p-chat-ftl-1298124041-results`；bucket 禁止公開存取並套用 30 天 lifecycle
 - [x] **已完成**：建立只允許 `leezxt/p2p-chat` repository ID、owner ID 與 `refs/heads/main` 的 GitHub WIF provider，且未建立 service-account JSON key
 - [x] **已完成**：GitHub repository variables `GCP_PROJECT_ID`、`GCP_WORKLOAD_IDENTITY_PROVIDER`、`GCP_SERVICE_ACCOUNT` 與 `FTL_RESULTS_BUCKET` 已設定並回讀
-- [ ] **已實作未驗證**：workflow 已加入預設 `submit_test=false`；dry-run 會建置 APK、驗證 OIDC／實體 catalog／bucket 寫入刪除，只有明確設為 `true` 才送出可能計費的 10 分鐘 matrix
+- [x] **已完成**：workflow 已加入預設 `submit_test=false`；dry-run 會建置 APK、驗證 OIDC／實體 catalog／bucket 寫入刪除，只有明確設為 `true` 才送出可能計費的 10 分鐘 matrix
 - [x] **已完成**：本輪 YAML parse、5 個 bash run blocks syntax、Markdown 本機連結與 `git diff --check` 通過；cloud 回讀確認 project/billing/WIF/bucket 與 repository variables 狀態
-- [ ] **未完成**：分支 CI、合併後 `main` dry-run 與首次真實 Test Lab physical-device matrix 尚未執行；不得勾選 V1 真機 Gate
+- [x] **已完成**：PR [#51](https://github.com/leezxt/p2p-chat/pull/51) head `209b75c` run `29514939670` 的 Java、Flutter、PostgreSQL container smoke 與 Windows Desktop 四組 V1 CI 全綠
+- [x] **已完成**：PR #51 已 squash merge 為 `main` commit `38eda5d`；合併後 run `29515443738` 四組 V1 CI 全綠，本機 `main` 已 fast-forward 同步
+- [x] **已完成**：`main` dry-run `29515993923` 以 `CPH2449`／Android 34／`zh_TW`／`submit_test=false` 通過；OIDC、實體 catalog、bucket 寫入刪除、APK build 與 SHA-256 均成功，付費 Test Lab submission step 明確為 `skipped`
+- [x] **已完成**：dry-run artifact `firebase-test-lab-29515993923-1` 已下載稽核；含 app/test APK、catalog、build 與 bucket logs，不含 `test-lab.log`，results bucket run prefix 無殘留物件
+- [ ] **未完成**：首次真實 Test Lab physical-device matrix、兩台真機 E2E、實際斷網與資源量測尚未執行；不得勾選 V1 真機 Gate
 - [x] **已完成**：PR [#49](https://github.com/leezxt/p2p-chat/pull/49) 最終 head `e2b0072` run `29503017933` 的 Java、Flutter、PostgreSQL container smoke 與 Windows Desktop 四組 V1 CI 全綠
 - [x] **已完成**：PR #49 已 squash merge 為 `main` commit `bdc3dd6`；合併後 run `29503705387` 四組 V1 CI 全綠，本機 `main` 已 fast-forward 同步
 
-Runtime：本輪沒有啟動 Docker、ADB、AVD、App、backend 或 Test Lab matrix；Google Cloud
-設定命令均已結束。`build/firebase-test-lab/` 與 lifecycle JSON 為 ignored 本機產物。
+Runtime：本輪沒有啟動 Docker、ADB、AVD、App、backend 或 Test Lab matrix；GitHub dry-run
+已完成，付費 step 為 `skipped`。下載的 101 MB evidence artifact、build 產物與 lifecycle JSON
+均位於 ignored `.tools/`／`build/`，不提交 repository。
 
-下一步：驗證 YAML／shell／文件與 diff，推送本分支並建立 draft PR；CI 與合併完成後，
-從 `main` 以 `CPH2449`／Android 34／`zh_TW`／`submit_test=false` 執行 dry-run。只有在另行
-確認裝置、10 分鐘 timeout 與可能費用後，才執行 `submit_test=true`。
+下一步：只有在使用者另行確認 `CPH2449`／Android 34、10 分鐘 device timeout 與可能費用
+後，才從 `main` 執行 `submit_test=true`。單一 Test Lab 實體機不取代兩台真機 E2E、實際
+斷網、OS kill、行動網路、記憶體與耗電 Gate。
 
 ## 上次交接（2026-07-15 22:32 +08:00）
 
