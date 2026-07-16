@@ -12,7 +12,7 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-17 00:46 +08:00）
+## 目前交接（2026-07-17 01:53 +08:00）
 
 目前目標：完成專用 Firebase Test Lab cloud project、billing、WIF 與 results bucket，並在
 首次可能產生費用的實體裝置 matrix 前加入預設不送測的 dry-run Gate。
@@ -35,17 +35,22 @@
 - [x] **已完成**：PR #51 已 squash merge 為 `main` commit `38eda5d`；合併後 run `29515443738` 四組 V1 CI 全綠，本機 `main` 已 fast-forward 同步
 - [x] **已完成**：`main` dry-run `29515993923` 以 `CPH2449`／Android 34／`zh_TW`／`submit_test=false` 通過；OIDC、實體 catalog、bucket 寫入刪除、APK build 與 SHA-256 均成功，付費 Test Lab submission step 明確為 `skipped`
 - [x] **已完成**：dry-run artifact `firebase-test-lab-29515993923-1` 已下載稽核；含 app/test APK、catalog、build 與 bucket logs，不含 `test-lab.log`，results bucket run prefix 無殘留物件
-- [ ] **未完成**：首次真實 Test Lab physical-device matrix、兩台真機 E2E、實際斷網與資源量測尚未執行；不得勾選 V1 真機 Gate
+- [ ] **已實作未驗證**：使用者確認單一 `CPH2449`／Android 34／10 分鐘 matrix 後，run `29518279373` 成功建立 `matrix-2alql4g631yuq`；裝置容量為 `Low`，matrix 持續 `PENDING` 至 GitHub 45 分鐘 job timeout，實體測試未開始
+- [x] **已完成**：GitHub timeout 後以 Testing API 查明孤立 matrix 仍為 `PENDING`，已主動取消避免後續非預期費用；最終 matrix 為 `FINISHED / INCONCLUSIVE`、execution 為 `CANCELLED` 且無 `toolExecutionId`
+- [x] **已完成**：產出依目前程式碼盤點的 V1 架構圖；現行 Flutter 十個模組、Spring Boot 八個服務邊界、SQLite／secure storage、PostgreSQL、P2P／mailbox fallback 與 FCM 邊界均已核對，Cloudflare Worker 明確保留為未實作 backlog
+- [ ] **未完成**：首次成功的 Test Lab physical-device runtime、兩台真機 E2E、實際斷網與資源量測尚未完成；不得勾選 V1 真機 Gate
 - [x] **已完成**：PR [#49](https://github.com/leezxt/p2p-chat/pull/49) 最終 head `e2b0072` run `29503017933` 的 Java、Flutter、PostgreSQL container smoke 與 Windows Desktop 四組 V1 CI 全綠
 - [x] **已完成**：PR #49 已 squash merge 為 `main` commit `bdc3dd6`；合併後 run `29503705387` 四組 V1 CI 全綠，本機 `main` 已 fast-forward 同步
 
-Runtime：本輪沒有啟動 Docker、ADB、AVD、App、backend 或 Test Lab matrix；GitHub dry-run
-已完成，付費 step 為 `skipped`。下載的 101 MB evidence artifact、build 產物與 lifecycle JSON
-均位於 ignored `.tools/`／`build/`，不提交 repository。
+Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或 backend。Test Lab matrix
+`matrix-2alql4g631yuq` 已透過 Testing API 取消並確認 execution 為 `CANCELLED`，沒有執行中的
+GitHub workflow。下載的 evidence artifacts、build 產物與 lifecycle JSON 均位於 ignored
+`.tools/`／`build/`，不提交 repository。
 
-下一步：只有在使用者另行確認 `CPH2449`／Android 34、10 分鐘 device timeout 與可能費用
-後，才從 `main` 執行 `submit_test=true`。單一 Test Lab 實體機不取代兩台真機 E2E、實際
-斷網、OS kill、行動網路、記憶體與耗電 Gate。
+下一步：先調整 Test Lab workflow，將 APK build 與 matrix submission 分離或提高 job 等待
+上限，並在 runner 中保存 matrix ID、於 job cancellation 時取消遠端 matrix；重新送測前需
+再次確認裝置容量與可能費用。單一 Test Lab 實體機仍不取代兩台真機 E2E、實際斷網、
+OS kill、行動網路、記憶體與耗電 Gate。
 
 ## 上次交接（2026-07-15 22:32 +08:00）
 
