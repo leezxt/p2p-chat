@@ -14,7 +14,7 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-18 22:23 +08:00）
+## 目前交接（2026-07-18 22:31 +08:00）
 
 目前目標：以 Android 15 AVD 補 App Lock production runtime 驗收，覆蓋真實 Argon2id、
 secure storage、background lock 與未註冊 biometric fail-closed；不得取代真機 Gate。
@@ -26,20 +26,22 @@ secure storage、background lock 與未註冊 biometric fail-closed；不得取�
 - [x] **已完成**：新增 `verify_android_app_lock.ps1`，驗證裝置、限制 unenrolled assertion 只能用受控 emulator，設定 native build PATH 與低併發後執行測試
 - [x] **已完成**：CI format Gate 擴充至 `lib test integration_test`；163 files／0 changes、全專案 analyze、16 項 App Lock 回歸與 runner native 2 tests 均通過
 - [ ] **已實作未驗證**：Android/iPhone 真機 enrollment change、biometric 成功／取消、secure storage 跨 OS restart 與系統政策仍待實機驗收
-- [ ] **未完成**：commit／push並確認 Draft PR CI
+- [x] **已完成**：commit `a74715c` 已推送；Draft PR #54 V1 CI run `29648009386` 的 Flutter、Java、PostgreSQL 與 Windows Desktop 四項全部成功
 
 變更範圍：Android App Lock runtime integration test、PowerShell runner、CI format 範圍、testing、
 project tasks 與本交接清單。
 
 驗證：第一次 native build 因三個閒置 Gradle/Kotlin daemon 占約 4.3 GB，使 sodium hook 無法
 建立 Dart worker；記錄後正常停止 daemon、限制 2 workers 重跑通過。新 runner 再次獨立重跑
-2 tests 通過；163-file format、analyze 與 App Lock 16 tests 通過。
+2 tests 通過；163-file format、analyze 與 App Lock 16 tests 通過。GitHub run `29648009386`
+完整四項 Gate 全綠。
 
 Runtime：`emulator-5554`（AVD `p2p_api35`）已以 `adb emu kill` 乾淨停止，`adb devices`
 無殘留裝置；先前 Gradle/Kotlin daemon 已正常退出。未啟動 Docker、backend 或其他 App。
 
-下一步：推送並確認 Draft PR CI；有真機時再驗 enrollment change、biometric 成功／取消與
-secure storage 跨 OS restart，AVD 結果不得關閉真機 Gate。
+下一步：有真機時再驗 enrollment change、biometric 成功／取消與 secure storage 跨 OS
+restart；沒有實機時接續其他不依賴 credentials／production authority 的項目。AVD 結果
+不得關閉真機 Gate。
 
 ## 上次交接（2026-07-18 21:58 +08:00）
 
