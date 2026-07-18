@@ -1,8 +1,9 @@
 # Firebase Test Lab Android 真機驗收
 
 本專案使用 Firebase Test Lab 的 Android instrumentation test，在不持有本機手機的情況下
-執行遠端實體裝置驗收。Workflow 只允許從 `main` 手動啟動，且送測前會查詢 Test Lab
-catalog，拒絕 virtual model 或不支援的 model/version 組合。
+執行遠端實體裝置驗收。付費送測只允許從 `main` 手動啟動；免費 preflight 可從 WIF
+attribute condition 明確授權的分支執行。送測前會查詢 Test Lab catalog，拒絕 virtual
+model 或不支援的 model/version 組合。
 
 Workflow 預設只執行免費 preflight，不建立 Test Lab matrix。Preflight 會建置 APK、以
 GitHub OIDC 驗證 WIF、查詢實體裝置 catalog，並對 results bucket 寫入後刪除一個探測
@@ -25,9 +26,10 @@ encrypted WebRTC DataChannel。單一遠端裝置不能取代雙裝置 E2E、實
    - Firebase Test Lab Admin：`roles/cloudtestservice.testAdmin`
    - Firebase Analytics Viewer：`roles/firebase.analyticsViewer`
    - 對專用 results bucket 的最小必要 object 權限
-4. 建立 Workload Identity Pool／Provider，attribute condition 至少限制
-   `assertion.repository == 'leezxt/p2p-chat'` 與 `assertion.ref == 'refs/heads/main'`，並只
-   允許該 principal 以 `roles/iam.workloadIdentityUser` impersonate 上述 service account。
+4. 建立 Workload Identity Pool／Provider，attribute condition 至少限制不可變 repository／
+   owner ID 與 `assertion.ref == 'refs/heads/main'`。若要在 PR 分支驗證免費 preflight，僅
+   額外加入該分支的完整 ref，不使用任意分支通配；並只允許該 principal 以
+   `roles/iam.workloadIdentityUser` impersonate 上述 service account。
 5. 在 GitHub repository 的 Actions variables 設定：
 
 | Variable | 值 |
@@ -56,7 +58,8 @@ locale。若 catalog 回傳的 `form` 不是 `PHYSICAL`，workflow 會在付費�
 
 ## 執行
 
-在 GitHub Actions 選擇 **Firebase Test Lab Android**，使用 `main` 執行並填入：
+在 GitHub Actions 選擇 **Firebase Test Lab Android**。付費 submission 必須使用 `main`；
+免費 dry-run 可使用 WIF 已精確授權的分支。填入：
 
 - `device_model`：physical `MODEL_ID`
 - `android_version`：該 model 支援的 `OS_VERSION_ID`，且不得低於 API 24

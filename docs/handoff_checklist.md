@@ -14,10 +14,10 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-18 14:46 +08:00）
+## 目前交接（2026-07-18 18:06 +08:00）
 
-目前目標：修正 V1-01 Firebase Test Lab 實體機因低容量排隊超過 GitHub job timeout
-後留下孤立 matrix 的 lifecycle 缺口；本輪不送出付費 matrix。
+目前目標：將 V1.5 安全／低功耗與 V1-01 Test Lab lifecycle 修正發布至 Draft PR，
+並以免費 GitHub dry-run 驗證完整 preflight；本輪未送出付費 matrix。
 
 - [x] **已完成**：依 2026-05-27 官方 gcloud／Testing API 文件確認 `run --async`、device capacity、matrix GET 與 `:cancel` 契約
 - [x] **已完成**：workflow job 上限由 45 分鐘調整為 180 分鐘；新增 15～120 分鐘可設定 queue timeout，裝置 instrumentation 仍限制 10 分鐘，開始執行後監控最多 30 分鐘
@@ -25,25 +25,30 @@
 - [x] **已完成**：新增 `monitor_firebase_test_lab.sh`；透過 Testing API 保存最新 JSON／摘要，只有 `FINISHED / SUCCESS` 通過，其他 terminal outcome fail closed
 - [x] **已完成**：監控腳本在 queue/run timeout、連續 API 失敗、SIGINT、SIGTERM 或非 terminal exit 時呼叫 `:cancel`；access token 每次查詢刷新，避免長排隊超過 token 壽命
 - [x] **已完成**：preflight 保存 `list-device-capacities` JSON；付費 submission 預設拒絕 `Low`／`None`／Unknown，只有明確 `allow_low_capacity=true` 才允許 Low；免費 dry-run 仍可檢視 Low／Unknown
-- [x] **已完成**：新增 matrix ID extractor 與本機契約測試；SUCCESS 不取消、PENDING timeout 取消、FINISHED/FAILURE 不誤判成功、非法 matrix ID 拒絕，workflow async／cleanup wiring 亦有檢查
+- [x] **已完成**：新增 matrix ID extractor 與本機契約測試；SUCCESS 不取消、PENDING timeout 取消、FINISHED/FAILURE 不誤判成功、非法 matrix ID 拒絕，workflow async／cleanup wiring 與「非 `main` 只能 dry-run」亦有檢查
 - [x] **已完成**：本機 Test Lab monitor tests、3 個 bash scripts syntax、Python compile、workflow YAML parse 與目前 `CPH2449 / API 34 = Low` catalog 查詢通過
-- [ ] **已實作未驗證**：新 workflow 尚未推送至 GitHub，因此 OIDC free dry-run、artifact evidence、GitHub cancellation signal 與 `always()` upload 尚待 CI 驗證
+- [x] **已完成**：建立 Draft PR [#54](https://github.com/leezxt/p2p-chat/pull/54)；workflow 允許明確授權分支執行 `submit_test=false`，但任何非 `main` 的付費 submission 仍 fail closed
+- [x] **已完成**：GitHub run [29639354427 attempt 2](https://github.com/leezxt/p2p-chat/actions/runs/29639354427/attempts/2) 免費 dry-run 通過；APK build、OIDC、實體 catalog、capacity 與 bucket 寫入／刪除成功，submission／monitor steps 明確 skipped
+- [x] **已完成**：evidence artifact `firebase-test-lab-29639354427-2` 已下載核對；`CPH2449 / API 34 = Low`、`submit_test=false`，且不存在 `matrix-id.txt` 或 `matrix-submit.json`
+- [x] **已完成**：WIF attribute condition 保留不可變 repository／owner ID，僅由 `main` 額外精確允許 `codex/v15-security-low-power-ftl`；未開放任意功能分支
 - [ ] **已實作未驗證**：首次成功 Test Lab 實體機 runtime、兩台真機 E2E、實際斷網、OS kill、網路／記憶體／耗電 Gate 仍未完成
 
 變更範圍：`.github/workflows/firebase-test-lab.yml`、
 `mobile_desktop_app/tool/monitor_firebase_test_lab.sh`、matrix ID extractor／契約測試，
-以及 Firebase Test Lab、testing、release candidate、project tasks 文件。
+V1.5 Safety Number／App Lock／Low Power Mode，以及 Firebase Test Lab、testing、release
+candidate、project tasks 文件。
 
-驗證：Git Bash 契約測試通過；`bash -n` 通過；PyYAML 可解析 workflow；Python extractor
-可編譯；gcloud 576.0.0 即時 catalog 查詢確認 `CPH2449 / 34` 容量仍為 `Low`。未建立或
-送出任何 Test Lab matrix，沒有產生本輪實體裝置費用。
+驗證：本機 monitor 契約測試、YAML parse 與 `git diff --check` 通過。GitHub run
+`29639354427` attempt 2 完整 preflight 成功；artifact 的 APK SHA-256、capacity JSON 與
+bucket preflight log 均存在，且沒有 matrix submission 證據。未建立或送出任何 Test Lab
+matrix，沒有產生本輪實體裝置費用。
 
-Runtime：本輪未啟動 Docker、ADB、AVD、App、backend 或 GitHub workflow；沒有執行中
-的 Test Lab matrix 或需停止的 managed runtime。
+Runtime：GitHub workflow 已完成，沒有執行中的 Test Lab matrix。未啟動 Docker、ADB、
+AVD、App 或 backend；本機只保留下載至 `%TEMP%` 的 CI evidence 副本。
 
-下一步：將現有工作樹整理到 GitHub 後，先以 `submit_test=false` 驗證新 workflow 與
-evidence artifact；選擇 `Medium`／`High` 容量實體 model 後，再由使用者明確確認一次付費
-submission。單一 Test Lab 裝置仍不取代兩台真機 E2E 與資源 Gate。
+下一步：保持 PR #54 為 Draft；選擇 `Medium`／`High` 容量實體 model 後，再由使用者明確
+確認一次 `main` 的付費 submission。單一 Test Lab 裝置仍不取代兩台真機 E2E、實際斷網、
+OS kill 與資源 Gate。
 
 ## 上次交接（2026-07-18 14:13 +08:00）
 

@@ -186,10 +186,11 @@ cd mobile_desktop_app
 bash tool/build_firebase_test_lab.sh
 ```
 
-GitHub 手動 workflow 只接受 `main`，使用 OIDC 而非 service-account JSON key，且會拒絕
-非實體 Test Lab model。預設 `submit_test=false` 只驗證 APK、OIDC、catalog 與 results
-bucket，不建立付費 matrix；確認費用後才可改為 `true`。付費 submission 預設拒絕低容量
-裝置，採非同步建立並保存 matrix ID；排隊／監控逾時或 runner 中止時會取消未完成 matrix。
+GitHub 手動 workflow 的付費 submission 只接受 `main`；免費 dry-run 可從 WIF 明確授權的
+分支執行。Workflow 使用 OIDC 而非 service-account JSON key，且會拒絕非實體 Test Lab
+model。預設 `submit_test=false` 只驗證 APK、OIDC、catalog 與 results bucket，不建立付費
+matrix；確認費用後才可改為 `true`。付費 submission 預設拒絕低容量裝置，採非同步建立並
+保存 matrix ID；排隊／監控逾時或 runner 中止時會取消未完成 matrix。
 設定、IAM、裝置選擇與 artifact 證據見
 [`firebase_test_lab.md`](firebase_test_lab.md)。首次真正送測前維持「已實作未驗證」；單一
 雲端實體機也不取代雙裝置 E2E、真實斷網、OS kill、行動網路與耗電量測。
