@@ -54,7 +54,7 @@ V1 候選版的建置、操作、真機驗收、發布 Gate 與已知限制見
 
 ## 快速開始（mobile_desktop_app）
 
-需求：Flutter SDK 3.27.0 以上、Dart SDK 3.6.0 以上。本 repo 骨架不含編譯好的產物。
+需求：Flutter SDK 3.29.0 以上、Dart SDK 3.7.0 以上。本 repo 骨架不含編譯好的產物。
 
 ```bash
 cd mobile_desktop_app

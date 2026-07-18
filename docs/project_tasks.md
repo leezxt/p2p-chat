@@ -162,7 +162,7 @@
 | V15-12-02 | ✅ | 定義 Safety Number QR payload 與嚴格比對 | payload 只含版本、類型、雙方裝置識別與 digest；拒絕額外欄位、竄改及錯誤參與者 |
 | V15-12-03 | ✅ | 保存驗證狀態並在 key change 後失效 | SQLite v8 `safety_number_verifications` 以目前 digest 判定；聯絡人公鑰改變後舊驗證自動失效 |
 | V15-12-04 | ✅ | 建立聊天室安全碼 UI | 支援白底黑碼高對比 QR、60 位安全碼、人工確認、貼入 QR 內容比對及繁中／英文介面；深色主題 Widget 測試通過 |
-| V15-12-05 | 🚧 | 相機掃描與雙實機人工核對 | 可替換 scanner 介面、Android/iOS 相機權限、QR-only 掃描頁與失敗 UI 已實作，Android debug APK 建置通過；真實權限允許／拒絕、掃碼及兩台裝置顯示一致性待實機驗收 |
+| V15-12-05 | 🚧 | 相機掃描與雙實機人工核對 | 可替換 scanner 介面、Android/iOS 相機權限、QR-only 掃描頁與失敗 UI 已實作；`mobile_scanner 7.3.0`、AGP 9 相容 callback、7 項 Safety Number tests、analyze 與 Android debug APK 建置通過。真實權限允許／拒絕、掃碼及兩台裝置顯示一致性待實機驗收 |
 
 ## V2–V5 Backlog
 

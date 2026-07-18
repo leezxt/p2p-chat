@@ -14,7 +14,36 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-18 18:57 +08:00）
+## 目前交接（2026-07-18 21:15 +08:00）
+
+目前目標：降低 Android AGP 9／Kotlin deprecation 風險，先升級可控的 QR scanner，並驗證
+Flutter 3.44.6 built-in Kotlin migration 邊界；不得破壞既有 crypto／WebRTC build。
+
+- [x] **已完成**：以 Flutter 3.44.6 官方 template 與 CI log 定位警告；`android.builtInKotlin=false`／`android.newDsl=false` 由 Flutter migrator 管理，非可直接刪除的一般專案設定
+- [x] **已完成**：確認 `flutter_webrtc 1.5.2` 已具 AGP 9 conditional KGP 邏輯；`mobile_scanner 6.0.11` 為無條件套用 KGP 的舊版
+- [x] **已完成**：升級至 `mobile_scanner 7.3.0`；同步 Dart ≥3.7／Flutter ≥3.29 下限，並依 breaking API 將 scanner `errorBuilder` 改為兩參數
+- [x] **已完成**：新版 scanner 的 Android script 已能依 AGP 9 built-in Kotlin 狀態條件套用 KGP；最低 Android API 23 低於本專案 API 24 Gate
+- [x] **已完成**：7 項 Safety Number tests、Dart format、`flutter analyze --no-pub` 與 skip-sodium Android debug APK 建置通過
+- [x] **已完成**：debug APK 大小 `218609212` bytes，SHA-256 `CECB076033920B401A2C683E5E6887AAA8286D0C9AC950A09EFA4B7035A95BD7`
+- [ ] **已實作未驗證**：移除 built-in Kotlin 相容旗標的實驗 build 會被 Flutter 3.44.6 migrator 自動重加；已恢復受支援模板設定，完整遷移需等待 Flutter toolchain 開放
+- [ ] **已實作未驗證**：模板仍為 `builtInKotlin=false` 時，`flutter_webrtc` 與 `mobile_scanner` 會依相容邏輯套用 KGP，因此 build summary 仍有未來淘汰警告；目前 build 可用且 Kotlin 2.3.20 版本警告已避免
+- [ ] **已實作未驗證**：真實相機權限允許／拒絕、QR 掃碼與兩台裝置 Safety Number 一致性仍待 Android/iPhone 實機驗收
+
+變更範圍：`mobile_desktop_app/pubspec.yaml`／lock、Safety Number scanner callback、由目前
+Flutter 工具重生的 l10n 格式，以及 README、testing、project tasks 與本交接清單。實驗性的
+Gradle 設定移除未保留。
+
+驗證：`flutter pub get` 成功；Safety Number 7 tests、format、analyze、Android debug APK
+均通過。Build 使用 `NIX_SKIP_SODIUM_BUILD_HOOKS=1`，只驗證 scanner／Gradle 編譯，不取代
+先前真實 sodium runtime。尚待 GitHub 完整 V1 CI 與 Test Lab instrumentation build。
+
+Runtime：本輪未啟動 Docker、ADB、AVD、App 或 backend；本機 Flutter／Gradle build 已完成，
+沒有需停止的 managed process。
+
+下一步：提交並等待完整 V1 CI；再以免費 Test Lab dry-run 驗證 instrumentation APK 與 Linux
+Gradle log。Flutter toolchain 未移除兩個相容旗標前，不重複嘗試 built-in Kotlin migration。
+
+## 上次交接（2026-07-18 18:57 +08:00）
 
 目前目標：清除 Test Lab workflow 的 GitHub Actions Node.js 20 deprecation，維持 action
 commit SHA pinning，並以免費 dry-run 驗證 artifact 上傳；本輪未送出付費 matrix。
@@ -125,7 +154,7 @@ App Lock notification privacy 的偏好、Event Bus 狀態、Push 呈現策略�
 - [x] **已完成**：根層 `AppLockGate`、繁中／英文解鎖與設定頁、啟用／停用／立即鎖定完成；App 進入 background 立即鎖定
 - [x] **已完成**：加入可替換 `AppLockBiometricAuthenticator` 與 `local_auth` Android/iOS adapter；只接受 biometric-only 系統驗證，不接觸或保存生物特徵
 - [x] **已完成**：生物辨識啟用前需先成功驗證；opt-in 保存於既有 secure storage，鎖定畫面自動嘗試辨識，取消／失敗／未註冊／系統鎖定不解鎖且 PIN 始終可用
-- [x] **已完成**：Android 改用 `FlutterFragmentActivity`、加入 `USE_BIOMETRIC` 與 AppCompat theme；iOS 加入 `NSFaceIDUsageDescription`；`local_auth` federated packages 鎖定於 Flutter 3.27／Dart 3.6 相容版本
+- [x] **已完成**：Android 改用 `FlutterFragmentActivity`、加入 `USE_BIOMETRIC` 與 AppCompat theme；iOS 加入 `NSFaceIDUsageDescription`；`local_auth` federated packages 維持鎖定，專案目前最低工具鏈為 Flutter 3.29／Dart 3.7
 - [x] **已完成**：App Lock 3 項 adapter、6 項 service 與 6 項 Widget tests 通過；跨重啟 biometric／notification opt-in、成功／取消／錯誤映射、PIN fallback 及移除 enrollment 後仍可停用均有覆蓋
 - [x] **已完成**：新增 `AppLockStateChanged`，只含 enabled／locked／hide flags；Push module 經 Event Bus 訂閱並在 dispose 取消，不直接呼叫 App Lock 內部實作
 - [x] **已完成**：新增 privacy-first `NotificationPresentationPolicy`；狀態未知、App 鎖定、預設隱藏或缺少本機資料時強制通用文字，只有已解鎖且明確 opt-out 才允許本機 sender／preview
@@ -142,7 +171,7 @@ App Lock notification privacy 的偏好、Event Bus 狀態、Push 呈現策略�
 - [x] **已完成**：QR payload 只含 schema version、類型、雙方裝置識別與 digest，不含私鑰或聊天內容；嚴格拒絕額外欄位、竄改、錯誤參與者與 malformed JSON
 - [x] **已完成**：SQLite schema 升級至 v8，新增 `safety_number_verifications`；驗證 digest 跨重啟保存，聯絡人公鑰改變時舊驗證自動失效
 - [x] **已完成**：聊天室 AppBar 新增安全碼入口；Safety Number 頁支援白底黑碼高對比 QR、12 組五位數、人工確認、貼入 QR 內容比對及繁中／英文介面；深色主題 Widget 測試已鎖定 QR 對比
-- [x] **已完成**：新增 `qr_flutter 4.1.0` 與相容專案 Dart 3.6 下限的 `mobile_scanner 6.0.11`，並更新 locked dependencies
+- [x] **已完成**：新增 `qr_flutter 4.1.0`；`mobile_scanner` 後續已升級至 7.3.0，專案最低工具鏈同步為 Flutter 3.29／Dart 3.7
 - [x] **已完成**：新增可注入的 `SafetyNumberQrScanner`、QR-only 相機頁、首次成功後停止掃描、相機初始化／權限失敗 UI；Windows 等不支援平台保留人工貼入流程
 - [x] **已完成**：Android manifest 加入 `CAMERA`，iOS `NSCameraUsageDescription` 納入 Safety Number；Android debug APK 建置成功，iOS plist XML 可解析
 - [x] **已完成**：Safety Number 核心、service、widget、scanner adapter、schema 與 v1～v7 migration 共 15 項專項測試通過
@@ -150,7 +179,7 @@ App Lock notification privacy 的偏好、Event Bus 狀態、Push 呈現策略�
 - [ ] **已實作未驗證**：完整 `flutter test` 唯一失敗為本機缺 Visual Studio C++／libsodium native asset 的既有 `device_key_service_test.dart`；先前 Windows CI 已驗證該路徑，本次未修改裝置金鑰實作
 - [ ] **已實作未驗證**：Android/iPhone 真實相機權限允許／拒絕、Safety Number QR 掃碼與錯誤畫面尚未實機驗收；iOS 尚需在 Mac 執行 build
 - [ ] **已實作未驗證**：QR 產生、嚴格 payload 比對、相機／人工貼入流程已完成；兩台 Android/iPhone 實機顯示一致性與交叉核對尚未驗收
-- [ ] **已實作未驗證**：Android build 警告 `mobile_scanner 6.x` 與既有 `flutter_webrtc` 仍套用舊 Kotlin Gradle Plugin；目前可建置，但未來 Flutter 移除相容層前需升級 plugin
+- [ ] **已實作未驗證**：`mobile_scanner 7.3.0` 與 `flutter_webrtc 1.5.2` 均具 AGP 9 conditional KGP 邏輯；Flutter 3.44.6 template 仍強制關閉 built-in Kotlin，因此相容模式下仍會套用 KGP，待 Flutter toolchain 開放完整遷移
 
 Runtime：本輪未啟動 Docker、AVD、App、backend 或其他長時間程序；Flutter test/analyze/formatter 與 Android Gradle build 指令均已正常結束，Gradle/JVM daemon 由建置工具管理。完整 native build 限制仍是 NDK 28 libsodium automake C 編譯失敗。
 
@@ -690,7 +719,7 @@ Runtime：隔離 Compose project `p2p_fcm_worker_verify` 已在本文件停止�
 
 ### 環境與基線驗證
 
-- [x] 安裝並記錄 Flutter `>=3.27.0`、Dart `>=3.6.0` 的實際版本
+- [x] 安裝並記錄 Flutter `>=3.29.0`、Dart `>=3.7.0` 的實際版本；CI 使用 Flutter 3.44.6／Dart 3.12.2
 - [x] 在 `mobile_desktop_app` 執行 `flutter pub get`
 - [x] 執行 `dart format --output=none --set-exit-if-changed lib test`
 - [x] 執行 `dart analyze` 並修正所有錯誤

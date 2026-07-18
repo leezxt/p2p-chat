@@ -4,8 +4,8 @@ publish_to: "none"
 version: 0.1.0+1
 
 environment:
-  sdk: ">=3.6.0 <4.0.0"
-  flutter: ">=3.27.0"
+  sdk: ">=3.7.0 <4.0.0"
+  flutter: ">=3.29.0"
 
 dependencies:
   flutter:
@@ -25,9 +25,9 @@ dependencies:
   flutter_secure_storage: 10.3.1
   crypto: 3.0.7
   qr_flutter: 4.1.0
-  mobile_scanner: 6.0.11
+  mobile_scanner: 7.3.0
   local_auth: 2.3.0
-  # 鎖定仍支援本專案 Flutter 3.27 / Dart 3.6 下限的 federated 實作。
+  # 鎖定仍支援本專案 Flutter 3.29 / Dart 3.7 下限的 federated 實作。
   local_auth_android: 1.0.51
   local_auth_darwin: 1.6.0
   local_auth_platform_interface: 1.0.10
