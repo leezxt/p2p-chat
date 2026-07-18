@@ -97,6 +97,8 @@ fi
 
 grep -q '^    timeout-minutes: 180$' "$workflow"
 grep -q '^      allow_low_capacity:$' "$workflow"
+grep -q 'if \[\[ "$SUBMIT_TEST" == "true" && "$GITHUB_REF" != "refs/heads/main" \]\]; then' "$workflow"
+grep -q 'Paid Firebase Test Lab submission must run from main.' "$workflow"
 grep -q '^            --async \\$' "$workflow"
 grep -q 'monitor_firebase_test_lab.sh' "$workflow"
 

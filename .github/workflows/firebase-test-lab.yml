@@ -64,8 +64,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
-            echo "Firebase Test Lab must run from main." >&2
+          if [[ "$SUBMIT_TEST" == "true" && "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "Paid Firebase Test Lab submission must run from main." >&2
             exit 1
           fi
           for name in GCP_PROJECT_ID GCP_WORKLOAD_IDENTITY_PROVIDER GCP_SERVICE_ACCOUNT FTL_RESULTS_BUCKET; do
