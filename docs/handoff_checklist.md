@@ -14,7 +14,7 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-18 21:50 +08:00）
+## 目前交接（2026-07-18 21:58 +08:00）
 
 目前目標：降低 App Lock 生物辨識套件的 AGP 9／舊 API 維護風險，升級至
 `local_auth 3.x`，並保留 biometric-only、取消不解鎖與 PIN fallback 語意。
@@ -25,7 +25,7 @@
 - [x] **已完成**：16 項 App Lock adapter/service/widget tests、158-file format check 與 `flutter analyze --no-pub` 通過
 - [x] **已完成**：skip-sodium Android debug APK 建置通過；`local_auth_android` 已不再出現在 KGP future warning，剩餘警告只有既知的 `flutter_webrtc`／`mobile_scanner`
 - [x] **已完成**：README／testing 的實際工具鏈下限同步為 Flutter 3.44／Dart 3.12；根 package metadata 暫不提高，以避免無關 formatter migration
-- [ ] **已實作未驗證**：本機缺少 Visual Studio C++ toolchain，Windows debug build 在編譯前停止；推送後由 GitHub Windows Desktop job 驗證 `local_auth_windows 2.0.1`
+- [x] **已完成**：GitHub V1 CI run `29646948250` 的 Windows Desktop debug build 通過，`local_auth_windows 2.0.1`、native crypto、secure storage、WebRTC integration 與跨 App process persistence 均無回歸
 - [ ] **已實作未驗證**：Android/iPhone enrollment change、Argon2id、secure storage、background/resume 與 biometric runtime 仍待實機驗收
 
 變更範圍：App Lock `local_auth` adapter／tests、`pubspec.yaml`／lock、README、testing、
@@ -35,12 +35,13 @@ project tasks 與本交接清單。
 APK `243259582` bytes，SHA-256
 `EA964705D52438C82A9DC1BB51FD32FE8E287A2A52A716EE8ED6D5F172DB942A`。Build 使用
 skip-sodium，只驗證 Dart／Android plugin／Gradle 編譯，不取代先前真實 sodium runtime。
+V1 CI run `29646948250` 的 Flutter、Java、PostgreSQL 與 Windows 四項 jobs 全部成功。
 
 Runtime：本機 Flutter／Gradle build 已完成；未啟動 Docker、ADB、AVD、App 或 backend。
 Windows build 未啟動編譯程序，因本機無 Visual Studio C++ toolchain。
 
-下一步：commit／push 後確認 Draft PR 的 Flutter、Windows、Java 與 PostgreSQL jobs；有 Android
-或 iPhone 實機時再驗證 enrollment change、biometric cancel/success、背景鎖定與 PIN fallback。
+下一步：有 Android 或 iPhone 實機時驗證 enrollment change、biometric cancel/success、背景
+鎖定與 PIN fallback；沒有實機時接續其他不依賴 credentials／production authority 的項目。
 
 ## 上次交接（2026-07-18 21:33 +08:00）
 
