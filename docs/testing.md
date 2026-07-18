@@ -22,7 +22,7 @@ Android/iOS integration test 或真機 Gate。
 ## 必要工具
 
 - Java backend：Java 21、Maven 3.6.3 以上。
-- Flutter app：Flutter 3.29.0 以上、Dart 3.7.0 以上；CI 鎖定 Flutter 3.44.6。
+- Flutter app：Flutter 3.44.0 以上、Dart 3.12.0 以上；CI 鎖定 Flutter 3.44.6／Dart 3.12.2。
 - PostgreSQL smoke test：Docker 與 Docker Compose。
 - Android native：Android SDK 36、Build Tools 36.0.0、NDK 28.2.13676358。
 - Windows Desktop：Visual Studio 2022 Desktop development with C++、CMake tools、Windows SDK。

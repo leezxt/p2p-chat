@@ -26,11 +26,11 @@ dependencies:
   crypto: 3.0.7
   qr_flutter: 4.1.0
   mobile_scanner: 7.3.0 # Effective minimum: Dart 3.7 / Flutter 3.29.
-  local_auth: 2.3.0
-  # 鎖定仍支援 root package Flutter 3.27 / Dart 3.6 下限的 federated 實作。
-  local_auth_android: 1.0.51
-  local_auth_darwin: 1.6.0
-  local_auth_platform_interface: 1.0.10
+  local_auth: 3.0.2
+  # 3.x Android implementation uses AGP 9 built-in Kotlin (Flutter >=3.44).
+  local_auth_android: 2.0.9
+  local_auth_darwin: 2.0.3
+  local_auth_platform_interface: 1.1.0
   flutter_plugin_android_lifecycle: 2.0.29
 dev_dependencies:
   flutter_test:

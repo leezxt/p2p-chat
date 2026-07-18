@@ -151,7 +151,7 @@
 | V15-11-01 | ✅ | PIN verifier 與安全儲存 | 6 位 PIN 交由 libsodium `crypto_pwhash_str` Argon2id interactive profile 產生含 salt／成本參數的 verifier；明文不落盤，手寫 KDF 已排除 |
 | V15-11-02 | ✅ | 防暴力嘗試與跨重啟狀態 | 五次錯誤後冷卻 30 秒，錯誤次數與期限保存於 secure storage；設定損壞時 fail-closed |
 | V15-11-03 | ✅ | 設定、解鎖與自動鎖定 UI | 繁中／英文啟用、停用、立即鎖定與根層 gate 完成；進入 background 立即 lock，Widget tests 通過 |
-| V15-11-04 | 🚧 | 生物辨識與真機 lifecycle | 可替換 `local_auth` adapter、biometric-only 驗證、secure-storage opt-in、設定開關、自動解鎖與 PIN fallback 已完成；Android/iPhone enrollment change、Argon2id、background/resume 與 secure storage runtime 待實機驗收 |
+| V15-11-04 | 🚧 | 生物辨識與真機 lifecycle | `local_auth 3.0.2` 與 AGP 9 built-in Kotlin Android implementation、biometric-only adapter、structured error mapping、secure-storage opt-in、設定開關、自動解鎖與 PIN fallback 已完成；16 項 App Lock tests、analyze 與 Android debug build 通過。Android/iPhone enrollment change、Argon2id、background/resume 與 secure storage runtime 待實機驗收 |
 | V15-11-05 | 🚧 | 通知內容隱私 | push payload 嚴格不含內容；secure-storage opt-in、App Lock Event Bus 狀態與 privacy-first presentation policy 已完成，狀態未知／鎖定時強制通用文字；真實 FCM/APNs provider 與 OS 通知待驗 |
 
 ### EPIC-12 Safety Number — IN PROGRESS

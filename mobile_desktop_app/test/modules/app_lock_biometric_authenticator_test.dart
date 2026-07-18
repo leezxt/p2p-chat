@@ -1,7 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:local_auth/error_codes.dart' as auth_error;
 import 'package:local_auth_platform_interface/local_auth_platform_interface.dart';
 import 'package:p2p_chat_app/modules/app_lock/data/local_auth_app_lock_biometric_authenticator.dart';
 import 'package:p2p_chat_app/modules/app_lock/domain/app_lock_biometric_authenticator.dart';
@@ -43,7 +41,7 @@ void main() {
     expect(platform.options?.useErrorDialogs, isFalse);
   });
 
-  test('maps cancellation and enrollment errors without unlocking', () async {
+  test('maps cancellation results without unlocking', () async {
     final authenticator = LocalAuthAppLockBiometricAuthenticator();
     platform.authenticated = false;
     expect(
@@ -51,10 +49,48 @@ void main() {
       AppLockBiometricResult.cancelled,
     );
 
-    platform.error = PlatformException(code: auth_error.notEnrolled);
+    platform.error = const LocalAuthException(
+      code: LocalAuthExceptionCode.userCanceled,
+    );
+    expect(
+      await authenticator.authenticate(reason: 'Unlock'),
+      AppLockBiometricResult.cancelled,
+    );
+  });
+
+  test('maps structured local authentication errors', () async {
+    final authenticator = LocalAuthAppLockBiometricAuthenticator();
+
+    platform.error = const LocalAuthException(
+      code: LocalAuthExceptionCode.noBiometricsEnrolled,
+    );
     expect(
       await authenticator.authenticate(reason: 'Unlock'),
       AppLockBiometricResult.notEnrolled,
+    );
+
+    platform.error = const LocalAuthException(
+      code: LocalAuthExceptionCode.temporaryLockout,
+    );
+    expect(
+      await authenticator.authenticate(reason: 'Unlock'),
+      AppLockBiometricResult.lockedOut,
+    );
+
+    platform.error = const LocalAuthException(
+      code: LocalAuthExceptionCode.noBiometricHardware,
+    );
+    expect(
+      await authenticator.authenticate(reason: 'Unlock'),
+      AppLockBiometricResult.unavailable,
+    );
+
+    platform.error = const LocalAuthException(
+      code: LocalAuthExceptionCode.deviceError,
+    );
+    expect(
+      await authenticator.authenticate(reason: 'Unlock'),
+      AppLockBiometricResult.failed,
     );
   });
 }
@@ -62,7 +98,7 @@ void main() {
 class _FakeLocalAuthPlatform extends LocalAuthPlatform {
   bool supportsBiometrics = true;
   bool authenticated = true;
-  PlatformException? error;
+  LocalAuthException? error;
   String? reason;
   AuthenticationOptions? options;
 

@@ -1,6 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-import 'package:local_auth/error_codes.dart' as auth_error;
 import 'package:local_auth/local_auth.dart';
 
 import '../domain/app_lock_biometric_authenticator.dart';
@@ -25,7 +23,7 @@ class LocalAuthAppLockBiometricAuthenticator
       // Android API < 29 cannot reliably enumerate non-fingerprint sensors.
       if (defaultTargetPlatform == TargetPlatform.android) return true;
       return (await _authentication.getAvailableBiometrics()).isNotEmpty;
-    } on PlatformException {
+    } on LocalAuthException {
       return false;
     }
   }
@@ -36,27 +34,29 @@ class LocalAuthAppLockBiometricAuthenticator
     try {
       final authenticated = await _authentication.authenticate(
         localizedReason: reason,
-        options: const AuthenticationOptions(
-          biometricOnly: true,
-          stickyAuth: true,
-          useErrorDialogs: false,
-        ),
+        biometricOnly: true,
+        persistAcrossBackgrounding: true,
       );
       return authenticated
           ? AppLockBiometricResult.success
           : AppLockBiometricResult.cancelled;
-    } on PlatformException catch (error) {
+    } on LocalAuthException catch (error) {
       return switch (error.code) {
-        auth_error.notAvailable ||
-        auth_error.otherOperatingSystem ||
-        auth_error.biometricOnlyNotSupported =>
+        LocalAuthExceptionCode.noBiometricHardware ||
+        LocalAuthExceptionCode.biometricHardwareTemporarilyUnavailable ||
+        LocalAuthExceptionCode.uiUnavailable =>
           AppLockBiometricResult.unavailable,
-        auth_error.notEnrolled ||
-        auth_error.passcodeNotSet =>
+        LocalAuthExceptionCode.noCredentialsSet ||
+        LocalAuthExceptionCode.noBiometricsEnrolled =>
           AppLockBiometricResult.notEnrolled,
-        auth_error.lockedOut ||
-        auth_error.permanentlyLockedOut =>
+        LocalAuthExceptionCode.temporaryLockout ||
+        LocalAuthExceptionCode.biometricLockout =>
           AppLockBiometricResult.lockedOut,
+        LocalAuthExceptionCode.userCanceled ||
+        LocalAuthExceptionCode.systemCanceled ||
+        LocalAuthExceptionCode.timeout ||
+        LocalAuthExceptionCode.userRequestedFallback =>
+          AppLockBiometricResult.cancelled,
         _ => AppLockBiometricResult.failed,
       };
     }
