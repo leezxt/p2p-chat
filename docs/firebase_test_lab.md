@@ -29,7 +29,8 @@ encrypted WebRTC DataChannel。單一遠端裝置不能取代雙裝置 E2E、實
 4. 建立 Workload Identity Pool／Provider，attribute condition 至少限制不可變 repository／
    owner ID 與 `assertion.ref == 'refs/heads/main'`。若要在 PR 分支驗證免費 preflight，僅
    額外加入該分支的完整 ref，不使用任意分支通配；並只允許該 principal 以
-   `roles/iam.workloadIdentityUser` impersonate 上述 service account。
+   `roles/iam.workloadIdentityUser` impersonate 上述 service account。PR 完成並刪除分支後，
+   立即從 condition 移除該分支 ref。
 5. 在 GitHub repository 的 Actions variables 設定：
 
 | Variable | 值 |

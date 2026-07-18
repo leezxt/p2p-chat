@@ -48,7 +48,8 @@ AVD、App 或 backend；本機只保留下載至 `%TEMP%` 的 CI evidence 副本
 
 下一步：保持 PR #54 為 Draft；選擇 `Medium`／`High` 容量實體 model 後，再由使用者明確
 確認一次 `main` 的付費 submission。單一 Test Lab 裝置仍不取代兩台真機 E2E、實際斷網、
-OS kill 與資源 Gate。
+OS kill 與資源 Gate。PR 合併並刪除功能分支後，將 WIF provider condition 收回只允許
+`refs/heads/main`。
 
 ## 上次交接（2026-07-18 14:13 +08:00）
 
