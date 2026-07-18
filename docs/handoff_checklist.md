@@ -14,7 +14,35 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-18 18:06 +08:00）
+## 目前交接（2026-07-18 18:57 +08:00）
+
+目前目標：清除 Test Lab workflow 的 GitHub Actions Node.js 20 deprecation，維持 action
+commit SHA pinning，並以免費 dry-run 驗證 artifact 上傳；本輪未送出付費 matrix。
+
+- [x] **已完成**：以 GitHub 官方 release／tag API 確認 `actions/upload-artifact v7.0.1`，並鎖定 commit `043fb46d1a93c77aae656e7c1c64a875d1fc6a0a`
+- [x] **已完成**：Test Lab workflow 由 `upload-artifact v4` 升級至 pinned `v7.0.1`；現有契約測試加入精確 SHA／版本檢查
+- [x] **已完成**：本機 Test Lab monitor 契約測試、PyYAML workflow parse 與 `git diff --check` 通過
+- [x] **已完成**：V1 CI run [29641319099](https://github.com/leezxt/p2p-chat/actions/runs/29641319099) 的 Java、PostgreSQL、Flutter 與 Windows Desktop 四個 jobs 全部成功
+- [x] **已完成**：免費 Test Lab run [29641323307](https://github.com/leezxt/p2p-chat/actions/runs/29641323307) 通過；artifact `firebase-test-lab-29641323307-1` 成功 finalized，submission／monitor steps 明確 skipped
+- [x] **已完成**：Test Lab check-run annotations 為空，完整 log 不再出現 Node.js 20 deprecation；確認 action 實際載入上述 pinned SHA
+- [ ] **已實作未驗證**：Android build 仍顯示 Kotlin plugin、`android.builtInKotlin`／`android.newDsl` 與 Gradle 10 相容性警告；不影響本項 action runtime 驗收，後續需分開升級 Android toolchain／plugins
+- [ ] **已實作未驗證**：首次成功 Test Lab 實體機 runtime、兩台真機 E2E、實際斷網、OS kill、網路／記憶體／耗電 Gate 仍未完成
+
+變更範圍：`.github/workflows/firebase-test-lab.yml`、
+`mobile_desktop_app/tool/test_monitor_firebase_test_lab.sh`、`docs/project_tasks.md` 與本交接清單。
+
+驗證：本機 monitor 契約、YAML parse、diff check 通過；GitHub V1 CI 與免費 Test Lab
+preflight 均成功。Artifact ID `8428812533`、大小 `110939636` bytes、annotations `[]`；未建立
+`matrix-id.txt` 或執行付費 submission。
+
+Runtime：兩個 GitHub workflows 均已完成；沒有 Test Lab matrix、Docker、ADB、AVD、App
+或 backend 在本輪執行。
+
+下一步：Android toolchain deprecation 可在電腦繼續處理，但需先分辨 app 自有設定與
+`mobile_scanner`／`flutter_webrtc` 等第三方 plugin 警告；不得為消除警告破壞既有 Android
+crypto／WebRTC build。真機可用時仍優先完成 V1-01/03/04。
+
+## 上次交接（2026-07-18 18:06 +08:00）
 
 目前目標：將 V1.5 安全／低功耗與 V1-01 Test Lab lifecycle 修正發布至 Draft PR，
 並以免費 GitHub dry-run 驗證完整 preflight；本輪未送出付費 matrix。
@@ -296,7 +324,7 @@ backend。ADB server 已在交接更新後正常停止。
 - [x] **已完成**：PR #36 最終 head run `29410208438` 全通過並合併；Java 21 tests 37 秒、Flutter 3.44.6 完整 checks 1 分 55 秒、PostgreSQL container smoke 1 分 45 秒
 - [x] **已完成**：合併後 `main` run `29410344607` 全通過；Java 21 tests 54 秒、Flutter 3.44.6 完整 checks 2 分 19 秒、PostgreSQL container smoke 1 分 41 秒
 - [ ] **已實作未驗證**：Windows `device_key_service_test.dart` 仍缺 Visual Studio Desktop development with C++，無法載入 sodium native asset；不影響本次純 Dart／SQLite／widget 變更，Android 真實 libsodium 沿用既有雙 AVD 驗收
-- [ ] **未完成**：GitHub Actions 目前將 `checkout`／`setup-java` 的 Node.js 20 runtime 強制改以 Node.js 24 執行並顯示 deprecation annotation；現有 pinned actions 與 CI 仍全綠，後續需升級至明確支援 Node.js 24 的 pinned revisions
+- [x] **已完成**：GitHub Actions Node.js 20 deprecation 已清除；`checkout v7` 原已使用 Node 24，Test Lab 的 `upload-artifact` 已升級至 pinned `v7.0.1`，run `29641323307` annotations 為空且 artifact 成功 finalized
 - [ ] **未完成**：兩台 Android 真機 V1-01/03/04、真實 FCM/APNs、iPhone runtime、正式簽章、公開 production 與最終 release artifacts
 
 Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或常駐 backend；Flutter 測試程序均已正常結束。
