@@ -162,7 +162,7 @@ cd mobile_desktop_app
 - [x] V1-02 安全與隱私稽核、自動化測試通過。
 - [x] GitHub Actions Java/Flutter host CI、Windows libsodium/Credential Manager/WebRTC integration、Credential Manager 跨獨立 App process 持久化、Desktop build 與 PostgreSQL container smoke 通過；不取代 production、Windows OS 重開機／使用者工作站政策與手機真機 Gate。
 - [ ] V1-01 兩台 Android 真機 encrypted P2P 與 mailbox recovery runner 通過。
-- [ ] Firebase Test Lab 單一實體機 crypto runtime 通過；OIDC workflow 與 instrumentation APK 已建立，待 Google Cloud 專案設定及首次 matrix。
+- [ ] Firebase Test Lab 單一實體機 crypto runtime 通過；專用 project／billing／OIDC、instrumentation APK 與 async matrix cleanup workflow 已建立，首次 matrix 因低容量排隊取消，待新 workflow dry-run 與成功 runtime。
 - [ ] V1-03 真機冷啟動、記憶體、背景連線、網路與長時間耗電達標。
 - [ ] V1-04 真機 OS kill、實際斷網/恢復、重複訊息與 ACK 遺失復原通過。
 - [ ] 真實 Firebase credentials、FCM/APNs、通知權限拒絕與 cold/warm start 通過。

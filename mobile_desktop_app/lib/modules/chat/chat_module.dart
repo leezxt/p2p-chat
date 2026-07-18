@@ -19,6 +19,9 @@ import '../mailbox/domain/mailbox_sync_service.dart';
 import '../mailbox/domain/mailbox_refresh_service.dart';
 import '../../core/di/service_locator.dart';
 import '../presence/domain/presence_service.dart';
+import '../safety_number/domain/safety_number_service.dart';
+import '../app_lock/domain/app_lock_service.dart';
+import '../low_power/domain/low_power_mode_service.dart';
 
 /// 聊天模組（規格 §6 Foundation Module）。
 ///
@@ -95,6 +98,15 @@ class ChatModule implements AppModule {
                   : null,
               presenceService: _services.isRegistered<PresenceService>()
                   ? _services.get<PresenceService>()
+                  : null,
+              safetyNumberService: _services.isRegistered<SafetyNumberService>()
+                  ? _services.get<SafetyNumberService>()
+                  : null,
+              appLockService: _services.isRegistered<AppLockService>()
+                  ? _services.get<AppLockService>()
+                  : null,
+              lowPowerModeService: _services.isRegistered<LowPowerModeService>()
+                  ? _services.get<LowPowerModeService>()
                   : null,
               localeController: _services.get<LocaleController>(),
             ));

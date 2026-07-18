@@ -74,6 +74,7 @@ void main() {
             'mailbox_pending_queue',
             'mailbox_receipts',
             'app_settings',
+            'safety_number_verifications',
           ]),
         );
       } finally {

@@ -119,6 +119,126 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get join => '加入';
+
+  @override
+  String get safetyNumber => '安全碼';
+
+  @override
+  String get safetyNumberUnavailable => '目前無法取得安全碼';
+
+  @override
+  String get safetyNumberVerified => '已驗證';
+
+  @override
+  String get safetyNumberNotVerified => '尚未驗證';
+
+  @override
+  String get safetyNumberQrCode => '聯絡人安全碼 QR Code';
+
+  @override
+  String get safetyNumberQrData => '安全碼 QR 內容';
+
+  @override
+  String get verifySafetyNumber => '確認安全碼';
+
+  @override
+  String get scanSafetyNumberQr => '掃描安全碼 QR';
+
+  @override
+  String get safetyNumberCameraUnavailable => '無法使用相機，請檢查相機權限後再試一次';
+
+  @override
+  String get compareQrData => '比對 QR 內容';
+
+  @override
+  String get qrDataMismatch => '安全碼不一致，未變更信任狀態';
+
+  @override
+  String get verificationSaved => '安全碼驗證已保存';
+
+  @override
+  String get appLock => '應用程式鎖定';
+
+  @override
+  String get appLockEnabled => '應用程式鎖定已啟用';
+
+  @override
+  String get appLockDisabled => '應用程式鎖定未啟用';
+
+  @override
+  String get appLockSetPin => '設定 6 位數 PIN';
+
+  @override
+  String get appLockEnterPin => '6 位數 PIN';
+
+  @override
+  String get appLockConfirmPin => '再次輸入 PIN';
+
+  @override
+  String get appLockPinFormat => '請輸入剛好 6 位數字';
+
+  @override
+  String get appLockPinMismatch => '兩次輸入的 PIN 不一致';
+
+  @override
+  String get appLockIncorrectPin => 'PIN 不正確';
+
+  @override
+  String get appLockTryAgainLater => '嘗試次數過多，請稍後再試';
+
+  @override
+  String get appLockConfigurationError => '無法讀取應用程式鎖定資料，請重設應用程式資料後復原';
+
+  @override
+  String get appLockUnlock => '解鎖';
+
+  @override
+  String get appLockEnable => '啟用';
+
+  @override
+  String get appLockDisable => '停用應用程式鎖定';
+
+  @override
+  String get appLockLockNow => '立即鎖定';
+
+  @override
+  String get appLockBiometricUnlock => '使用生物辨識';
+
+  @override
+  String get appLockBiometricDescription => '使用指紋或 Face ID 解鎖';
+
+  @override
+  String get appLockBiometricUnavailable => '裝置未設定支援的生物辨識方式';
+
+  @override
+  String get appLockBiometricEnableReason => '請驗證身分以啟用生物辨識解鎖';
+
+  @override
+  String get appLockBiometricUnlockReason => '請驗證身分以解鎖 P2P Messenger';
+
+  @override
+  String get appLockBiometricFailed => '未完成生物辨識，請改用 PIN';
+
+  @override
+  String get appLockBiometricLockedOut => '生物辨識已鎖定，請改用 PIN';
+
+  @override
+  String get appLockHideNotificationContent => '隱藏通知內容';
+
+  @override
+  String get appLockHideNotificationDescription => '訊息通知僅顯示通用文字';
+
+  @override
+  String get lowPowerMode => '低功耗模式';
+
+  @override
+  String get lowPowerModeEnabled => '低功耗模式已開啟';
+
+  @override
+  String get lowPowerModeDisabled => '低功耗模式已關閉';
+
+  @override
+  String get lowPowerModeDescription => '降低在線更新、P2P 連線與閒置時間，並停用自動下載';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -236,4 +356,124 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get join => '加入';
+
+  @override
+  String get safetyNumber => '安全碼';
+
+  @override
+  String get safetyNumberUnavailable => '目前無法取得安全碼';
+
+  @override
+  String get safetyNumberVerified => '已驗證';
+
+  @override
+  String get safetyNumberNotVerified => '尚未驗證';
+
+  @override
+  String get safetyNumberQrCode => '聯絡人安全碼 QR Code';
+
+  @override
+  String get safetyNumberQrData => '安全碼 QR 內容';
+
+  @override
+  String get verifySafetyNumber => '確認安全碼';
+
+  @override
+  String get scanSafetyNumberQr => '掃描安全碼 QR';
+
+  @override
+  String get safetyNumberCameraUnavailable => '無法使用相機，請檢查相機權限後再試一次';
+
+  @override
+  String get compareQrData => '比對 QR 內容';
+
+  @override
+  String get qrDataMismatch => '安全碼不一致，未變更信任狀態';
+
+  @override
+  String get verificationSaved => '安全碼驗證已保存';
+
+  @override
+  String get appLock => '應用程式鎖定';
+
+  @override
+  String get appLockEnabled => '應用程式鎖定已啟用';
+
+  @override
+  String get appLockDisabled => '應用程式鎖定未啟用';
+
+  @override
+  String get appLockSetPin => '設定 6 位數 PIN';
+
+  @override
+  String get appLockEnterPin => '6 位數 PIN';
+
+  @override
+  String get appLockConfirmPin => '再次輸入 PIN';
+
+  @override
+  String get appLockPinFormat => '請輸入剛好 6 位數字';
+
+  @override
+  String get appLockPinMismatch => '兩次輸入的 PIN 不一致';
+
+  @override
+  String get appLockIncorrectPin => 'PIN 不正確';
+
+  @override
+  String get appLockTryAgainLater => '嘗試次數過多，請稍後再試';
+
+  @override
+  String get appLockConfigurationError => '無法讀取應用程式鎖定資料，請重設應用程式資料後復原';
+
+  @override
+  String get appLockUnlock => '解鎖';
+
+  @override
+  String get appLockEnable => '啟用';
+
+  @override
+  String get appLockDisable => '停用應用程式鎖定';
+
+  @override
+  String get appLockLockNow => '立即鎖定';
+
+  @override
+  String get appLockBiometricUnlock => '使用生物辨識';
+
+  @override
+  String get appLockBiometricDescription => '使用指紋或 Face ID 解鎖';
+
+  @override
+  String get appLockBiometricUnavailable => '裝置未設定支援的生物辨識方式';
+
+  @override
+  String get appLockBiometricEnableReason => '請驗證身分以啟用生物辨識解鎖';
+
+  @override
+  String get appLockBiometricUnlockReason => '請驗證身分以解鎖 P2P Messenger';
+
+  @override
+  String get appLockBiometricFailed => '未完成生物辨識，請改用 PIN';
+
+  @override
+  String get appLockBiometricLockedOut => '生物辨識已鎖定，請改用 PIN';
+
+  @override
+  String get appLockHideNotificationContent => '隱藏通知內容';
+
+  @override
+  String get appLockHideNotificationDescription => '訊息通知僅顯示通用文字';
+
+  @override
+  String get lowPowerMode => '低功耗模式';
+
+  @override
+  String get lowPowerModeEnabled => '低功耗模式已開啟';
+
+  @override
+  String get lowPowerModeDisabled => '低功耗模式已關閉';
+
+  @override
+  String get lowPowerModeDescription => '降低在線更新、P2P 連線與閒置時間，並停用自動下載';
 }

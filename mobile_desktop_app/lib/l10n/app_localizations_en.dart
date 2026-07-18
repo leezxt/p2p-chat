@@ -122,4 +122,136 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get join => 'Add';
+
+  @override
+  String get safetyNumber => 'Safety number';
+
+  @override
+  String get safetyNumberUnavailable =>
+      'The safety number is currently unavailable';
+
+  @override
+  String get safetyNumberVerified => 'Verified';
+
+  @override
+  String get safetyNumberNotVerified => 'Not verified';
+
+  @override
+  String get safetyNumberQrCode => 'Contact safety number QR code';
+
+  @override
+  String get safetyNumberQrData => 'Safety number QR data';
+
+  @override
+  String get verifySafetyNumber => 'Verify safety number';
+
+  @override
+  String get scanSafetyNumberQr => 'Scan safety number QR';
+
+  @override
+  String get safetyNumberCameraUnavailable =>
+      'Camera access is unavailable. Check camera permission and try again.';
+
+  @override
+  String get compareQrData => 'Compare QR data';
+
+  @override
+  String get qrDataMismatch =>
+      'Safety numbers do not match. Trust was not changed.';
+
+  @override
+  String get verificationSaved => 'Safety number verification saved';
+
+  @override
+  String get appLock => 'App lock';
+
+  @override
+  String get appLockEnabled => 'App lock is enabled';
+
+  @override
+  String get appLockDisabled => 'App lock is disabled';
+
+  @override
+  String get appLockSetPin => 'Set a 6-digit PIN';
+
+  @override
+  String get appLockEnterPin => '6-digit PIN';
+
+  @override
+  String get appLockConfirmPin => 'Confirm PIN';
+
+  @override
+  String get appLockPinFormat => 'Enter exactly 6 digits';
+
+  @override
+  String get appLockPinMismatch => 'PINs do not match';
+
+  @override
+  String get appLockIncorrectPin => 'Incorrect PIN';
+
+  @override
+  String get appLockTryAgainLater => 'Too many attempts. Try again later.';
+
+  @override
+  String get appLockConfigurationError =>
+      'App lock data is unavailable. Reset the app data to recover.';
+
+  @override
+  String get appLockUnlock => 'Unlock';
+
+  @override
+  String get appLockEnable => 'Enable';
+
+  @override
+  String get appLockDisable => 'Disable app lock';
+
+  @override
+  String get appLockLockNow => 'Lock now';
+
+  @override
+  String get appLockBiometricUnlock => 'Use biometrics';
+
+  @override
+  String get appLockBiometricDescription =>
+      'Use fingerprint or Face ID to unlock';
+
+  @override
+  String get appLockBiometricUnavailable =>
+      'No supported biometric method is enrolled';
+
+  @override
+  String get appLockBiometricEnableReason =>
+      'Confirm your identity to enable biometric unlock';
+
+  @override
+  String get appLockBiometricUnlockReason =>
+      'Authenticate to unlock P2P Messenger';
+
+  @override
+  String get appLockBiometricFailed =>
+      'Biometric authentication was not completed. Use your PIN.';
+
+  @override
+  String get appLockBiometricLockedOut =>
+      'Biometrics are locked. Use your PIN.';
+
+  @override
+  String get appLockHideNotificationContent => 'Hide notification content';
+
+  @override
+  String get appLockHideNotificationDescription =>
+      'Use generic text for message notifications';
+
+  @override
+  String get lowPowerMode => 'Low power mode';
+
+  @override
+  String get lowPowerModeEnabled => 'Low power mode is on';
+
+  @override
+  String get lowPowerModeDisabled => 'Low power mode is off';
+
+  @override
+  String get lowPowerModeDescription =>
+      'Reduces presence updates, P2P connections, idle time, and automatic downloads';
 }

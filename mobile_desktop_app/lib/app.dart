@@ -10,6 +10,8 @@ import 'core/module/module_registry.dart';
 import 'core/routing/route_registry.dart';
 import 'core/di/service_locator.dart';
 import 'l10n/app_localizations.dart';
+import 'modules/app_lock/domain/app_lock_service.dart';
+import 'modules/app_lock/presentation/app_lock_gate.dart';
 import 'modules/chat/chat_module.dart';
 import 'modules/mailbox/domain/mailbox_refresh_service.dart';
 import 'modules/push/domain/notification_launch_source.dart';
@@ -51,6 +53,9 @@ class _P2pChatAppState extends State<P2pChatApp> with WidgetsBindingObserver {
           state != ModuleState.sleeping &&
           state != ModuleState.disabled) {
         await widget.registry.sleep('p2p');
+      }
+      if (widget.services.isRegistered<AppLockService>()) {
+        widget.services.get<AppLockService>().lock();
       }
     },
     onForeground: () async {
@@ -124,6 +129,9 @@ class _P2pChatAppState extends State<P2pChatApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final appLock = widget.services.isRegistered<AppLockService>()
+        ? widget.services.get<AppLockService>()
+        : null;
     return AnimatedBuilder(
       animation: _localeController,
       builder: (context, _) => MaterialApp(
@@ -134,6 +142,12 @@ class _P2pChatAppState extends State<P2pChatApp> with WidgetsBindingObserver {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         localeListResolutionCallback: resolveSupportedLocale,
+        builder: appLock == null
+            ? null
+            : (context, child) => AppLockGate(
+                  service: appLock,
+                  child: child ?? const SizedBox.shrink(),
+                ),
         theme: ThemeData(
           colorSchemeSeed: const Color(0xFF3A6EA5),
           useMaterial3: true,

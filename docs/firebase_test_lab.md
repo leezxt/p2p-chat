@@ -7,6 +7,8 @@ catalog，拒絕 virtual model 或不支援的 model/version 組合。
 Workflow 預設只執行免費 preflight，不建立 Test Lab matrix。Preflight 會建置 APK、以
 GitHub OIDC 驗證 WIF、查詢實體裝置 catalog，並對 results bucket 寫入後刪除一個探測
 物件。只有手動將 `submit_test` 設為 `true` 才會提交可能產生費用的實體裝置測試。
+Preflight 另會保存 model/version 的容量資訊；付費送測預設拒絕 `Low`、`None` 或沒有
+公開容量的組合。`Low` 只有在同一次 dispatch 明確設定 `allow_low_capacity=true` 才能送出。
 
 目前送測目標是 `integration_test/android_crypto_runtime_test.dart`，覆蓋 production
 Android secure storage、真實 libsodium failure paths、SQLite replay protection 與
@@ -45,6 +47,7 @@ Federation，且 `.gitignore` 會排除 Google auth action 產生的暫時 crede
 ```bash
 gcloud firebase test android models list
 gcloud firebase test android models describe <MODEL_ID> --format=json
+gcloud firebase test android list-device-capacities --filter=<MODEL_ID> --format=json
 ```
 
 記錄 physical model 的 `MODEL_ID` 與其 `supportedVersionIds`。Test Lab catalog 會變動，
@@ -59,6 +62,8 @@ locale。若 catalog 回傳的 `form` 不是 `PHYSICAL`，workflow 會在付費�
 - `android_version`：該 model 支援的 `OS_VERSION_ID`，且不得低於 API 24
 - `locale`：預設 `zh_TW`
 - `submit_test`：預設 `false`；確認裝置、10 分鐘 timeout 與可能費用後才設為 `true`
+- `allow_low_capacity`：預設 `false`；只在已知可能長時間排隊並願意等待時明確開啟
+- `queue_timeout_minutes`：預設 90，可設 15～120；逾時會取消尚未完成的 matrix
 
 也可使用 GitHub CLI：
 
@@ -68,13 +73,21 @@ gh workflow run firebase-test-lab.yml \
   -f device_model=<MODEL_ID> \
   -f android_version=<OS_VERSION_ID> \
   -f locale=zh_TW \
-  -f submit_test=false
+  -f submit_test=false \
+  -f allow_low_capacity=false \
+  -f queue_timeout_minutes=90
 ```
 
 Dry-run 會建立 debug app/test APK、SHA-256、catalog JSON、bucket preflight log，並保存為
-7 天 GitHub artifact，但不會建立 Test Lab matrix。`submit_test=true` 時才會額外保存 Test
-Lab submission log；詳細裝置 logs、影片與 screenshots 位於設定的 results bucket，且
-`gcloud` 只有 exit code `0` 才算通過。
+7 天 GitHub artifact，但不會建立 Test Lab matrix。`submit_test=true` 時，workflow 使用
+`gcloud ... run --async --format=json` 建立 matrix，立即保存 `matrix-submit.json` 與
+`matrix-id.txt`，再透過 Testing API 輪詢狀態。排隊預設最多 90 分鐘；開始執行後最多監控
+30 分鐘，裝置上的 instrumentation timeout 仍是 10 分鐘。排隊／監控逾時、SIGINT、
+SIGTERM 或 runner 取消時，監控腳本會呼叫 Testing API `:cancel`，避免留下孤立 matrix。
+
+`matrix-latest.json`、`matrix-summary.txt` 與可能的 `matrix-cancel.json` 會納入 evidence
+artifact；詳細裝置 logs、影片與 screenshots 位於設定的 results bucket。只有 matrix
+`FINISHED / SUCCESS` 才回傳成功；`FAILURE`、`INCONCLUSIVE` 與 API terminal error 均失敗。
 
 ## 本機只建置 APK
 
@@ -92,5 +105,8 @@ bash tool/build_firebase_test_lab.sh
 
 - [Flutter integration test / Firebase Test Lab](https://docs.flutter.dev/testing/integration-tests#test-in-firebase-test-lab-android)
 - [Firebase Test Lab gcloud CLI](https://firebase.google.com/docs/test-lab/android/command-line)
+- [gcloud Android run `--async`](https://cloud.google.com/sdk/gcloud/reference/firebase/test/android/run)
+- [Test Lab device capacity](https://cloud.google.com/sdk/gcloud/reference/firebase/test/android/list-device-capacities)
+- [Testing API matrix cancellation](https://firebase.google.com/docs/test-lab/reference/testing/rest/v1/projects.testMatrices/cancel)
 - [Firebase Test Lab IAM](https://firebase.google.com/docs/test-lab/android/iam-permissions-reference)
 - [Google GitHub Actions authentication](https://github.com/google-github-actions/auth)

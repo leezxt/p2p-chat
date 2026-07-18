@@ -5,13 +5,23 @@ import '../../../shared/models/message_envelope.dart';
 import '../../../shared/models/message_status.dart';
 import '../../../shared/utils/time_format.dart';
 import 'chat_controller.dart';
+import '../../safety_number/domain/safety_number_service.dart';
+import '../../safety_number/presentation/safety_number_page.dart';
 
 /// 單一聊天室畫面。以 [ChatController] 驅動，支援送出文字與向上載入更舊訊息。
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key, required this.controller, required this.title});
+  const ChatPage({
+    super.key,
+    required this.controller,
+    required this.title,
+    this.safetyNumberService,
+    this.peerUserId,
+  });
 
   final ChatController controller;
   final String title;
+  final SafetyNumberService? safetyNumberService;
+  final String? peerUserId;
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -51,7 +61,28 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: AppBar(
+        title: Text(widget.title),
+        actions: [
+          if (widget.safetyNumberService != null && widget.peerUserId != null)
+            IconButton(
+              tooltip: AppLocalizations.of(context).safetyNumber,
+              icon: const Icon(Icons.verified_user_outlined),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => SafetyNumberPage(
+                    title: widget.title,
+                    load: () => widget.safetyNumberService!
+                        .forContact(widget.peerUserId!),
+                    markVerified: widget.safetyNumberService!.markVerified,
+                    verifyQrPayload: (payload) => widget.safetyNumberService!
+                        .verifyQrPayload(widget.peerUserId!, payload),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(

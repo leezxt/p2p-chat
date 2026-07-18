@@ -10,14 +10,15 @@ class PresenceService extends ChangeNotifier {
   PresenceService({
     required PresenceClient client,
     required this.localDeviceId,
-    required this.interval,
+    required Duration interval,
     DateTime Function()? clock,
   })  : _client = client,
+        _interval = interval,
         _clock = clock ?? DateTime.now;
 
   final PresenceClient _client;
   final String localDeviceId;
-  final Duration interval;
+  Duration _interval;
   final DateTime Function() _clock;
   final Map<String, ContactPresence> _contacts = {};
   Timer? _timer;
@@ -25,13 +26,25 @@ class PresenceService extends ChangeNotifier {
   bool _refreshing = false;
 
   bool get active => _enabled;
+  Duration get interval => _interval;
 
   Future<void> start() async {
     if (_enabled) return;
     _enabled = true;
     await _refreshSafely();
     if (!_enabled) return;
-    _timer = Timer.periodic(interval, (_) => unawaited(_refreshSafely()));
+    _scheduleTimer();
+  }
+
+  void updateInterval(Duration value) {
+    if (value == _interval) return;
+    _interval = value;
+    if (_enabled) _scheduleTimer();
+  }
+
+  void _scheduleTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(_interval, (_) => unawaited(_refreshSafely()));
   }
 
   void stop() {

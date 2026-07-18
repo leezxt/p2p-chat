@@ -24,6 +24,19 @@ Token 不由 API 回傳，也不得寫入 log。Prototype backend 必須保存�
 
 不得加入 plaintext、ciphertext、sender、conversation、message preview 或 mailbox ID。
 
+## Notification Presentation Privacy
+
+Flutter 的通知呈現策略預設 fail-closed。App Lock module 只透過 Event Bus 發出
+`enabled`、`locked` 與 `hideNotificationContent` 三個布林狀態，不傳送聊天內容。
+Push module 在下列任一情況只允許 provider 使用通用 title/body：
+
+- 尚未收到 App Lock 初始狀態。
+- App Lock 已啟用且目前鎖定。
+- 使用者保留預設的「隱藏通知內容」設定。
+- 本機 sender 或 message preview 缺失。
+
+只有 App 已解鎖、使用者明確關閉隱藏，且 sender／preview 來自本機完成驗證與解密的訊息時，provider 才可顯示細節。不得從 FCM/APNs data payload 補入 sender 或 preview。真實 Android/iOS notification provider 與 OS lock-screen 行為仍需 credentials 及實機驗收。
+
 FCM worker 使用 HTTP v1 與 Google ADC。Outbox 流程為 `PENDING -> PROCESSING -> SENT/FAILED`；暫時錯誤回到 `PENDING`，最多 8 次，5 秒起始且最多等待 15 分鐘。每次 claim 都有兩分鐘 lease 與隨機 lease token，可由其他 instance 回收過期工作，舊 worker 無法覆寫新結果。成功、沒有 active token，或所有 token 已失效時結束工作；`429`、`5xx`、`UNAVAILABLE` 等暫時錯誤重試，永久錯誤與被竄改 payload 直接失敗。
 
 FCM 回覆 `UNREGISTERED` / `NOT_FOUND` 時會撤銷 token 並清除 ciphertext，但必須同時符合 token ID 與送出時的 SHA-256 hash，避免延遲的舊 response 撤銷剛更新的新 token。Worker 與 HTTP v1 adapter 已完成自動化與 PostgreSQL 驗證；真實 Firebase credentials、Android 系統通知與實機 cold/warm start 尚未驗證。

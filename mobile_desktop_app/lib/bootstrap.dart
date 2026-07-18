@@ -10,15 +10,18 @@ import 'core/module/module_registry.dart';
 import 'core/resource_policy/resource_policy_service.dart';
 import 'core/routing/route_registry.dart';
 import 'modules/chat/chat_module.dart';
+import 'modules/app_lock/app_lock_module.dart';
 import 'modules/crypto/crypto_module.dart';
 import 'modules/identity/identity_module.dart';
 import 'modules/contacts/contacts_module.dart';
 import 'modules/devices/devices_module.dart';
 import 'modules/p2p/p2p_module.dart';
 import 'modules/mailbox/mailbox_module.dart';
+import 'modules/low_power/low_power_module.dart';
 import 'modules/presence/presence_module.dart';
 import 'modules/push/push_module.dart';
 import 'modules/settings/settings_module.dart';
+import 'modules/safety_number/safety_number_module.dart';
 import 'shared/utils/id_generator.dart';
 
 /// 啟動結果：交給 App 根 Widget 使用。
@@ -68,13 +71,18 @@ Future<Bootstrap> bootstrap({
   final registry = ModuleRegistry(context, routes);
   // 基礎模組（規格 §9 範例的精簡子集，其餘 Sprint 陸續加入）。
   registry.register(IdentityModule());
+  // Push 先訂閱 App Lock 狀態，確保初始通知政策不遺漏鎖定狀態。
+  registry.register(PushModule());
   registry.register(CryptoModule());
+  registry.register(AppLockModule());
   registry.register(ContactsModule());
+  registry.register(SafetyNumberModule());
   registry.register(DevicesModule());
+  // 先載入持久化低功耗偏好，再初始化會讀取資源策略的模組。
+  registry.register(LowPowerModule());
   registry.register(P2pModule());
   registry.register(SettingsModule());
   registry.register(PresenceModule());
-  registry.register(PushModule());
   registry.register(ChatModule(
     currentUserId: currentUserId,
     currentDeviceId: currentDeviceId,

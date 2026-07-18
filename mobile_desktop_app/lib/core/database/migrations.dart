@@ -9,7 +9,7 @@ class Migration {
 }
 
 /// 目前 schema 版本。每次新增 migration 時 +1。
-const int kCurrentDbVersion = 7;
+const int kCurrentDbVersion = 8;
 
 /// 依版本排序的 migration 清單。
 const List<Migration> kMigrations = [
@@ -165,6 +165,15 @@ const List<Migration> kMigrations = [
       setting_key TEXT PRIMARY KEY,
       setting_value TEXT NOT NULL,
       updated_at INTEGER NOT NULL
+    )
+    ''',
+  ]),
+  Migration(8, [
+    '''
+    CREATE TABLE safety_number_verifications (
+      remote_device_id TEXT PRIMARY KEY,
+      digest TEXT NOT NULL,
+      verified_at INTEGER NOT NULL
     )
     ''',
   ]),

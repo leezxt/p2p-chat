@@ -15,6 +15,11 @@ import 'conversation_list_controller.dart';
 import '../../mailbox/domain/message_transport_coordinator.dart';
 import '../../contacts/domain/contact_service.dart';
 import '../../presence/domain/presence_service.dart';
+import '../../safety_number/domain/safety_number_service.dart';
+import '../../app_lock/domain/app_lock_service.dart';
+import '../../app_lock/presentation/app_lock_settings_page.dart';
+import '../../low_power/domain/low_power_mode_service.dart';
+import '../../low_power/presentation/low_power_settings_page.dart';
 
 /// 聊天室列表畫面（App 首頁）。可建立本機測試聊天室並進入聊天。
 class ConversationListPage extends StatefulWidget {
@@ -30,6 +35,9 @@ class ConversationListPage extends StatefulWidget {
     this.syncMailbox,
     this.contactService,
     this.presenceService,
+    this.safetyNumberService,
+    this.appLockService,
+    this.lowPowerModeService,
     this.localeController,
   });
 
@@ -43,6 +51,9 @@ class ConversationListPage extends StatefulWidget {
   final Future<void> Function()? syncMailbox;
   final ContactService? contactService;
   final PresenceService? presenceService;
+  final SafetyNumberService? safetyNumberService;
+  final AppLockService? appLockService;
+  final LowPowerModeService? lowPowerModeService;
   final LocaleController? localeController;
 
   @override
@@ -183,7 +194,13 @@ class _ConversationListPageState extends State<ConversationListPage> {
       markRead: widget.markRead,
     );
     await Navigator.of(context).push(MaterialPageRoute<void>(
-      builder: (_) => ChatPage(controller: chatController, title: conv.title),
+      builder: (_) => ChatPage(
+        controller: chatController,
+        title: conv.title,
+        safetyNumberService:
+            peerUserId == null ? null : widget.safetyNumberService,
+        peerUserId: peerUserId,
+      ),
     ));
     await _controller.load();
   }
@@ -216,6 +233,33 @@ class _ConversationListPageState extends State<ConversationListPage> {
             tooltip: l10n.addContact,
             icon: const Icon(Icons.person_add_alt_1),
           ),
+          if (widget.appLockService case final service?)
+            IconButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => AppLockSettingsPage(service: service),
+                ),
+              ),
+              tooltip: l10n.appLock,
+              icon: const Icon(Icons.lock_outline),
+            ),
+          if (widget.lowPowerModeService case final service?)
+            AnimatedBuilder(
+              animation: service,
+              builder: (context, _) => IconButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => LowPowerSettingsPage(service: service),
+                  ),
+                ),
+                tooltip: l10n.lowPowerMode,
+                icon: Icon(
+                  service.enabled
+                      ? Icons.battery_saver
+                      : Icons.battery_saver_outlined,
+                ),
+              ),
+            ),
           if (widget.localeController case final controller?)
             PopupMenuButton<AppLanguage>(
               tooltip: l10n.language,

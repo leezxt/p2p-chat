@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:sodium/sodium.dart';
+import 'package:sodium/sodium_sumo.dart';
 
 import '../../core/module/app_module.dart';
 import '../../core/module/module_context.dart';
@@ -24,13 +24,14 @@ class CryptoModule extends AppModule {
 
   @override
   Future<void> init(ModuleContext context) async {
-    final sodium = await SodiumInit.init();
+    final sodium = await SodiumSumoInit.init();
     final store = FlutterSecureKeyValueStore();
     final service = DeviceKeyService(sodium: sodium, store: store);
     final identity = context.services.get<IdentitySession>();
     _deviceKey = await service.getOrCreate(identity.deviceId);
 
     context.services.registerSingleton<Sodium>(sodium);
+    context.services.registerSingleton<SodiumSumo>(sodium);
     context.services.registerSingleton<SecureKeyValueStore>(store);
     context.services.registerSingleton<DeviceKeyService>(service);
     context.services.registerSingleton<DeviceKeyMaterial>(_deviceKey!);

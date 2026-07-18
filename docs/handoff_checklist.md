@@ -3,7 +3,9 @@
 本文件是接手開發與驗收進度的單一清單。完整依賴與驗收條件仍以
 [`project_tasks.md`](project_tasks.md) 為準。
 
-目前依使用者指示只實作 v1.2 藍圖的 V1；V1.5～V5 暫停於 backlog。
+目前主要發布目標仍是 v1.2 藍圖的 V1；因剩餘 Gate 受真機與外部環境阻塞，
+使用者已授權先行實作 V1.5 Safety Number、App Lock 與 Low Power Mode 的電腦端
+工作。V2～V5 仍暫停於 backlog。
 
 ## 勾選規則
 
@@ -12,7 +14,115 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-17 01:53 +08:00）
+## 目前交接（2026-07-18 14:46 +08:00）
+
+目前目標：修正 V1-01 Firebase Test Lab 實體機因低容量排隊超過 GitHub job timeout
+後留下孤立 matrix 的 lifecycle 缺口；本輪不送出付費 matrix。
+
+- [x] **已完成**：依 2026-05-27 官方 gcloud／Testing API 文件確認 `run --async`、device capacity、matrix GET 與 `:cancel` 契約
+- [x] **已完成**：workflow job 上限由 45 分鐘調整為 180 分鐘；新增 15～120 分鐘可設定 queue timeout，裝置 instrumentation 仍限制 10 分鐘，開始執行後監控最多 30 分鐘
+- [x] **已完成**：submission 改為 `--async --format=json`，立即驗證並保存 `matrix-submit.json`、`matrix-id.txt` 與 GitHub step output，不再讓同步 gcloud 命令獨占整個 job
+- [x] **已完成**：新增 `monitor_firebase_test_lab.sh`；透過 Testing API 保存最新 JSON／摘要，只有 `FINISHED / SUCCESS` 通過，其他 terminal outcome fail closed
+- [x] **已完成**：監控腳本在 queue/run timeout、連續 API 失敗、SIGINT、SIGTERM 或非 terminal exit 時呼叫 `:cancel`；access token 每次查詢刷新，避免長排隊超過 token 壽命
+- [x] **已完成**：preflight 保存 `list-device-capacities` JSON；付費 submission 預設拒絕 `Low`／`None`／Unknown，只有明確 `allow_low_capacity=true` 才允許 Low；免費 dry-run 仍可檢視 Low／Unknown
+- [x] **已完成**：新增 matrix ID extractor 與本機契約測試；SUCCESS 不取消、PENDING timeout 取消、FINISHED/FAILURE 不誤判成功、非法 matrix ID 拒絕，workflow async／cleanup wiring 亦有檢查
+- [x] **已完成**：本機 Test Lab monitor tests、3 個 bash scripts syntax、Python compile、workflow YAML parse 與目前 `CPH2449 / API 34 = Low` catalog 查詢通過
+- [ ] **已實作未驗證**：新 workflow 尚未推送至 GitHub，因此 OIDC free dry-run、artifact evidence、GitHub cancellation signal 與 `always()` upload 尚待 CI 驗證
+- [ ] **已實作未驗證**：首次成功 Test Lab 實體機 runtime、兩台真機 E2E、實際斷網、OS kill、網路／記憶體／耗電 Gate 仍未完成
+
+變更範圍：`.github/workflows/firebase-test-lab.yml`、
+`mobile_desktop_app/tool/monitor_firebase_test_lab.sh`、matrix ID extractor／契約測試，
+以及 Firebase Test Lab、testing、release candidate、project tasks 文件。
+
+驗證：Git Bash 契約測試通過；`bash -n` 通過；PyYAML 可解析 workflow；Python extractor
+可編譯；gcloud 576.0.0 即時 catalog 查詢確認 `CPH2449 / 34` 容量仍為 `Low`。未建立或
+送出任何 Test Lab matrix，沒有產生本輪實體裝置費用。
+
+Runtime：本輪未啟動 Docker、ADB、AVD、App、backend 或 GitHub workflow；沒有執行中
+的 Test Lab matrix 或需停止的 managed runtime。
+
+下一步：將現有工作樹整理到 GitHub 後，先以 `submit_test=false` 驗證新 workflow 與
+evidence artifact；選擇 `Medium`／`High` 容量實體 model 後，再由使用者明確確認一次付費
+submission。單一 Test Lab 裝置仍不取代兩台真機 E2E 與資源 Gate。
+
+## 上次交接（2026-07-18 14:13 +08:00）
+
+目前目標：完成 V1.5 EPIC-10 Low Power Mode 的電腦端策略、持久化、設定 UI 與
+自動化測試，並保留真機資源量測 Gate。
+
+- [x] **已完成**：新增具 `init / activate / sleep / dispose` 的獨立 `LowPowerModule`；預設關閉，沿用 SQLite `app_settings` 保存，不新增 schema migration
+- [x] **已完成**：新增 `LowPowerModeChanged`；偏好載入與切換後經 Event Bus 發送，Presence／P2P 不直接呼叫 Low Power 內部實作
+- [x] **已完成**：一般／低功耗 Presence heartbeat 為 60／180 秒；前景執行中切換會取消舊 timer 並依新間隔重排，背景仍停止 heartbeat
+- [x] **已完成**：一般／低功耗 P2P 上限為 3／1；超額 outbound 被拒絕、inbound 被關閉，切換後會收斂既有 sessions
+- [x] **已完成**：一般／低功耗 P2P 閒置斷線為 2／1 分鐘；成功連線、傳送或接收密文後重排 timer，背景 P2P 仍永遠關閉
+- [x] **已完成**：低功耗時強制停用圖片自動下載及重型模組自動啟動；一般模式保留既有使用者偏好
+- [x] **已完成**：首頁新增會即時反映狀態的電池圖示，設定頁採 toggle；繁中／英文標題、狀態與說明已由 `gen-l10n` 產生
+- [x] **已完成**：17 項 Low Power／Presence／P2P 專項測試通過；包含預設值、Event Bus、SQLite 跨重啟、動態 interval、P2P 上限／收斂／idle 與繁中 Widget
+- [x] **已完成**：設定 `NIX_SKIP_SODIUM_BUILD_HOOKS=1` 並排除既有 Windows-native `device_key_service_test.dart` 後，125 項 Flutter host tests 全通過；`flutter analyze --no-pub` 零問題
+- [x] **已完成**：同一 skip-hook 環境下 Android debug APK 編譯通過，SHA-256 `E674EBEA5868904906B04755628F8F3ED588EBAC29B3D7CD905988D7278D7E98`；此 APK 不含 sodium native asset，只作編譯驗證
+- [ ] **已實作未驗證**：Low Power 策略與 UI 已完成，但 Android/iPhone 真實前景 heartbeat、連線收斂、背景零 P2P、耗電、網路與記憶體仍待實機量測
+- [ ] **已實作未驗證**：完整 Windows sodium native host test 仍受本機缺少 Visual Studio C++／`vswhere.exe` 阻塞；本輪未修改 device-key 實作
+
+變更範圍：`mobile_desktop_app/lib/modules/low_power/`、`ResourcePolicyService`、
+`PresenceService/Module`、`P2pSessionManager/Module`、Bootstrap、聊天列表設定入口、
+ARB/generated l10n、Low Power／Presence／P2P tests，以及 README／架構／任務文件。
+
+驗證：`flutter gen-l10n` 成功；17 項專項與 125 項 host suite 通過；
+`flutter analyze --no-pub` 零問題；formatter 158 files 零變更；`git diff --check`
+通過（只有既有行尾警告）；Android skip-hook debug build 成功。初次未設定 skip hook
+的測試因找不到 Visual Studio `vswhere.exe` 失敗，改用既有 host-test skip 方式後通過。
+
+Runtime：本輪未啟動 Docker、AVD、App、backend 或其他長時間程序；Flutter 指令均已
+正常結束，沒有需停止的 managed runtime。
+
+下一步：有實機時執行 Low Power 前景／背景資源量測，並接續 App Lock
+notification／biometric lifecycle 與 Safety Number QR。iOS 在 Mac 驗證
+Keychain／Face ID／相機、Low Power 與 OS 通知；沒有實機時接續下一個 V1.5
+電腦端 backlog。
+
+## 上次交接（2026-07-18 14:01 +08:00）
+
+目前目標：在 Safety Number 與生物辨識真機 Gate 等待期間，完成 V1.5 EPIC-11
+App Lock notification privacy 的偏好、Event Bus 狀態、Push 呈現策略與電腦端測試。
+
+- [x] **已完成**：新增獨立 `AppLockModule`，沿用 Crypto module 註冊的 `SecureKeyValueStore`；App Lock 不取代裝置私鑰保護
+- [x] **已完成**：6 位 PIN 使用 libsodium `crypto_pwhash_str` Argon2id interactive profile；encoded verifier 內含 salt／成本參數，secure storage 不保存 PIN 明文，未自行實作 KDF
+- [x] **已完成**：五次錯誤後冷卻 30 秒，錯誤次數與期限可跨重啟保存；設定損壞時 fail-closed，不顯示聊天內容
+- [x] **已完成**：根層 `AppLockGate`、繁中／英文解鎖與設定頁、啟用／停用／立即鎖定完成；App 進入 background 立即鎖定
+- [x] **已完成**：加入可替換 `AppLockBiometricAuthenticator` 與 `local_auth` Android/iOS adapter；只接受 biometric-only 系統驗證，不接觸或保存生物特徵
+- [x] **已完成**：生物辨識啟用前需先成功驗證；opt-in 保存於既有 secure storage，鎖定畫面自動嘗試辨識，取消／失敗／未註冊／系統鎖定不解鎖且 PIN 始終可用
+- [x] **已完成**：Android 改用 `FlutterFragmentActivity`、加入 `USE_BIOMETRIC` 與 AppCompat theme；iOS 加入 `NSFaceIDUsageDescription`；`local_auth` federated packages 鎖定於 Flutter 3.27／Dart 3.6 相容版本
+- [x] **已完成**：App Lock 3 項 adapter、6 項 service 與 6 項 Widget tests 通過；跨重啟 biometric／notification opt-in、成功／取消／錯誤映射、PIN fallback 及移除 enrollment 後仍可停用均有覆蓋
+- [x] **已完成**：新增 `AppLockStateChanged`，只含 enabled／locked／hide flags；Push module 經 Event Bus 訂閱並在 dispose 取消，不直接呼叫 App Lock 內部實作
+- [x] **已完成**：新增 privacy-first `NotificationPresentationPolicy`；狀態未知、App 鎖定、預設隱藏或缺少本機資料時強制通用文字，只有已解鎖且明確 opt-out 才允許本機 sender／preview
+- [x] **已完成**：App Lock 設定頁新增預設開啟的通知隱私開關與繁中／英文 UI；偏好與 verifier 一起保存於 secure storage
+- [x] **已完成**：4 項 notification policy/module wiring tests 通過；排除既有 Windows-native `device_key_service_test.dart` 後，117 項 Flutter host tests 全通過；`flutter analyze --no-pub` 零問題，formatter 151 files 零變更
+- [x] **已完成**：設定 `NIX_SKIP_SODIUM_BUILD_HOOKS=1` 後，含最新 Push/App Lock 啟動順序的 Android debug APK 編譯通過；SHA-256 `D906A452984E2567A7319D191483B0AB896697065E33475E67D2523977294371`。此 APK 不含 sodium native asset，只作編譯驗證，不可作 runtime 測試版
+- [ ] **已實作未驗證**：未跳過 sodium hook 的 Android build 已找到 Git Bash，但現有 NDK 28 libsodium automake C 編譯失敗；未取得可安裝的本輪完整 native APK
+- [ ] **已實作未驗證**：Android/iPhone 生物辨識、enrollment change、App Lock Argon2id／secure storage／background-resume 及 Safety Number 相機掃碼仍待實機驗收
+- [ ] **已實作未驗證**：provider-neutral notification privacy policy 已完成；真實 FCM/APNs notification presentation provider、Android/iOS OS lock-screen 呈現仍需 credentials 與實機驗收
+- [ ] **已實作未驗證**：iOS `local_auth`／Face ID 設定已完成；Xcode build、Keychain／Face ID runtime、iPhone 相機與跨平台 Safety Number 核對仍需 Mac／實機
+
+- [x] **已完成**：新增獨立 `SafetyNumberModule`，沿用現有 `IdentitySession`、`DeviceKeyMaterial` 與 `ContactRepository`，未修改 Core 契約
+- [x] **已完成**：Safety Number 將雙方 user/device ID 與 32-byte 公鑰排序後以版本化 canonical JSON 計算 SHA-512；兩端參與者順序對調仍產生相同 60 位顯示碼
+- [x] **已完成**：QR payload 只含 schema version、類型、雙方裝置識別與 digest，不含私鑰或聊天內容；嚴格拒絕額外欄位、竄改、錯誤參與者與 malformed JSON
+- [x] **已完成**：SQLite schema 升級至 v8，新增 `safety_number_verifications`；驗證 digest 跨重啟保存，聯絡人公鑰改變時舊驗證自動失效
+- [x] **已完成**：聊天室 AppBar 新增安全碼入口；Safety Number 頁支援白底黑碼高對比 QR、12 組五位數、人工確認、貼入 QR 內容比對及繁中／英文介面；深色主題 Widget 測試已鎖定 QR 對比
+- [x] **已完成**：新增 `qr_flutter 4.1.0` 與相容專案 Dart 3.6 下限的 `mobile_scanner 6.0.11`，並更新 locked dependencies
+- [x] **已完成**：新增可注入的 `SafetyNumberQrScanner`、QR-only 相機頁、首次成功後停止掃描、相機初始化／權限失敗 UI；Windows 等不支援平台保留人工貼入流程
+- [x] **已完成**：Android manifest 加入 `CAMERA`，iOS `NSCameraUsageDescription` 納入 Safety Number；Android debug APK 建置成功，iOS plist XML 可解析
+- [x] **已完成**：Safety Number 核心、service、widget、scanner adapter、schema 與 v1～v7 migration 共 15 項專項測試通過
+- [x] **已完成**：Safety Number 專項測試維持通過；已納入本輪 104 項 Flutter host suite
+- [ ] **已實作未驗證**：完整 `flutter test` 唯一失敗為本機缺 Visual Studio C++／libsodium native asset 的既有 `device_key_service_test.dart`；先前 Windows CI 已驗證該路徑，本次未修改裝置金鑰實作
+- [ ] **已實作未驗證**：Android/iPhone 真實相機權限允許／拒絕、Safety Number QR 掃碼與錯誤畫面尚未實機驗收；iOS 尚需在 Mac 執行 build
+- [ ] **已實作未驗證**：QR 產生、嚴格 payload 比對、相機／人工貼入流程已完成；兩台 Android/iPhone 實機顯示一致性與交叉核對尚未驗收
+- [ ] **已實作未驗證**：Android build 警告 `mobile_scanner 6.x` 與既有 `flutter_webrtc` 仍套用舊 Kotlin Gradle Plugin；目前可建置，但未來 Flutter 移除相容層前需升級 plugin
+
+Runtime：本輪未啟動 Docker、AVD、App、backend 或其他長時間程序；Flutter test/analyze/formatter 與 Android Gradle build 指令均已正常結束，Gradle/JVM daemon 由建置工具管理。完整 native build 限制仍是 NDK 28 libsodium automake C 編譯失敗。
+
+下一步：沒有 credentials／實機時轉做 EPIC-10 Low Power Mode 的電腦端策略、設定與測試；Android 裝置重新連線後再驗證 App Lock notification／biometric lifecycle 與 Safety Number QR。iOS 在 Mac 驗證 Keychain／Face ID／相機及 OS 通知。
+
+## 上次交接（2026-07-17 01:53 +08:00）
 
 目前目標：完成專用 Firebase Test Lab cloud project、billing、WIF 與 results bucket，並在
 首次可能產生費用的實體裝置 matrix 前加入預設不送測的 dry-run Gate。

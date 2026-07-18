@@ -2,8 +2,10 @@
 
 依據《P2P Modular Messenger Codex 開發總規格 v1.2》整理。此文件以可執行、可驗收及可追蹤依賴為原則；`P0` 為 V1 MVP 必要工作，`P1` 為 V1.5，`P2` 以後為後續版本。
 
-> 目前執行範圍以 v1.2 藍圖的 **V1 核心可用版** 為限。V1.5～V5
-> 僅保留 backlog，不在 V1 release candidate 完成前開始實作。
+> 目前主要發布目標仍是 v1.2 藍圖的 **V1 核心可用版**。因剩餘 V1 Gate
+> 主要受真機與外部環境阻塞，使用者已於 2026-07-18 授權先行實作 V1.5
+> `EPIC-12 Safety Number`、`EPIC-11 App Lock` 與 `EPIC-10 Low Power Mode`
+> 的電腦端工作；V2～V5 仍保留於 backlog。
 
 ## 狀態定義
 
@@ -117,7 +119,7 @@
 
 | ID | 任務 | 依賴 | 驗收條件 |
 |---|---|---|---|
-| V1-01 | 🚧 建立兩台真機的完整 E2E 測試腳本 | S8-05 | 雙 AVD 已分別通過 encrypted P2P runner，以及真實 sodium offline mailbox、ACK 遺失、App force-stop/restart、DELIVERED/READ 與 sender 本機 READ 狀態；Firebase Test Lab 專用 project、billing、WIF、results bucket 與單一實體機 instrumentation workflow 已建立，免費 dry-run 已通過；首次真實 matrix 因 `CPH2449` 低容量排隊超過 GitHub 45 分鐘上限而取消，未開始 device execution，需先修正等待／取消策略；兩台真機、實際斷網與資源量測仍待驗 |
+| V1-01 | 🚧 建立兩台真機的完整 E2E 測試腳本 | S8-05 | 雙 AVD 已分別通過 encrypted P2P runner，以及真實 sodium offline mailbox、ACK 遺失、App force-stop/restart、DELIVERED/READ 與 sender 本機 READ 狀態；Firebase Test Lab 專用 project、billing、WIF、results bucket 與單一實體機 instrumentation workflow 已建立，免費 dry-run 已通過；首次真實 matrix 因 `CPH2449` 低容量排隊取消。async submission、matrix ID evidence、15～120 分鐘排隊上限、terminal outcome 與 timeout／signal cancellation 已完成本機契約測試，待 GitHub dry-run 與首次成功 runtime；兩台真機、實際斷網與資源量測仍待驗 |
 | V1-02 | ✅ 安全與隱私稽核 | S6-06,S7-06,S8-05 | 私鑰/明文不上傳、不進 log；修復 ACK/origin/cursor、signaling concurrent writes、push token at-rest、共享 mailbox rate limit 與 FCM outbox worker；Java 52 tests、Flutter 82 tests、analyze 通過，殘餘風險見 `security_audit_v1.md` |
 | V1-03 | 🚧 資源目標量測 | V1-01 | Android 15 AVD profile 基線已重跑兩次：冷啟動中位數 2646/2690ms、閒置 PSS 110.22/111.54MB、背景 TCP 0；真機 release candidate、最差啟動時間、實際網路與電量仍待驗 |
 | V1-04 | 🚧 故障恢復與資料完整性測試 | V1-01 | SQLite 關閉／重開、ACK 遺失重投、v1～v5 升級至 v7，以及 Android AVD `am force-stop` 後同一 DB 重啟與 READ 閉環已通過；真機 OS kill 與實際斷網待驗 |
@@ -128,9 +130,39 @@
 
 | Epic | 範圍 | 前置 | 完成條件摘要 |
 |---|---|---|---|
-| EPIC-10 | Low Power Mode | V1-05 | 可降低 presence、停用自動下載、限制連線；背景保持零 P2P |
-| EPIC-11 | App Lock | V1-05 | PIN/生物辨識、離開後自動鎖定、通知隱藏；不得取代裝置金鑰保護 |
-| EPIC-12 | Safety Number | S6-05 | 顯示與 QR 驗證；key/device 變更有阻斷式警告與重新信任流程 |
+| EPIC-10 | 🚧 Low Power Mode | V1-05 | SQLite 偏好、即時 Event Bus 策略、presence 降頻、P2P 連線／閒置限制、自動下載防護與雙語設定 UI 已完成；真機資源量測待補 |
+| EPIC-11 | 🚧 App Lock | V1-05 | PIN、Argon2id、安全儲存、錯誤冷卻、背景立即鎖定、設定 UI、生物辨識 adapter 與通知隱私策略已完成；真機 lifecycle／biometric／FCM/APNs runtime 待補 |
+| EPIC-12 | 🚧 Safety Number | S6-05 | 版本化安全碼、QR 顯示／payload、人工確認、SQLite 驗證持久化、key-change 自動失效與相機 scanner adapter 已完成；真實相機掃碼與雙實機人工核對待驗 |
+
+### EPIC-10 Low Power Mode — IN PROGRESS
+
+| ID | 狀態 | 任務 | 驗收結果 |
+|---|---|---|---|
+| V15-10-01 | ✅ | 獨立模組與偏好持久化 | `LowPowerModule` 具完整生命週期；預設關閉，SQLite `app_settings` 跨重啟保存，切換發出 `LowPowerModeChanged` |
+| V15-10-02 | ✅ | Presence 與下載／重型模組策略 | 一般／低功耗 heartbeat 為 60／180 秒且可即時重排；低功耗強制停用圖片自動下載與重型模組自動啟動 |
+| V15-10-03 | ✅ | P2P 連線與閒置限制 | 一般／低功耗最多 3／1 條連線、閒置 2／1 分鐘斷線；切換時收斂既有 session，背景 P2P 永遠關閉 |
+| V15-10-04 | ✅ | 設定與多語言 UI | 首頁提供狀態同步的電池圖示入口，設定頁使用 toggle，支援繁中／英文並在寫入完成後更新狀態 |
+| V15-10-05 | 🚧 | 回歸與實機資源驗收 | 17 項 Low Power／Presence／P2P 專項、排除既有 Windows-native device-key 測試後 125 項 host tests、analyze 與 Android debug 編譯通過；真機耗電、網路、記憶體與背景行為待量測 |
+
+### EPIC-11 App Lock — IN PROGRESS
+
+| ID | 狀態 | 任務 | 驗收結果 |
+|---|---|---|---|
+| V15-11-01 | ✅ | PIN verifier 與安全儲存 | 6 位 PIN 交由 libsodium `crypto_pwhash_str` Argon2id interactive profile 產生含 salt／成本參數的 verifier；明文不落盤，手寫 KDF 已排除 |
+| V15-11-02 | ✅ | 防暴力嘗試與跨重啟狀態 | 五次錯誤後冷卻 30 秒，錯誤次數與期限保存於 secure storage；設定損壞時 fail-closed |
+| V15-11-03 | ✅ | 設定、解鎖與自動鎖定 UI | 繁中／英文啟用、停用、立即鎖定與根層 gate 完成；進入 background 立即 lock，Widget tests 通過 |
+| V15-11-04 | 🚧 | 生物辨識與真機 lifecycle | 可替換 `local_auth` adapter、biometric-only 驗證、secure-storage opt-in、設定開關、自動解鎖與 PIN fallback 已完成；Android/iPhone enrollment change、Argon2id、background/resume 與 secure storage runtime 待實機驗收 |
+| V15-11-05 | 🚧 | 通知內容隱私 | push payload 嚴格不含內容；secure-storage opt-in、App Lock Event Bus 狀態與 privacy-first presentation policy 已完成，狀態未知／鎖定時強制通用文字；真實 FCM/APNs provider 與 OS 通知待驗 |
+
+### EPIC-12 Safety Number — IN PROGRESS
+
+| ID | 狀態 | 任務 | 驗收結果 |
+|---|---|---|---|
+| V15-12-01 | ✅ | 定義雙方順序無關、版本化 Safety Number | 雙方裝置 ID／公鑰以 canonical JSON 計算 SHA-512；顯示 60 位數字，順序對調結果一致 |
+| V15-12-02 | ✅ | 定義 Safety Number QR payload 與嚴格比對 | payload 只含版本、類型、雙方裝置識別與 digest；拒絕額外欄位、竄改及錯誤參與者 |
+| V15-12-03 | ✅ | 保存驗證狀態並在 key change 後失效 | SQLite v8 `safety_number_verifications` 以目前 digest 判定；聯絡人公鑰改變後舊驗證自動失效 |
+| V15-12-04 | ✅ | 建立聊天室安全碼 UI | 支援白底黑碼高對比 QR、60 位安全碼、人工確認、貼入 QR 內容比對及繁中／英文介面；深色主題 Widget 測試通過 |
+| V15-12-05 | 🚧 | 相機掃描與雙實機人工核對 | 可替換 scanner 介面、Android/iOS 相機權限、QR-only 掃描頁與失敗 UI 已實作，Android debug APK 建置通過；真實權限允許／拒絕、掃碼及兩台裝置顯示一致性待實機驗收 |
 
 ## V2–V5 Backlog
 

@@ -314,6 +314,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add'**
   String get join;
+
+  /// No description provided for @safetyNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety number'**
+  String get safetyNumber;
+
+  /// No description provided for @safetyNumberUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The safety number is currently unavailable'**
+  String get safetyNumberUnavailable;
+
+  /// No description provided for @safetyNumberVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified'**
+  String get safetyNumberVerified;
+
+  /// No description provided for @safetyNumberNotVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Not verified'**
+  String get safetyNumberNotVerified;
+
+  /// No description provided for @safetyNumberQrCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact safety number QR code'**
+  String get safetyNumberQrCode;
+
+  /// No description provided for @safetyNumberQrData.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety number QR data'**
+  String get safetyNumberQrData;
+
+  /// No description provided for @verifySafetyNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify safety number'**
+  String get verifySafetyNumber;
+
+  /// No description provided for @scanSafetyNumberQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan safety number QR'**
+  String get scanSafetyNumberQr;
+
+  /// No description provided for @safetyNumberCameraUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera access is unavailable. Check camera permission and try again.'**
+  String get safetyNumberCameraUnavailable;
+
+  /// No description provided for @compareQrData.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare QR data'**
+  String get compareQrData;
+
+  /// No description provided for @qrDataMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety numbers do not match. Trust was not changed.'**
+  String get qrDataMismatch;
+
+  /// No description provided for @verificationSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety number verification saved'**
+  String get verificationSaved;
+
+  /// No description provided for @appLock.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock'**
+  String get appLock;
+
+  /// No description provided for @appLockEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock is enabled'**
+  String get appLockEnabled;
+
+  /// No description provided for @appLockDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock is disabled'**
+  String get appLockDisabled;
+
+  /// No description provided for @appLockSetPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a 6-digit PIN'**
+  String get appLockSetPin;
+
+  /// No description provided for @appLockEnterPin.
+  ///
+  /// In en, this message translates to:
+  /// **'6-digit PIN'**
+  String get appLockEnterPin;
+
+  /// No description provided for @appLockConfirmPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm PIN'**
+  String get appLockConfirmPin;
+
+  /// No description provided for @appLockPinFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter exactly 6 digits'**
+  String get appLockPinFormat;
+
+  /// No description provided for @appLockPinMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'PINs do not match'**
+  String get appLockPinMismatch;
+
+  /// No description provided for @appLockIncorrectPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect PIN'**
+  String get appLockIncorrectPin;
+
+  /// No description provided for @appLockTryAgainLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Try again later.'**
+  String get appLockTryAgainLater;
+
+  /// No description provided for @appLockConfigurationError.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock data is unavailable. Reset the app data to recover.'**
+  String get appLockConfigurationError;
+
+  /// No description provided for @appLockUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get appLockUnlock;
+
+  /// No description provided for @appLockEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable'**
+  String get appLockEnable;
+
+  /// No description provided for @appLockDisable.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable app lock'**
+  String get appLockDisable;
+
+  /// No description provided for @appLockLockNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock now'**
+  String get appLockLockNow;
+
+  /// No description provided for @appLockBiometricUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Use biometrics'**
+  String get appLockBiometricUnlock;
+
+  /// No description provided for @appLockBiometricDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Use fingerprint or Face ID to unlock'**
+  String get appLockBiometricDescription;
+
+  /// No description provided for @appLockBiometricUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No supported biometric method is enrolled'**
+  String get appLockBiometricUnavailable;
+
+  /// No description provided for @appLockBiometricEnableReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your identity to enable biometric unlock'**
+  String get appLockBiometricEnableReason;
+
+  /// No description provided for @appLockBiometricUnlockReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Authenticate to unlock P2P Messenger'**
+  String get appLockBiometricUnlockReason;
+
+  /// No description provided for @appLockBiometricFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric authentication was not completed. Use your PIN.'**
+  String get appLockBiometricFailed;
+
+  /// No description provided for @appLockBiometricLockedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometrics are locked. Use your PIN.'**
+  String get appLockBiometricLockedOut;
+
+  /// No description provided for @appLockHideNotificationContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide notification content'**
+  String get appLockHideNotificationContent;
+
+  /// No description provided for @appLockHideNotificationDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Use generic text for message notifications'**
+  String get appLockHideNotificationDescription;
+
+  /// No description provided for @lowPowerMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Low power mode'**
+  String get lowPowerMode;
+
+  /// No description provided for @lowPowerModeEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Low power mode is on'**
+  String get lowPowerModeEnabled;
+
+  /// No description provided for @lowPowerModeDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Low power mode is off'**
+  String get lowPowerModeDisabled;
+
+  /// No description provided for @lowPowerModeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduces presence updates, P2P connections, idle time, and automatic downloads'**
+  String get lowPowerModeDescription;
 }
 
 class _AppLocalizationsDelegate

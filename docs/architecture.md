@@ -2,7 +2,8 @@
 
 完整 UML 視圖請見 [`uml.md`](uml.md)，包含部署、元件、訊息循序、模組生命週期與訊息狀態圖。
 
-目前只推進 v1.2 藍圖的 V1。Android 雙 AVD 已通過加密 P2P、offline mailbox、
+目前主要發布目標仍是 v1.2 藍圖的 V1，並已在外部 Gate 等待期間先行實作
+V1.5 Safety Number 核心與 scanner adapter，以及 App Lock PIN、生物辨識 adapter、通知隱私策略、安全儲存與背景自動鎖定。Android 雙 AVD 已通過加密 P2P、offline mailbox、
 ACK/restart 與資源開發基線；雙 Android 真機、真實 Push、iOS 實機與正式簽章仍是
 發布 Gate。建置、操作與逐項限制見 [`release_candidate_v1.md`](release_candidate_v1.md)。
 
@@ -45,6 +46,12 @@ Advanced：File Transfer / Voice Call / Video Call / Small Group / Broadcast /
           Shared Notes / Shared Todo / Live Caption / Writing Assist / Chat Summary
 ```
 
+`AppLockModule` 使用 libsodium `crypto_pwhash_str` 的 Argon2id interactive profile，並在
+平台 secure storage 保存版本化 verifier、錯誤次數與冷卻期限；不保存 PIN 明文，也不取代 `CryptoModule` 的裝置私鑰保護。啟用後
+App 進入 background 會立即鎖定；根層 `AppLockGate` 遮蔽既有 Navigator 內容直到驗證成功。
+可替換的 biometric adapter 在 Android/iOS 只要求 biometric-only 系統驗證；啟用前必須先成功驗證一次，取消、失敗或系統鎖定時仍保留 PIN 備援。生物辨識設定與 verifier 一起保存在 secure storage，但不保存任何生物特徵資料。
+App Lock 只透過 Event Bus 發出 enabled／locked／notification privacy flags；Push module 的 privacy-first presentation policy 在狀態未知、App 已鎖定或使用者要求隱藏時只回傳通用通知文字。遠端 push payload 不含 sender 或 preview，只有本機完成解密的資料才可能在明確允許時顯示。
+
 ## 模組生命週期
 
 ```text
@@ -76,8 +83,11 @@ Voice/Video Call=disabled、Presence=low-power、Mailbox=scheduled。
 
 ## 資源佔用目標（規格 §21 摘要）
 
-冷啟動 < 3s；閒置記憶體 < 150MB；背景 P2P 預設關閉；前景 heartbeat 60s；
-同時 P2P 連線 1–3 條；聊天室載入最近 50 則；離線密文保存 7–30 天；圖片自動下載預設關閉。
+冷啟動 < 3s；閒置記憶體 < 150MB；背景 P2P 永遠關閉；一般模式前景
+heartbeat 60s、同時 P2P 連線最多 3 條、閒置 2 分鐘斷線。Low Power Mode
+由獨立模組以 SQLite 保存，切換時透過 Event Bus 即時套用：heartbeat 180s、
+同時 P2P 最多 1 條、閒置 1 分鐘斷線、停用圖片自動下載及重型模組自動啟動。
+聊天室載入最近 50 則；離線密文保存 7–30 天。
 
 ## 版本路線圖
 

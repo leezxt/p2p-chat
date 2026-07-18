@@ -28,7 +28,7 @@ p2p-chat/
 | 5 | Signaling 與 WebRTC P2P | 🚧 Android 雙 AVD authenticated encrypted E2E 通過；Desktop/資源驗收待補 |
 | 6 | Crypto 與安全儲存 | 🚧 Android 實作與 runtime 驗證完成；iPhone 驗收依使用者指示暫停 |
 | 7 | Offline Mailbox 與 ACK | ✅ S7-01～06 與 Android alpha 雙 AVD 驗收完成 |
-| 8+ | Push / Presence / 低功耗 / 貼圖 / 多媒體 / 多裝置 / 通話 … | 🚧 低頻 Presence、FCM HTTP v1 worker 完成；真實 FCM/Push 待 credentials |
+| 8+ | Push / Presence / V1.5 安全 / 低功耗 / 貼圖 / 多媒體 / 多裝置 / 通話 … | 🚧 低頻 Presence、FCM HTTP v1 worker 完成；V1.5 Low Power 的 SQLite 偏好、即時策略、Presence 降頻、P2P 連線／閒置限制、自動下載與設定 UI 已完成，Safety Number 核心/scanner adapter 與 App Lock PIN／Argon2id／生物辨識／通知隱私策略／背景自動鎖定亦完成；真實耗電、FCM、相機掃碼、生物辨識與雙實機待驗 |
 
 完整路線圖見 [`docs/architecture.md`](docs/architecture.md)。
 
@@ -43,7 +43,8 @@ Push token 與 notification outbox 契約見 [`docs/push_api.md`](docs/push_api.
 日常、完整、native 與端對端測試指令及結果判讀見 [`docs/testing.md`](docs/testing.md)。
 
 不持有本機 Android 手機時，可使用 GitHub OIDC 將 instrumentation APK 送至 Firebase
-Test Lab 實體裝置；設定與限制見 [`docs/firebase_test_lab.md`](docs/firebase_test_lab.md)。
+Test Lab 實體裝置；workflow 預設只做免費 preflight，付費 submission 具容量 Gate、
+有界排隊與遠端 matrix 取消清理。設定與限制見 [`docs/firebase_test_lab.md`](docs/firebase_test_lab.md)。
 
 接手順序與逐項完成狀態見 [`docs/handoff_checklist.md`](docs/handoff_checklist.md)。每完成一項工作，需在同一次變更中勾選並更新相關文件。
 

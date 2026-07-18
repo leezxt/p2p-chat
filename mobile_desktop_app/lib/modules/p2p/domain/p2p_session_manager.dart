@@ -29,8 +29,11 @@ class P2pSessionManager implements EncryptedPeerTransport {
     required this.messageCipher,
     this.connectionTimeout = const Duration(seconds: 10),
     this.maxOfferAttempts = 3,
+    this.maxConcurrentSessions = 3,
+    this.idleDisconnectAfter = const Duration(minutes: 2),
     this.onMessageRejected,
-  }) : assert(maxOfferAttempts > 0);
+  })  : assert(maxOfferAttempts > 0),
+        assert(maxConcurrentSessions > 0);
 
   final SignalingClient signaling;
   final PeerAdapterFactory peerFactory;
@@ -40,6 +43,8 @@ class P2pSessionManager implements EncryptedPeerTransport {
   final MessageCipher messageCipher;
   final Duration connectionTimeout;
   final int maxOfferAttempts;
+  int maxConcurrentSessions;
+  Duration idleDisconnectAfter;
   final void Function(Object error)? onMessageRejected;
   final Map<String, _Session> _sessions = {};
   final Map<String, P2pSessionStatus> _states = {};
@@ -53,6 +58,9 @@ class P2pSessionManager implements EncryptedPeerTransport {
   }
 
   Future<String> connect(String targetDeviceId) async {
+    if (_sessions.length >= maxConcurrentSessions) {
+      throw StateError('P2P session limit reached');
+    }
     final id = ids.raw();
     final peer = await peerFactory(id, true);
     final session = _bind(id, targetDeviceId, peer);
@@ -87,6 +95,28 @@ class P2pSessionManager implements EncryptedPeerTransport {
     }
     await session.peer.waitUntilReady(connectionTimeout);
     await session.peer.send(jsonEncode(encrypted.toWireJson()));
+    _resetIdleTimer(session);
+  }
+
+  Future<void> updateResourcePolicy({
+    required int maxSessions,
+    required Duration idleAfter,
+  }) async {
+    if (maxSessions <= 0) {
+      throw ArgumentError.value(maxSessions, 'maxSessions');
+    }
+    maxConcurrentSessions = maxSessions;
+    idleDisconnectAfter = idleAfter;
+
+    final excess = _sessions.keys.skip(maxSessions).toList();
+    for (final id in excess) {
+      await closeSession(id);
+    }
+    for (final session in _sessions.values) {
+      if (session.status == P2pSessionStatus.connected) {
+        _resetIdleTimer(session);
+      }
+    }
   }
 
   Future<void> closeSession(String sessionId) async {
@@ -119,11 +149,16 @@ class P2pSessionManager implements EncryptedPeerTransport {
         Map<String, Object?>.from((signal['payload'] as Map?) ?? const {});
     if (type == 'OFFER') {
       await _closeOne(id, P2pSessionStatus.closed);
+      if (_sessions.length >= maxConcurrentSessions) {
+        _send('CLOSE', id, sender, const {});
+        return;
+      }
       final peer = await peerFactory(id, false);
       final session = _bind(id, sender, peer);
       final answer = await peer.acceptOffer(payload);
       session.status = P2pSessionStatus.connected;
       _states[id] = session.status;
+      _resetIdleTimer(session);
       _send('ANSWER', id, sender, answer);
     } else if (type == 'ANSWER') {
       final session = _sessions[id];
@@ -132,6 +167,7 @@ class P2pSessionManager implements EncryptedPeerTransport {
       session.timer?.cancel();
       session.status = P2pSessionStatus.connected;
       _states[id] = session.status;
+      _resetIdleTimer(session);
     } else if (type == 'ICE_CANDIDATE') {
       await _sessions[id]?.peer.addIceCandidate(payload);
     } else if (type == 'CLOSE') {
@@ -161,6 +197,7 @@ class P2pSessionManager implements EncryptedPeerTransport {
         throw const CryptoMessageException('SESSION_DEVICE_MISMATCH');
       }
       final message = await messageCipher.decrypt(encrypted);
+      _resetIdleTimer(session);
       eventBus.emit(MessageReceived(message));
     } catch (error) {
       onMessageRejected?.call(error);
@@ -201,10 +238,22 @@ class P2pSessionManager implements EncryptedPeerTransport {
     });
   }
 
+  void _resetIdleTimer(_Session session) {
+    session.idleTimer?.cancel();
+    session.idleTimer = Timer(idleDisconnectAfter, () {
+      final id = _sessions.entries
+          .where((entry) => identical(entry.value, session))
+          .map((entry) => entry.key)
+          .firstOrNull;
+      if (id != null) unawaited(closeSession(id));
+    });
+  }
+
   Future<void> _closeOne(String id, P2pSessionStatus terminalStatus) async {
     final session = _sessions.remove(id);
     if (session == null) return;
     session.timer?.cancel();
+    session.idleTimer?.cancel();
     await session.iceSubscription?.cancel();
     await session.messageSubscription?.cancel();
     await session.peer.close();
@@ -228,6 +277,7 @@ class _Session {
   Map<String, Object?>? offer;
   int attempts = 0;
   Timer? timer;
+  Timer? idleTimer;
   StreamSubscription<Map<String, Object?>>? iceSubscription;
   StreamSubscription<String>? messageSubscription;
 }
