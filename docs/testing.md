@@ -14,7 +14,7 @@ Android/iOS integration test 或真機 Gate。
 | Java backend | `mvn test` | `scripts/smoke.ps1` | REST/WebSocket、JWT、ACL、mailbox、presence、push、PostgreSQL migration |
 | Flutter/Dart | `dart analyze`、相關 `flutter test <file>` | `flutter test` | Core lifecycle、SQLite、localization、crypto schema、P2P、mailbox、presence、push |
 | Windows Desktop | `flutter test --no-pub test/modules/device_key_service_test.dart` | `flutter build windows --debug --no-pub`；`flutter test --no-pub -d windows --dart-define=RUNTIME_PLATFORM=Windows integration_test/android_crypto_runtime_test.dart` | libsodium native runtime、Credential Manager、crypto failure paths、WebRTC DataChannel、Runner 與 plugins 編譯 |
-| Android native | 相關 Dart 單元測試 | `integration_test/android_crypto_runtime_test.dart`、雙 AVD E2E | libsodium、secure storage、WebRTC DataChannel、完整訊息流程 |
+| Android native | 相關 Dart 單元測試 | crypto／App Lock runtime tests、雙 AVD E2E | libsodium、secure storage、Argon2id、App lifecycle、WebRTC DataChannel、完整訊息流程 |
 | Android cloud device | `bash tool/build_firebase_test_lab.sh` | `Firebase Test Lab Android` 手動 workflow | instrumentation APK、遠端實體機 secure storage、libsodium、replay、WebRTC |
 | iOS native | `bash tool/verify_ios.sh` | 設定 `IOS_DEVICE_ID` 後執行同一腳本 | build、Keychain、libsodium、WebRTC |
 | Backend + App | `scripts/app-integration.ps1` | Android 雙裝置流程 | 真實 HTTP、JWT、邀請碼與裝置註冊 |
@@ -178,6 +178,18 @@ Android crypto runtime：
 cd mobile_desktop_app
 flutter test integration_test/android_crypto_runtime_test.dart -d <android-device-id>
 ```
+
+Android App Lock production runtime（PowerShell）：
+
+```powershell
+cd mobile_desktop_app
+.\tool\verify_android_app_lock.ps1 -Device <android-device-id>
+```
+
+乾淨且具 fingerprint HAL、尚未註冊指紋的 AVD 可追加
+`-ExpectUnenrolledBiometrics`，驗證 production `local_auth` adapter 回傳 `notEnrolled` 且不解鎖。
+Runner 使用真實 SodiumSumo Argon2id、Android encrypted storage 與 lifecycle coordinator；
+AVD 結果不取代真機 enrollment change、成功／取消系統對話框與跨 OS restart 驗收。
 
 沒有本機手機時，可先建立 Firebase Test Lab app/test APK：
 
