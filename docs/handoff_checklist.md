@@ -14,7 +14,7 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-18 21:15 +08:00）
+## 目前交接（2026-07-18 21:33 +08:00）
 
 目前目標：降低 Android AGP 9／Kotlin deprecation 風險，先升級可控的 QR scanner，並驗證
 Flutter 3.44.6 built-in Kotlin migration 邊界；不得破壞既有 crypto／WebRTC build。
@@ -27,6 +27,8 @@ Flutter 3.44.6 built-in Kotlin migration 邊界；不得破壞既有 crypto／We
 - [x] **已完成**：新版 scanner 的 Android script 已能依 AGP 9 built-in Kotlin 狀態條件套用 KGP；最低 Android API 23 低於本專案 API 24 Gate
 - [x] **已完成**：7 項 Safety Number tests、Dart format、`flutter analyze --no-pub` 與 skip-sodium Android debug APK 建置通過
 - [x] **已完成**：debug APK 大小 `218609212` bytes，SHA-256 `CECB076033920B401A2C683E5E6887AAA8286D0C9AC950A09EFA4B7035A95BD7`
+- [x] **已完成**：最終 V1 CI run [29646141895](https://github.com/leezxt/p2p-chat/actions/runs/29646141895) 的 format、analyze、完整 Flutter tests、Java、PostgreSQL 與 Windows native／desktop jobs 全部成功
+- [x] **已完成**：免費 Test Lab run [29645884176](https://github.com/leezxt/p2p-chat/actions/runs/29645884176) 的 scanner Kotlin compile、debug／androidTest APK、OIDC、catalog、bucket 與 artifact upload 通過；submission／monitor skipped，未建立 matrix
 - [ ] **已實作未驗證**：移除 built-in Kotlin 相容旗標的實驗 build 會被 Flutter 3.44.6 migrator 自動重加；已恢復受支援模板設定，完整遷移需等待 Flutter toolchain 開放
 - [ ] **已實作未驗證**：模板仍為 `builtInKotlin=false` 時，`flutter_webrtc` 與 `mobile_scanner` 會依相容邏輯套用 KGP，因此 build summary 仍有未來淘汰警告；目前 build 可用且 Kotlin 2.3.20 版本警告已避免
 - [ ] **已實作未驗證**：真實相機權限允許／拒絕、QR 掃碼與兩台裝置 Safety Number 一致性仍待 Android/iPhone 實機驗收
@@ -35,15 +37,17 @@ Flutter 3.44.6 built-in Kotlin migration 邊界；不得破壞既有 crypto／We
 generated l10n formatter normalization，以及 README、testing、project tasks 與本交接清單。
 實驗性的 Gradle 設定移除與 103-file formatter churn 均未保留。
 
-驗證：`flutter pub get` 成功；Safety Number 7 tests、format、analyze、Android debug APK
-均通過。Build 使用 `NIX_SKIP_SODIUM_BUILD_HOOKS=1`，只驗證 scanner／Gradle 編譯，不取代
-先前真實 sodium runtime。尚待 GitHub 完整 V1 CI 與 Test Lab instrumentation build。
+驗證：`flutter pub get` 成功；Safety Number 7 tests、158-file format、analyze、Android debug
+APK、GitHub 完整 V1 CI 與 Test Lab instrumentation build 均通過。Artifact ID `8430113821`、
+大小 `111858436` bytes、annotations `[]`。Build 使用 skip-sodium，只驗證 scanner／Gradle
+編譯，不取代先前真實 sodium runtime。
 
-Runtime：本輪未啟動 Docker、ADB、AVD、App 或 backend；本機 Flutter／Gradle build 已完成，
-沒有需停止的 managed process。
+Runtime：兩個 GitHub workflows 與本機 Flutter／Gradle build 均已完成；未啟動 Docker、
+ADB、AVD、App 或 backend，沒有 Test Lab matrix 或需停止的 managed process。
 
-下一步：提交並等待完整 V1 CI；再以免費 Test Lab dry-run 驗證 instrumentation APK 與 Linux
-Gradle log。Flutter toolchain 未移除兩個相容旗標前，不重複嘗試 built-in Kotlin migration。
+下一步：Flutter toolchain 未移除兩個相容旗標前，不重複嘗試 built-in Kotlin migration。
+真機可用時驗證 camera permission、QR 掃碼與雙裝置 Safety Number；否則改處理其他不依賴
+實機／credentials／production authority 的項目。
 
 ## 上次交接（2026-07-18 18:57 +08:00）
 
