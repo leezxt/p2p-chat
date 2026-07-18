@@ -101,5 +101,6 @@ grep -q 'if \[\[ "$SUBMIT_TEST" == "true" && "$GITHUB_REF" != "refs/heads/main" 
 grep -q 'Paid Firebase Test Lab submission must run from main.' "$workflow"
 grep -q '^            --async \\$' "$workflow"
 grep -q 'monitor_firebase_test_lab.sh' "$workflow"
+grep -q 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1' "$workflow"
 
 echo "Firebase Test Lab monitor tests passed."
