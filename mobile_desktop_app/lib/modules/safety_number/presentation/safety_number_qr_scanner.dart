@@ -22,7 +22,8 @@ class MobileSafetyNumberQrScanner implements SafetyNumberQrScanner {
     return switch (defaultTargetPlatform) {
       TargetPlatform.android ||
       TargetPlatform.iOS ||
-      TargetPlatform.macOS => true,
+      TargetPlatform.macOS =>
+        true,
       _ => false,
     };
   }
@@ -80,27 +81,26 @@ class _SafetyNumberScannerPageState extends State<_SafetyNumberScannerPage> {
           MobileScanner(
             controller: _controller,
             onDetect: _handleDetection,
-            errorBuilder:
-                (context, error) => ColoredBox(
-                  color: Colors.black,
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Text(
-                        l10n.safetyNumberCameraUnavailable,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
+            errorBuilder: (context, error) => ColoredBox(
+              color: Colors.black,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text(
+                    l10n.safetyNumberCameraUnavailable,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
+              ),
+            ),
           ),
           IgnorePointer(
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final side =
                     math.min(constraints.maxWidth, constraints.maxHeight) *
-                    0.65;
+                        0.65;
                 return Center(
                   child: SizedBox.square(
                     dimension: side,

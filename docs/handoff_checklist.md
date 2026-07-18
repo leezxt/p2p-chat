@@ -22,6 +22,8 @@ Flutter 3.44.6 built-in Kotlin migration 邊界；不得破壞既有 crypto／We
 - [x] **已完成**：以 Flutter 3.44.6 官方 template 與 CI log 定位警告；`android.builtInKotlin=false`／`android.newDsl=false` 由 Flutter migrator 管理，非可直接刪除的一般專案設定
 - [x] **已完成**：確認 `flutter_webrtc 1.5.2` 已具 AGP 9 conditional KGP 邏輯；`mobile_scanner 6.0.11` 為無條件套用 KGP 的舊版
 - [x] **已完成**：升級至 `mobile_scanner 7.3.0`；同步 Dart ≥3.7／Flutter ≥3.29 下限，並依 breaking API 將 scanner `errorBuilder` 改為兩參數
+- [x] **已完成**：根 package metadata 保持 Dart 3.6／Flutter 3.27，避免觸發 l10n 與 103 個既有檔案的 formatter migration；scanner dependency 仍使實際解析／執行最低版本為 Dart 3.7／Flutter 3.29
+- [x] **已完成**：首次 V1 CI `29645881265` 只有 format step 失敗；根因是提高 root language version 觸發新 formatter，修正後完整 `dart format --output=none --set-exit-if-changed lib test` 為 158 files／0 changes
 - [x] **已完成**：新版 scanner 的 Android script 已能依 AGP 9 built-in Kotlin 狀態條件套用 KGP；最低 Android API 23 低於本專案 API 24 Gate
 - [x] **已完成**：7 項 Safety Number tests、Dart format、`flutter analyze --no-pub` 與 skip-sodium Android debug APK 建置通過
 - [x] **已完成**：debug APK 大小 `218609212` bytes，SHA-256 `CECB076033920B401A2C683E5E6887AAA8286D0C9AC950A09EFA4B7035A95BD7`
@@ -29,9 +31,9 @@ Flutter 3.44.6 built-in Kotlin migration 邊界；不得破壞既有 crypto／We
 - [ ] **已實作未驗證**：模板仍為 `builtInKotlin=false` 時，`flutter_webrtc` 與 `mobile_scanner` 會依相容邏輯套用 KGP，因此 build summary 仍有未來淘汰警告；目前 build 可用且 Kotlin 2.3.20 版本警告已避免
 - [ ] **已實作未驗證**：真實相機權限允許／拒絕、QR 掃碼與兩台裝置 Safety Number 一致性仍待 Android/iPhone 實機驗收
 
-變更範圍：`mobile_desktop_app/pubspec.yaml`／lock、Safety Number scanner callback、由目前
-Flutter 工具重生的 l10n 格式，以及 README、testing、project tasks 與本交接清單。實驗性的
-Gradle 設定移除未保留。
+變更範圍：`mobile_desktop_app/pubspec.yaml`／lock、Safety Number scanner callback、兩處
+generated l10n formatter normalization，以及 README、testing、project tasks 與本交接清單。
+實驗性的 Gradle 設定移除與 103-file formatter churn 均未保留。
 
 驗證：`flutter pub get` 成功；Safety Number 7 tests、format、analyze、Android debug APK
 均通過。Build 使用 `NIX_SKIP_SODIUM_BUILD_HOOKS=1`，只驗證 scanner／Gradle 編譯，不取代
