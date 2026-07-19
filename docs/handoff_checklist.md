@@ -14,7 +14,40 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-18 22:31 +08:00）
+## 目前交接（2026-07-19 16:41 +08:00）
+
+目前目標：擴大不使用手機的 App Lock production runtime 驗證，在已 enrollment 的
+Android 15 AVD 自動覆蓋 biometric success／cancel；AVD 結果不得取代真機 Gate。
+
+- [x] **已完成**：integration test 改以 `BIOMETRIC_EXPECTATION` 支援 `skip`、`notEnrolled`、`success`、`cancel`，並保留未指定時跳過 biometric assertion
+- [x] **已完成**：PowerShell runner 保留 `-ExpectUnenrolledBiometrics` 相容入口，新增受控 emulator 專用的 `-BiometricExpectation`；非 emulator 會直接拒絕自動 assertion
+- [x] **已完成**：runner 可等待 production `local_auth` 系統提示；success 自動送入 finger ID `1`，cancel 自動送出 Android 返回鍵，逾時或測試失敗會保留 log 並回傳失敗
+- [x] **已完成**：Android 15 API 35 AVD 設定鎖屏 PIN、完成一枚模擬指紋 enrollment；success 與 cancel 各自重跑 2 項 native integration tests，全部通過
+- [x] **已完成**：163-file format、全專案 `flutter analyze --no-pub` 與 PowerShell parser 通過
+- [ ] **已實作未驗證**：Android/iPhone 真機 enrollment change、真實指紋／Face ID 感測器差異、secure storage 跨 OS restart、備份還原與企業裝置政策仍待真機驗收
+- [x] **已完成**：清除本輪 AVD 鎖屏 PIN 與模擬指紋 enrollment，`emulator-5554` 已以 `adb emu kill` 乾淨停止，`adb devices` 無殘留裝置
+- [x] **已完成**：App Lock 16 項 host tests、163-file format、全專案 analyze、PowerShell parser 與最終 diff check 通過
+- [ ] **未完成**：提交推送並確認 Draft PR #54 CI
+
+變更範圍：Android App Lock runtime integration test、PowerShell runner、testing、
+project tasks 與本交接清單。
+
+驗證：`-BiometricExpectation success` 與 `cancel` 各自於 production SodiumSumo、
+Android encrypted storage、lifecycle coordinator 與 `local_auth 3.0.2` 執行；兩輪皆為
+2 tests、All tests passed。App Lock host tests 首次受本機缺少 Visual Studio `vswhere`
+阻擋於 sodium build hook，依既有方式設定 `NIX_SKIP_SODIUM_BUILD_HOOKS=1` 後 16 tests
+全通過；該跳過只用於 fake／mock host tests，production sodium 已由 AVD native tests
+覆蓋。format 163 files／0 changes、analyze 零問題、PowerShell parser 與 diff check 通過。
+
+Runtime：`emulator-5554`（AVD `p2p_api35`）先以 `locksettings clear --old 246810`
+清除測試 PIN；清除後 fingerprint enrollment count 不再出現，再以 `adb emu kill` 乾淨
+停止，`adb devices` 無殘留裝置。未啟動 Docker、backend 或其他 App。
+
+下一步：commit／push 至 `codex/v15-security-low-power-ftl`，等待 Draft PR #54 四項
+CI Gate。真機可用時再補 enrollment change、感測器差異與跨 OS restart，不因 AVD
+成功關閉真機 Gate。
+
+## 上次交接（2026-07-18 22:31 +08:00）
 
 目前目標：以 Android 15 AVD 補 App Lock production runtime 驗收，覆蓋真實 Argon2id、
 secure storage、background lock 與未註冊 biometric fail-closed；不得取代真機 Gate。

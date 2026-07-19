@@ -11,8 +11,9 @@ import 'package:sodium/sodium_sumo.dart';
 
 const _storageKey = 'app_lock_config_v1';
 const _pin = '593814';
-const _expectUnenrolledBiometrics = bool.fromEnvironment(
-  'EXPECT_UNENROLLED_BIOMETRICS',
+const _biometricExpectation = String.fromEnvironment(
+  'BIOMETRIC_EXPECTATION',
+  defaultValue: 'skip',
 );
 
 void main() {
@@ -78,16 +79,24 @@ void main() {
   );
 
   testWidgets(
-    'Android biometric adapter fails closed without enrollment',
+    'Android biometric adapter returns the expected platform result',
     (tester) async {
       final authenticator = LocalAuthAppLockBiometricAuthenticator();
+      final expected = switch (_biometricExpectation) {
+        'notEnrolled' => AppLockBiometricResult.notEnrolled,
+        'success' => AppLockBiometricResult.success,
+        'cancel' => AppLockBiometricResult.cancelled,
+        _ => throw StateError(
+            'Unsupported BIOMETRIC_EXPECTATION: $_biometricExpectation',
+          ),
+      };
 
       expect(await authenticator.isAvailable(), isTrue);
       expect(
         await authenticator.authenticate(reason: 'Verify App Lock runtime'),
-        AppLockBiometricResult.notEnrolled,
+        expected,
       );
     },
-    skip: !_expectUnenrolledBiometrics,
+    skip: _biometricExpectation == 'skip',
   );
 }

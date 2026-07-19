@@ -188,8 +188,22 @@ cd mobile_desktop_app
 
 乾淨且具 fingerprint HAL、尚未註冊指紋的 AVD 可追加
 `-ExpectUnenrolledBiometrics`，驗證 production `local_auth` adapter 回傳 `notEnrolled` 且不解鎖。
-Runner 使用真實 SodiumSumo Argon2id、Android encrypted storage 與 lifecycle coordinator；
-AVD 結果不取代真機 enrollment change、成功／取消系統對話框與跨 OS restart 驗收。
+已設定鎖屏並以 finger ID `1` 完成 enrollment 的受控 AVD，可驗證系統 biometric
+成功與取消路徑：
+
+```powershell
+.\tool\verify_android_app_lock.ps1 `
+  -Device emulator-5554 `
+  -BiometricExpectation success
+.\tool\verify_android_app_lock.ps1 `
+  -Device emulator-5554 `
+  -BiometricExpectation cancel
+```
+
+Runner 只允許 emulator 使用自動 biometric assertion；成功路徑會在 production
+`local_auth` 對話框出現後送入 finger ID `1`，取消路徑送出 Android 返回鍵。每次執行也會
+驗證真實 SodiumSumo Argon2id、Android encrypted storage 與 lifecycle coordinator。
+AVD 結果不取代真機 enrollment change、真實感測器差異、跨 OS restart 與系統政策驗收。
 
 沒有本機手機時，可先建立 Firebase Test Lab app/test APK：
 
