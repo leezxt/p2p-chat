@@ -27,7 +27,7 @@ backup 從 local staging 到獨立掛載 off-host storage 的可驗證 export／
 - [x] **已完成**：新增 `test-backup-offhost-export.ps1`，正向匯出、重跑冪等、retention receipt 相容、manifest binding、來源竄改、目的地衝突與 credential-like reference 拒絕全部通過
 - [x] **已完成**：off-host export fixture 接入 V1 CI PostgreSQL job；backend README、testing、RC 與 project tasks 已同步
 - [x] **已完成**：Windows PowerShell parser、off-host export fixture、既有 retention fixture、YAML parse、`git diff --check` 與 Java 52 tests 全部通過
-- [ ] **已實作未驗證**：GitHub-hosted Ubuntu PowerShell fixture、全 V1 CI 與 Draft PR mergeability 待本輪推送後驗證
+- [x] **已完成**：commit `8dc2d58` 已推送；Draft PR #54 V1 CI run `29681462407` 的 Ubuntu off-host fixture、Flutter、Java、PostgreSQL 與 Windows Desktop 全部成功
 - [ ] **已實作未驗證**：正式環境仍需驗證目標確實為加密 off-host storage、provider retention／存取控制與定期 restore drill；本工具不能由掛載路徑自行證明這些外部屬性
 
 變更範圍：production backup off-host export／fixture、V1 CI、backend 操作說明、testing、
@@ -41,8 +41,9 @@ Java 52 tests／0 failures／0 errors 通過。尚未啟動 Docker、backend、A
 Runtime：本輪只有短命 PowerShell fixture，temporary test directory 已由 finally 安全清除；
 目前沒有需停止的 managed runtime。
 
-下一步：執行最終 parser／fixture／diff checks；通過後 commit／push 至
-`codex/v15-security-low-power-ftl`，等待 Draft PR #54 四項 CI Gate。
+下一步：取得正式 storage provider／掛載與 access policy 後執行真實 off-host export、
+provider-side hash／retention 及 restore drill；未取得 credentials 時可接續 production
+排程／外部告警的本機契約，不把 mounted fixture 當成正式 off-host Gate。
 
 ## 上次交接（2026-07-19 16:41 +08:00）
 
