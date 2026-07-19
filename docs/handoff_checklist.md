@@ -28,7 +28,7 @@ monitor 補成可交給排程器安全執行的 stateful failure／recovery webh
 - [x] **已完成**：fixture 接入 V1 CI PostgreSQL job；`production.env.example`、backend README、testing、RC 與 project tasks 已同步
 - [x] **已完成**：PowerShell parser、alert／off-host export／retention fixtures、YAML parse、`git diff --check` 與 Java 52 tests 全部通過
 - [x] **已完成**：GitHub run `29682241853` 的 Ubuntu fixture 所有斷言回 `PASS`，但 process 沿用最後一個刻意 FAIL monitor 的 exit 1；fixture 清理後新增明確 `exit 0`，獨立 `pwsh -File` 重跑為 PASS／exit 0
-- [ ] **已實作未驗證**：GitHub-hosted Ubuntu PowerShell fixture、全 V1 CI 與 Draft PR mergeability 待本輪推送後驗證
+- [x] **已完成**：commits `e67715d`／`517b871` 已推送；Draft PR #54 V1 CI run `29682331513` 的 Ubuntu alert／backup fixtures、Flutter、Java、PostgreSQL 與 Windows Desktop 全部成功
 - [ ] **已實作未驗證**：正式 systemd timer／Task Scheduler、service-account ACL、真實 alert receiver 與 on-call routing 仍待 deployment environment 驗收
 
 變更範圍：scheduled production monitor／alert fixture、V1 CI、production env example、
@@ -42,8 +42,9 @@ diff check 與 Java 52 tests／0 failures／0 errors 通過。
 Runtime：本輪 fixture 的 loopback TCP jobs 均已完成並移除，temporary test directory 已由
 finally 安全清除；未啟動 Docker、backend、AVD 或手機，沒有需停止的 managed runtime。
 
-下一步：commit／push 至 `codex/v15-security-low-power-ftl`，等待 Draft PR #54 四項 CI
-Gate；正式 scheduler／receiver 不因本機 fixture 成功而勾選。
+下一步：取得 production host 與 alert receiver 後建立正式 systemd timer／Task Scheduler、
+service-account ACL 與 on-call routing，執行 failure／recovery drill；沒有 credentials 時接續
+其他 release artifact 工作，不因 fixture 成功勾選正式 deployment Gate。
 
 ## 上次交接（2026-07-19 17:16 +08:00）
 
