@@ -96,6 +96,17 @@ Production topology 啟動後的 one-shot monitor：
 WSS 101 均通過；`FAIL`/非零 exit code 可直接供排程器或外部監控觸發告警。正式驗收
 必須從 deployment host 外部執行，且不得使用 `-AllowLocalVerification`。
 
+不需要 production endpoint 的 scheduled runner／webhook transition fixture：
+
+```powershell
+.\scripts\test-production-monitor-alerting.ps1
+```
+
+Fixture 使用 loopback receiver 驗證 failure／recovery POST、Bearer header、payload 去敏、
+相同狀態抑制、HTTP 500 後 state 不前進與下次重試、正式模式 HTTPS 限制，以及同一 state
+file 的重疊執行互斥。此測試會在 V1 CI Ubuntu runner 執行；正式 scheduler 與 alert
+receiver 仍需在 deployment environment 驗收。
+
 PostgreSQL backup/restore drill：
 
 ```powershell

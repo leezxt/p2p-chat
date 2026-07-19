@@ -80,8 +80,26 @@ readiness、security header 或 WSS upgrade 問題都回 `FAIL`/非零 exit code
 .\scripts\monitor-production.ps1 -EnvFile .\production.env
 ```
 
-將此命令接至既有監控排程與告警通道。輸出的 endpoint 與 check 狀態不含 DB/JWT/push
-secret；WebSocket probe 只驗證 `101` transport upgrade，不送 `AUTH` frame。
+交給 systemd timer、Task Scheduler 或其他 one-shot 排程時，使用具互斥鎖、狀態持久化
+與 webhook transition 告警的 runner：
+
+```powershell
+.\scripts\run-production-monitor.ps1 `
+  -EnvFile .\production.env `
+  -StateFile C:\ProgramData\p2p-chat\production-monitor-state.json
+```
+
+在 `production.env` 設定 `PRODUCTION_ALERT_WEBHOOK_URL`，可選擇設定
+`PRODUCTION_ALERT_BEARER_TOKEN`；正式模式只接受 HTTPS，token 只放在 Authorization header，
+不寫入 state、payload 或輸出。第一次健康檢查只建立 baseline；首次失敗／健康轉失敗送
+`PRODUCTION_HEALTH_FAILED`，失敗轉健康送 `PRODUCTION_HEALTH_RECOVERED`，相同狀態不重複
+告警。Webhook 未送達時不前進 state，下一次排程會重試；runner exit code 仍反映 monitor
+健康狀態。排程週期建議 1～5 分鐘，且使用固定 service account、限制 env/state ACL；同一
+state file 的重疊執行會直接失敗。
+
+輸出的 endpoint 與 check 狀態不含 DB/JWT/push secret；告警 payload 不包含 monitor error、
+webhook URL 或 token。WebSocket probe 只驗證 `101` transport upgrade，不送 `AUTH` frame。
+`-AllowLocalVerification` 只允許 loopback HTTP/HTTPS webhook，不得用於正式排程。
 
 ### PostgreSQL 備份與還原
 

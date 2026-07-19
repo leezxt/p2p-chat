@@ -14,7 +14,37 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-19 17:16 +08:00）
+## 目前交接（2026-07-19 17:43 +08:00）
+
+目前目標：接續不需要手機與正式 alert credentials 的 V1 發布工作，將既有 production
+monitor 補成可交給排程器安全執行的 stateful failure／recovery webhook runner。
+
+- [x] **已完成**：新增 `run-production-monitor.ps1`；呼叫既有 one-shot monitor，驗證 PASS／FAIL 與 exit code 一致，輸出仍保留非零 health failure 語意
+- [x] **已完成**：同一 state file 使用 OS file lock 阻擋重疊執行；只有取得 lock 的程序可清除 lock，state 以 temporary file 原子替換且拒絕 corrupt／unsupported state
+- [x] **已完成**：第一次 PASS 只建立 baseline；首次／轉換為 FAIL 送 `PRODUCTION_HEALTH_FAILED`，FAIL 轉 PASS 送 `PRODUCTION_HEALTH_RECOVERED`，相同狀態不重複告警
+- [x] **已完成**：正式 webhook 強制 HTTPS、停用 redirect；可選 Bearer token 只進 Authorization header，不寫 state／payload／輸出，payload 不含 monitor error 或 env secrets
+- [x] **已完成**：Webhook 非 2xx／連線失敗時 state 不前進，下次排程會重試 transition；local verification 只允許 loopback HTTP/HTTPS
+- [x] **已完成**：新增 `test-production-monitor-alerting.ps1`，實際 loopback POST 驗證 failure、recovery、重複抑制、HTTP 500 重試、payload 去敏、HTTPS 限制與 overlap lock 全部通過
+- [x] **已完成**：fixture 接入 V1 CI PostgreSQL job；`production.env.example`、backend README、testing、RC 與 project tasks 已同步
+- [x] **已完成**：PowerShell parser、alert／off-host export／retention fixtures、YAML parse、`git diff --check` 與 Java 52 tests 全部通過
+- [ ] **已實作未驗證**：GitHub-hosted Ubuntu PowerShell fixture、全 V1 CI 與 Draft PR mergeability 待本輪推送後驗證
+- [ ] **已實作未驗證**：正式 systemd timer／Task Scheduler、service-account ACL、真實 alert receiver 與 on-call routing 仍待 deployment environment 驗收
+
+變更範圍：scheduled production monitor／alert fixture、V1 CI、production env example、
+backend 操作說明、testing、release candidate、project tasks 與本交接清單。
+
+驗證：Windows PowerShell fixture 回傳 `PASS`；failureAlertSent、overlapRejected、
+duplicateSuppressed、recoveryAlertSent、insecureWebhookRejected、placeholderRejected、rejectedDeliveryRetried 與
+payloadRedacted 全為 true。Off-host export／retention fixtures PASS；PowerShell parser、YAML、
+diff check 與 Java 52 tests／0 failures／0 errors 通過。
+
+Runtime：本輪 fixture 的 loopback TCP jobs 均已完成並移除，temporary test directory 已由
+finally 安全清除；未啟動 Docker、backend、AVD 或手機，沒有需停止的 managed runtime。
+
+下一步：commit／push 至 `codex/v15-security-low-power-ftl`，等待 Draft PR #54 四項 CI
+Gate；正式 scheduler／receiver 不因本機 fixture 成功而勾選。
+
+## 上次交接（2026-07-19 17:16 +08:00）
 
 目前目標：接續不需要手機與正式雲端 credentials 的 V1 發布工作，補齊 production
 backup 從 local staging 到獨立掛載 off-host storage 的可驗證 export／receipt 契約。
