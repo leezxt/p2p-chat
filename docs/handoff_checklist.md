@@ -27,6 +27,7 @@ monitor 補成可交給排程器安全執行的 stateful failure／recovery webh
 - [x] **已完成**：新增 `test-production-monitor-alerting.ps1`，實際 loopback POST 驗證 failure、recovery、重複抑制、HTTP 500 重試、payload 去敏、HTTPS 限制與 overlap lock 全部通過
 - [x] **已完成**：fixture 接入 V1 CI PostgreSQL job；`production.env.example`、backend README、testing、RC 與 project tasks 已同步
 - [x] **已完成**：PowerShell parser、alert／off-host export／retention fixtures、YAML parse、`git diff --check` 與 Java 52 tests 全部通過
+- [x] **已完成**：GitHub run `29682241853` 的 Ubuntu fixture 所有斷言回 `PASS`，但 process 沿用最後一個刻意 FAIL monitor 的 exit 1；fixture 清理後新增明確 `exit 0`，獨立 `pwsh -File` 重跑為 PASS／exit 0
 - [ ] **已實作未驗證**：GitHub-hosted Ubuntu PowerShell fixture、全 V1 CI 與 Draft PR mergeability 待本輪推送後驗證
 - [ ] **已實作未驗證**：正式 systemd timer／Task Scheduler、service-account ACL、真實 alert receiver 與 on-call routing 仍待 deployment environment 驗收
 

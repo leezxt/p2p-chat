@@ -266,3 +266,5 @@ exit 1
         Remove-Item -LiteralPath $fullTestRoot -Recurse -Force -ErrorAction SilentlyContinue
     }
 }
+
+exit 0
