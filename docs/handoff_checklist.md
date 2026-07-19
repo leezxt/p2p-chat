@@ -27,7 +27,7 @@ Android 15 AVD 自動覆蓋 biometric success／cancel；AVD 結果不得取代�
 - [ ] **已實作未驗證**：Android/iPhone 真機 enrollment change、真實指紋／Face ID 感測器差異、secure storage 跨 OS restart、備份還原與企業裝置政策仍待真機驗收
 - [x] **已完成**：清除本輪 AVD 鎖屏 PIN 與模擬指紋 enrollment，`emulator-5554` 已以 `adb emu kill` 乾淨停止，`adb devices` 無殘留裝置
 - [x] **已完成**：App Lock 16 項 host tests、163-file format、全專案 analyze、PowerShell parser 與最終 diff check 通過
-- [ ] **未完成**：提交推送並確認 Draft PR #54 CI
+- [x] **已完成**：commit `e84d1fd` 已推送；Draft PR #54 V1 CI run `29680341499` 的 Flutter、Java、PostgreSQL 與 Windows Desktop 四項全部成功
 
 變更範圍：Android App Lock runtime integration test、PowerShell runner、testing、
 project tasks 與本交接清單。
@@ -43,9 +43,9 @@ Runtime：`emulator-5554`（AVD `p2p_api35`）先以 `locksettings clear --old 2
 清除測試 PIN；清除後 fingerprint enrollment count 不再出現，再以 `adb emu kill` 乾淨
 停止，`adb devices` 無殘留裝置。未啟動 Docker、backend 或其他 App。
 
-下一步：commit／push 至 `codex/v15-security-low-power-ftl`，等待 Draft PR #54 四項
-CI Gate。真機可用時再補 enrollment change、感測器差異與跨 OS restart，不因 AVD
-成功關閉真機 Gate。
+下一步：真機可用時再補 Android/iPhone enrollment change、感測器差異、secure storage
+跨 OS restart 與系統政策；沒有真機時接續其他不依賴 credentials／production authority
+的 V1.5 backlog，不因 AVD 成功關閉真機 Gate。
 
 ## 上次交接（2026-07-18 22:31 +08:00）
 
