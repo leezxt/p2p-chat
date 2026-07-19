@@ -96,8 +96,16 @@ foreach ($dump in Get-ChildItem -LiteralPath $resolvedBackupDirectory -Filter '*
         $receiptFile = Get-Item -LiteralPath $receiptPath
         if (Test-ReparsePoint -Item $receiptFile) { throw 'off-host receipt is a reparse point' }
         $receipt = Get-Content -Raw -LiteralPath $receiptPath | ConvertFrom-Json -Depth 10
-        if ([int]$receipt.schemaVersion -ne 1) { throw 'off-host receipt schemaVersion is not 1' }
+        $receiptSchemaVersion = [int]$receipt.schemaVersion
+        if ($receiptSchemaVersion -notin @(1, 2)) { throw 'off-host receipt schemaVersion is unsupported' }
         if ([string]$receipt.backupSha256 -cne $actualHash) { throw 'off-host receipt SHA-256 does not match dump' }
+        if ($receiptSchemaVersion -eq 2) {
+            $manifestHash = (Get-FileHash -LiteralPath $manifestPath -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ([string]$receipt.manifestSha256 -cne $manifestHash) {
+                throw 'off-host receipt manifest SHA-256 does not match'
+            }
+            if ([long]$receipt.sizeBytes -ne $dump.Length) { throw 'off-host receipt size does not match dump' }
+        }
         if ([string]::IsNullOrWhiteSpace([string]$receipt.storageReference)) { throw 'off-host receipt storageReference is empty' }
         $verifiedAt = [DateTimeOffset]::MinValue
         if (-not [DateTimeOffset]::TryParse([string]$receipt.verifiedAt, [ref]$verifiedAt)) {
@@ -154,8 +162,32 @@ if ($Apply) {
         }
         $currentManifest = Get-Content -Raw -LiteralPath $manifestPath | ConvertFrom-Json -Depth 20
         $currentReceipt = Get-Content -Raw -LiteralPath $receiptPath | ConvertFrom-Json -Depth 10
-        if ([string]$currentManifest.backup.sha256 -cne $currentHash -or
-            [string]$currentReceipt.backupSha256 -cne $currentHash) {
+        if ([int]$currentManifest.schemaVersion -ne 1 -or
+            [string]$currentManifest.backup.fileName -cne [IO.Path]::GetFileName($dumpPath) -or
+            [long]$currentManifest.backup.sizeBytes -ne (Get-Item -LiteralPath $dumpPath).Length -or
+            [string]$currentManifest.backup.format -cne 'PostgreSQL custom' -or
+            -not [bool]$currentManifest.verification.pgRestoreListPassed -or
+            [string]$currentManifest.backup.sha256 -cne $currentHash) {
+            throw "Backup manifest changed after planning; refusing deletion: $($candidate.fileName)"
+        }
+        $currentReceiptSchemaVersion = [int]$currentReceipt.schemaVersion
+        if ($currentReceiptSchemaVersion -notin @(1, 2) -or
+            [string]::IsNullOrWhiteSpace([string]$currentReceipt.storageReference)) {
+            throw "Backup receipt changed after planning; refusing deletion: $($candidate.fileName)"
+        }
+        $currentVerifiedAt = [DateTimeOffset]::MinValue
+        if (-not [DateTimeOffset]::TryParse([string]$currentReceipt.verifiedAt, [ref]$currentVerifiedAt) -or
+            $currentVerifiedAt.ToUniversalTime() -gt $ReferenceTimeUtc.ToUniversalTime().AddMinutes(5)) {
+            throw "Backup receipt changed after planning; refusing deletion: $($candidate.fileName)"
+        }
+        $receiptMetadataMatches = [string]$currentReceipt.backupSha256 -ceq $currentHash
+        if ($currentReceiptSchemaVersion -eq 2) {
+            $currentManifestHash = (Get-FileHash -LiteralPath $manifestPath -Algorithm SHA256).Hash.ToLowerInvariant()
+            $receiptMetadataMatches = $receiptMetadataMatches -and
+                [string]$currentReceipt.manifestSha256 -ceq $currentManifestHash -and
+                [long]$currentReceipt.sizeBytes -eq (Get-Item -LiteralPath $dumpPath).Length
+        }
+        if (-not $receiptMetadataMatches) {
             throw "Backup metadata changed after planning; refusing deletion: $($candidate.fileName)"
         }
         Remove-Item -LiteralPath $dumpPath -Force

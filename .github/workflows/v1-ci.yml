@@ -48,6 +48,9 @@ jobs:
       - name: Test backup retention safety
         shell: pwsh
         run: ./scripts/test-backup-retention.ps1
+      - name: Test backup off-host export safety
+        shell: pwsh
+        run: ./scripts/test-backup-offhost-export.ps1
       - name: Build and verify isolated containers
         shell: pwsh
         run: ./scripts/smoke.ps1

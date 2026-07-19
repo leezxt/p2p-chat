@@ -95,11 +95,28 @@ secret；WebSocket probe 只驗證 `101` transport upgrade，不送 `AUTH` frame
 備份預設位於被 Git 忽略的 `target/production-backups/`。Dump 含應用資料，即使訊息
 內容主要是密文，仍必須移至限制存取的加密儲存並設定 retention。
 
-Local staging retention 預設只規劃、不刪除。每份 dump 必須先由 off-host upload/verify
+將加密 off-host storage 掛載為獨立既有目錄後，使用 export 工具複製 dump／manifest、
+重新讀取 SHA-256，並在全部驗證通過後建立 receipt：
+
+```powershell
+.\scripts\export-production-backup.ps1 `
+  -BackupPath .\target\production-backups\<backup>.dump `
+  -DestinationDirectory E:\mounted-backup-vault\p2p-chat `
+  -StorageReferencePrefix s3://backup-vault/p2p-chat
+```
+
+目的地不能位於 local staging 內，且必須預先存在；同名內容可安全重跑，不同內容會
+fail-closed。`StorageReferencePrefix` 不得包含 credentials、query 或 fragment。工具只能
+驗證掛載目錄的寫入與重新讀取，不能自行證明該目錄確實位於另一台主機、已啟用 server-side
+encryption 或符合保留政策，這些仍由部署者與 storage provider 驗收。
+
+Local staging retention 預設只規劃、不刪除。每份 dump 必須先由上述 off-host export/verify
 流程在 `target/production-backup-receipts/` 建立同名
-`<dump>.offhost-receipt.json`，包含 schema 1、dump SHA-256、UTC `verifiedAt` 與非空的
-`storageReference`。Receipt 是外部儲存已核對 hash 的證明；不可只因本機複製命令 exit 0
-就建立。先執行 dry-run：
+`<dump>.offhost-receipt.json`。Prune 仍接受包含 dump SHA-256、UTC `verifiedAt` 與
+`storageReference` 的既有 schema 1 receipt；新 export 工具產生 schema 2，額外綁定
+manifest SHA-256 與 dump size。Receipt 只有在目的地 dump 與 manifest 重新計算 hash 後
+才會原子建立。
+先執行 dry-run：
 
 ```powershell
 .\scripts\prune-production-backups.ps1 `
@@ -119,7 +136,7 @@ Local staging retention 預設只規劃、不刪除。每份 dump 必須先由 o
 ```
 
 無 receipt、hash/size/schema 錯誤、orphan 或 reparse point 一律保留並列為 protected。
-本工具只管理本機 staging，不上傳或刪除 off-host object，也不代表排程已部署。
+Prune 工具只管理本機 staging，不刪除 off-host object，也不代表排程已部署。
 
 還原演練預設只建立明確指定的新資料庫：
 

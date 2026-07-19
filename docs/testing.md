@@ -115,11 +115,14 @@ Backup 需通過 `pg_restore --list`、SHA-256 與 manifest 敏感欄位檢查�
 不需要 Docker 的 backup retention safety fixtures：
 
 ```powershell
+.\scripts\test-backup-offhost-export.ps1
 .\scripts\test-backup-retention.ps1
 ```
 
-Fixtures 驗證 dry-run、精確 Apply confirmation、最少保留數、off-host receipt/hash、
-corrupt/orphan protection、刪除範圍與重跑冪等；同一測試也會在 V1 CI 執行。
+Off-host export fixture 驗證 dump／manifest 重新計算 hash、schema 2 原子 receipt、重跑冪等、
+retention 相容、匯出後 manifest binding、來源竄改、目的地衝突與 credential-like
+reference 拒絕。Retention fixture 驗證 dry-run、精確 Apply confirmation、最少保留數、
+receipt/hash、corrupt/orphan protection、刪除範圍與重跑冪等；兩項測試都會在 V1 CI 執行。
 
 只需要驗證 Flutter client 與 Spring backend 契約、且不使用 Docker 時：
 

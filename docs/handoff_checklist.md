@@ -14,7 +14,37 @@
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-19 16:41 +08:00）
+## 目前交接（2026-07-19 17:16 +08:00）
+
+目前目標：接續不需要手機與正式雲端 credentials 的 V1 發布工作，補齊 production
+backup 從 local staging 到獨立掛載 off-host storage 的可驗證 export／receipt 契約。
+
+- [x] **已完成**：新增 `export-production-backup.ps1`，匯出前驗證 regular dump／manifest、schema、filename、size、custom format 與 SHA-256
+- [x] **已完成**：目的地必須為 staging 外的既有 regular directory；dump／manifest 以 temporary file 複製並重讀 hash 後移入，同名相同內容可冪等重跑，不同內容 fail-closed
+- [x] **已完成**：storage reference 必須是無 userinfo/query/fragment 的 absolute URI；目的地兩個 hash 驗證完成後才原子建立 schema 2 receipt，綁定 dump hash／size 與 manifest hash
+- [x] **已完成**：prune 保留 schema 1 receipt 相容，對 schema 2 強制驗 manifest binding；匯出後 local manifest 被替換時備份轉為 protected
+- [x] **已完成**：prune Apply 在刪除前重新驗 manifest schema／filename／size／format／hash，以及 receipt schema／hash／reference／時間與 schema 2 binding，避免掃描後替換
+- [x] **已完成**：新增 `test-backup-offhost-export.ps1`，正向匯出、重跑冪等、retention receipt 相容、manifest binding、來源竄改、目的地衝突與 credential-like reference 拒絕全部通過
+- [x] **已完成**：off-host export fixture 接入 V1 CI PostgreSQL job；backend README、testing、RC 與 project tasks 已同步
+- [x] **已完成**：Windows PowerShell parser、off-host export fixture、既有 retention fixture、YAML parse、`git diff --check` 與 Java 52 tests 全部通過
+- [ ] **已實作未驗證**：GitHub-hosted Ubuntu PowerShell fixture、全 V1 CI 與 Draft PR mergeability 待本輪推送後驗證
+- [ ] **已實作未驗證**：正式環境仍需驗證目標確實為加密 off-host storage、provider retention／存取控制與定期 restore drill；本工具不能由掛載路徑自行證明這些外部屬性
+
+變更範圍：production backup off-host export／fixture、V1 CI、backend 操作說明、testing、
+release candidate、project tasks 與本交接清單。
+
+驗證：Windows PowerShell parser 通過；fixture 回傳 `PASS`，exported=1、idempotent、
+retentionCompatible、manifestBindingVerified、schema2ApplyVerified、tamperedSourceRejected、destinationCollisionRejected 與
+credentialReferenceRejected 全為 true。既有 retention fixture PASS；YAML parse、diff check 與
+Java 52 tests／0 failures／0 errors 通過。尚未啟動 Docker、backend、AVD 或手機。
+
+Runtime：本輪只有短命 PowerShell fixture，temporary test directory 已由 finally 安全清除；
+目前沒有需停止的 managed runtime。
+
+下一步：執行最終 parser／fixture／diff checks；通過後 commit／push 至
+`codex/v15-security-low-power-ftl`，等待 Draft PR #54 四項 CI Gate。
+
+## 上次交接（2026-07-19 16:41 +08:00）
 
 目前目標：擴大不使用手機的 App Lock production runtime 驗證，在已 enrollment 的
 Android 15 AVD 自動覆蓋 biometric success／cancel；AVD 結果不得取代真機 Gate。
