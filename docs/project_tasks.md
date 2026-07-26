@@ -5,7 +5,8 @@
 > 目前主要發布目標仍是 v1.2 藍圖的 **V1 核心可用版**。因剩餘 V1 Gate
 > 主要受真機與外部環境阻塞，使用者已於 2026-07-18 授權先行實作 V1.5
 > `EPIC-12 Safety Number`、`EPIC-11 App Lock` 與 `EPIC-10 Low Power Mode`
-> 的電腦端工作；V2～V5 仍保留於 backlog。
+> 的電腦端工作，並於 2026-07-26 授權先行實作可由 Windows 主機／Android AVD
+> 完整驗證的 V2 工作。V1 真機與 production Gate 不因此降級；V3～V5 仍保留於 backlog。
 
 ## 狀態定義
 
@@ -181,6 +182,25 @@
 | P4 | Shared Notes、Shared Todo | V4 | 本機保存、衝突策略明確、P2P 同步冪等 |
 | P5 | Live Caption、Writing Assist、Chat Summary | V5 | AI 預設不上傳；雲端 opt-in；結果可清除 |
 | P5 | 模組 marketplace | V5 | 只散佈資料/資產，不動態執行未信任第三方程式碼 |
+
+## V2 主機可先行範圍
+
+下列工作可先在 Windows host、Flutter tests 與 Android AVD 完成。涉及真實相機、
+麥克風、系統通知、行動網路或雲端內容處理的項目，仍須保留對應 runtime Gate。
+
+| ID | 主機可完成範圍 | 主機驗收條件 | 仍需外部驗證 |
+|---|---|---|---|
+| V2-01 | Emoji 與 Reaction | 定義版本化 reaction event；同一使用者／訊息／emoji 冪等更新；SQLite、P2P、Mailbox 與雙語 UI tests 通過 | 雙真機離線同步與通知呈現 |
+| V2-02 | 內建貼圖與貼圖包工具 | 訊息只傳 sticker ID；建立 manifest schema、大小／格式／授權檢查與 zip-slip 防護；內建資產、離線同步及 AVD UI 通過 | 真機資源占用與大量貼圖包操作 |
+| V2-03 | 圖片／語音訊息基礎 | 定義加密 attachment metadata、大小上限、按需下載、取消／重試與 Low Power／行動網路政策；以 fake transport、fixture 與 AVD 驗證 UI | 真實相機、麥克風、權限、行動網路與耗電 |
+| V2-04 | 單則翻譯框架 | 原文不可改寫；provider interface、明確 opt-in、語言／provider cache key、可清除本機快取與 fake provider tests | 真實雲端 provider、費用、資料處理條款與網路失敗 |
+| V2-05 | Storage Manager | 分類統計 DB／附件／快取；preview-first 清理、保留私鑰／身份／未送訊息；SQLite fixture 與 Widget tests 通過 | 真機磁碟壓力、OS 清理與大量資料效能 |
+| V2-06 | Smart Notification | 聊天室 mute／privacy 偏好、鎖定時通用文字、provider-neutral policy 與 cold/warm routing tests | 真實 FCM／APNs、系統權限與 OEM 行為 |
+
+建議主機實作順序：`V2-01 → V2-02 → V2-05 → V2-06 → V2-04 → V2-03`。
+前四項主要沿用既有文字訊息、Mailbox、App Lock 與設定架構；圖片／語音的資源與
+權限風險最高，最後處理。每個項目必須維持模組生命週期、Event Bus 邊界、密文
+fallback 與 Low Power Mode 限制，且不得將 AVD 結果標示為真機驗收。
 
 ## 建議執行順序
 

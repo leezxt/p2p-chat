@@ -5,7 +5,8 @@
 
 目前主要發布目標仍是 v1.2 藍圖的 V1；因剩餘 Gate 受真機與外部環境阻塞，
 使用者已授權先行實作 V1.5 Safety Number、App Lock 與 Low Power Mode 的電腦端
-工作。V2～V5 仍暫停於 backlog。
+工作，並於 2026-07-26 授權先行實作可由 Windows 主機／Android AVD 完整驗證的
+V2 工作。V1 真機與 production Gate 不因此降級；V3～V5 仍暫停於 backlog。
 
 ## 接手摘要（2026-07-26）
 
@@ -26,6 +27,17 @@ Android application ID、iOS Bundle ID、Firebase project 與加密 domain strin
 - [x] Android API 35 模擬器完整 APK 啟動，並產出深色首頁、Low Power Mode、App Lock 截圖
 - [x] 產出 34 秒 Android API 35 操作 Demo（首頁、Low Power Mode、App Lock、語言選單）
 - [ ] 補充 Android 真機操作影片與截圖
+
+### V2 可由主機先行
+
+- [ ] V2-01 Emoji／Reaction：版本化事件、冪等、SQLite、P2P／Mailbox 與雙語 UI
+- [ ] V2-02 內建貼圖／貼圖包：只傳 ID、manifest、限制、授權與 zip-slip 防護
+- [ ] V2-05 Storage Manager：分類統計、preview-first 清理與關鍵資料保護
+- [ ] V2-06 Smart Notification：聊天室偏好、App Lock 隱私與 provider-neutral routing
+- [ ] V2-04 單則翻譯：原文不改寫、明確 opt-in、本機快取與 fake provider
+- [ ] V2-03 圖片／語音基礎：加密附件、按需下載、取消／重試與 Low Power 政策
+
+詳細主機驗收與外部 Gate 見 [`project_tasks.md`](project_tasks.md#v2-主機可先行範圍)。
 
 ### 需要 Android API 24+ 真機
 
