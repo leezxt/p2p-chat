@@ -1,6 +1,3 @@
-Exit code: 0
-Wall time: 0.8 seconds
-Output:
 # Simple Communication
 
 一個乾淨、私密、低成本的模組化 P2P 通訊專案。
