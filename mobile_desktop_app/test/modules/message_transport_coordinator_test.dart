@@ -80,6 +80,18 @@ void main() {
     expect(await queue.claimNext(now: 1000), isNull);
   });
 
+  test('reaction event 也會經 P2P 失敗後的加密 mailbox fallback', () async {
+    final peer = _Peer(fail: true);
+    final mailbox = _Mailbox();
+    final statuses = <MessageStatus>[];
+
+    await coordinator(peer, mailbox, statuses).send('device-b', _reaction);
+
+    expect(peer.sent.single.messageId, _reaction.messageId);
+    expect(mailbox.uploaded.single.messageId, _reaction.messageId);
+    expect(statuses, [MessageStatus.pending, MessageStatus.stored]);
+  });
+
   test('P2P 與 mailbox 都失敗時保留 queue 並增加 attempt', () async {
     final peer = _Peer(fail: true);
     final mailbox = _Mailbox(fail: true);
@@ -107,6 +119,22 @@ const _message = MessageEnvelope(
   type: MessageType.text,
   payload: {'text': 'secret'},
   createdAt: 1,
+);
+
+const _reaction = MessageEnvelope(
+  messageId: 'reaction-1',
+  conversationId: 'conversation-1',
+  senderUserId: 'user-a',
+  senderDeviceId: 'device-a',
+  type: MessageType.reaction,
+  payload: {
+    'reactionVersion': 1,
+    'targetMessageId': 'message-1',
+    'emoji': '👍',
+    'active': true,
+    'updatedAt': 2,
+  },
+  createdAt: 2,
 );
 
 class _Cipher implements MessageCipher {

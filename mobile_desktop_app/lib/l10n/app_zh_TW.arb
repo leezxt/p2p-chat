@@ -30,6 +30,13 @@
   "chatEmpty": "還沒有訊息，開始聊天吧",
   "messageInputHint": "輸入訊息",
   "sendMessage": "傳送訊息",
+  "addReaction": "新增表情回應",
+  "toggleReaction": "切換 {emoji} 表情回應",
+  "@toggleReaction": {
+    "placeholders": {
+      "emoji": { "type": "String" }
+    }
+  },
   "statusPending": "等待傳送",
   "statusSent": "已傳送",
   "statusStored": "已存入離線信箱",

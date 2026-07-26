@@ -30,6 +30,13 @@
   "chatEmpty": "No messages yet. Start the conversation.",
   "messageInputHint": "Type a message",
   "sendMessage": "Send message",
+  "addReaction": "Add reaction",
+  "toggleReaction": "Toggle {emoji} reaction",
+  "@toggleReaction": {
+    "placeholders": {
+      "emoji": { "type": "String" }
+    }
+  },
   "statusPending": "Waiting to send",
   "statusSent": "Sent",
   "statusStored": "Stored in offline mailbox",

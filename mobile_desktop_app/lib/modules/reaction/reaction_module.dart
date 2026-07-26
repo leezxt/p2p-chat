@@ -56,5 +56,6 @@ class ReactionModule implements AppModule {
   @override
   void dispose() {
     _messageStoredSubscription?.cancel();
+    unawaited(_repository.dispose());
   }
 }

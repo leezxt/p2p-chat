@@ -249,6 +249,18 @@ abstract class AppLocalizations {
   /// **'Send message'**
   String get sendMessage;
 
+  /// No description provided for @addReaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add reaction'**
+  String get addReaction;
+
+  /// No description provided for @toggleReaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle {emoji} reaction'**
+  String toggleReaction(String emoji);
+
   /// No description provided for @statusPending.
   ///
   /// In en, this message translates to:

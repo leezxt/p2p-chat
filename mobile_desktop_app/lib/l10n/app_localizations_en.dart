@@ -89,6 +89,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendMessage => 'Send message';
 
   @override
+  String get addReaction => 'Add reaction';
+
+  @override
+  String toggleReaction(String emoji) {
+    return 'Toggle $emoji reaction';
+  }
+
+  @override
   String get statusPending => 'Waiting to send';
 
   @override

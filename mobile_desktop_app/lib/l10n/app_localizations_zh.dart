@@ -86,6 +86,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendMessage => '傳送訊息';
 
   @override
+  String get addReaction => '新增表情回應';
+
+  @override
+  String toggleReaction(String emoji) {
+    return '切換 $emoji 表情回應';
+  }
+
+  @override
   String get statusPending => '等待傳送';
 
   @override
@@ -214,8 +222,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appLockBiometricEnableReason => '請驗證身分以啟用生物辨識解鎖';
 
   @override
-  String get appLockBiometricUnlockReason =>
-      '請驗證身分以解鎖 Simple Communication';
+  String get appLockBiometricUnlockReason => '請驗證身分以解鎖 Simple Communication';
 
   @override
   String get appLockBiometricFailed => '未完成生物辨識，請改用 PIN';
@@ -324,6 +331,14 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get sendMessage => '傳送訊息';
 
   @override
+  String get addReaction => '新增表情回應';
+
+  @override
+  String toggleReaction(String emoji) {
+    return '切換 $emoji 表情回應';
+  }
+
+  @override
   String get statusPending => '等待傳送';
 
   @override
@@ -452,8 +467,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get appLockBiometricEnableReason => '請驗證身分以啟用生物辨識解鎖';
 
   @override
-  String get appLockBiometricUnlockReason =>
-      '請驗證身分以解鎖 Simple Communication';
+  String get appLockBiometricUnlockReason => '請驗證身分以解鎖 Simple Communication';
 
   @override
   String get appLockBiometricFailed => '未完成生物辨識，請改用 PIN';
