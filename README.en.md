@@ -24,7 +24,7 @@ job: direct conversation. Its first release focuses on one-to-one text messaging
 with privacy, low resource usage, and low server cost treated as architectural
 defaults rather than optional features.
 
-This is a solo project designed and developed by **李任鈞** since
+This is a solo project developed by **leezxt** since
 July 12, 2026. It serves as a graduation project, engineering case study, and
 software-development portfolio.
 
