@@ -152,6 +152,15 @@ class _P2pChatAppState extends State<P2pChatApp> with WidgetsBindingObserver {
           colorSchemeSeed: const Color(0xFF3A6EA5),
           useMaterial3: true,
         ),
+        darkTheme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF00D9F5),
+            brightness: Brightness.dark,
+          ),
+          scaffoldBackgroundColor: const Color(0xFF080B18),
+          useMaterial3: true,
+        ),
+        themeMode: ThemeMode.system,
         // 首頁為聊天室列表（Chat Module 註冊的路由）。
         initialRoute: ChatModule.route,
         onGenerateRoute: widget.routes.onGenerateRoute,

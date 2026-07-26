@@ -60,6 +60,15 @@ Simple Communication 不是要複製 LINE、WhatsApp 或 Discord，而是以四�
 - 模組具有 `init / activate / sleep / dispose` 生命週期，避免高耗能能力常駐。
 - 後續規劃包含 Desktop Link、裝置撤銷與新訊息同步。
 
+## App 畫面
+
+以下畫面來自 Android API 35 模擬器上的完整 debug APK，包含真實 sodium native
+asset；這是模擬器執行證據，不取代兩台 Android 真機驗收。
+
+| 深色首頁 | Low Power Mode | App Lock |
+|---|---|---|
+| <img src="docs/images/app-dark-home.png" alt="Simple Communication 深色首頁" width="240"> | <img src="docs/images/app-low-power-mode.png" alt="Low Power Mode 設定" width="240"> | <img src="docs/images/app-lock-settings.png" alt="App Lock 設定" width="240"> |
+
 ## 系統架構
 
 端點負責訊息內容、本機資料、金鑰與加解密；伺服器只協助雙方建立連線，

@@ -62,6 +62,16 @@ user value, resource cost, and privacy boundary.
 - Modules implement `init / activate / sleep / dispose` lifecycles.
 - Planned work includes Desktop Link, device revocation, and new-message sync.
 
+## App screenshots
+
+These screens were captured from a complete debug APK running on an Android API
+35 emulator, including the real sodium native asset. They are emulator evidence,
+not a substitute for validation on two physical Android devices.
+
+| Dark home | Low Power Mode | App Lock |
+|---|---|---|
+| <img src="docs/images/app-dark-home.png" alt="Simple Communication dark home" width="240"> | <img src="docs/images/app-low-power-mode.png" alt="Low Power Mode settings" width="240"> | <img src="docs/images/app-lock-settings.png" alt="App Lock settings" width="240"> |
+
 ## Architecture
 
 Endpoints own message content, local data, device keys, and cryptographic
