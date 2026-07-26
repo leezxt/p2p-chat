@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'P2P Messenger';
+  String get appTitle => 'Simple Communication';
 
   @override
   String get chatListTitle => 'Chats';

@@ -1,5 +1,21 @@
 # Simple Communication
 
+<p align="center">
+  <img src="docs/images/simple-communication-logo.png" alt="Simple Communication logo" width="220">
+</p>
+
+<p align="center">
+  <strong>繁體中文</strong> · <a href="README.en.md">English</a>
+</p>
+
+<p align="center">
+  <img alt="Flutter" src="https://img.shields.io/badge/Flutter-3.44%2B-02569B?logo=flutter&logoColor=white">
+  <img alt="Java" src="https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white">
+  <img alt="Spring Boot" src="https://img.shields.io/badge/Spring_Boot-3-6DB33F?logo=springboot&logoColor=white">
+  <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white">
+  <img alt="Status" src="https://img.shields.io/badge/status-internal_Android_test-8764FF">
+</p>
+
 一個乾淨、私密、低成本的模組化 P2P 通訊專案。
 
 目前市場上的通訊軟體逐漸加入社群、短影音、購物、遊戲與廣告等功能，
@@ -7,7 +23,7 @@
 一項安靜的基礎服務：以 1 對 1 文字訊息為核心，讓隱私、低資源與低伺服器成本成為
 架構預設，而不是事後補上的選項。
 
-本專案由 **leezxt** 個人開發，自 2026-07-12 開始設計與實作，作為畢業專題、
+本專案由 **李任鈞** 個人開發，自 2026-07-12 開始設計與實作，作為畢業專題、
 專案成果報告與軟體工程面試作品。
 
 依據《P2P Modular Messenger Codex 開發總規格 v1.2》建置。核心原則：
@@ -48,6 +64,8 @@ Simple Communication 不是要複製 LINE、WhatsApp 或 Discord，而是以四�
 
 端點負責訊息內容、本機資料、金鑰與加解密；伺服器只協助雙方建立連線，
 並在無法 P2P 直連時暫存密文。
+
+![Simple Communication 系統架構](docs/images/simple-communication-architecture.png)
 
 ```mermaid
 flowchart LR

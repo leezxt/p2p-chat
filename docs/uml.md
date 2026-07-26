@@ -1,4 +1,4 @@
-# P2P Modular Messenger UML
+# Simple Communication UML
 
 本文件將開發總規格 v1.2 的核心架構整理為可由 Mermaid 渲染的 UML 視圖。
 

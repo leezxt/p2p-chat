@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "P2P Modular Messenger" "\0"
-            VALUE "FileDescription", "P2P Messenger" "\0"
+            VALUE "CompanyName", "Simple Communication" "\0"
+            VALUE "FileDescription", "Simple Communication" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "p2p_chat_app" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 P2P Modular Messenger. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 Simple Communication. All rights reserved." "\0"
             VALUE "OriginalFilename", "p2p_chat_app.exe" "\0"
-            VALUE "ProductName", "P2P Messenger" "\0"
+            VALUE "ProductName", "Simple Communication" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

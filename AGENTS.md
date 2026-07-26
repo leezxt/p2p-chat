@@ -4,7 +4,7 @@
 
 ## 總原則
 
-先核心、後模組；先手機、後電腦；先文字、後影音；先低資源、後高功能。目標是可逐步擴充的 Mobile-first Modular P2P Messenger，不是一開始就複製 LINE / WhatsApp / Discord。
+先核心、後模組；先手機、後電腦；先文字、後影音；先低資源、後高功能。目標是可逐步擴充的 Simple Communication，不是一開始就複製 LINE / WhatsApp / Discord。
 
 ## 硬性規則
 

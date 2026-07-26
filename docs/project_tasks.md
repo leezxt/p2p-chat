@@ -1,4 +1,4 @@
-# P2P Modular Messenger 專案任務清單
+# Simple Communication 專案任務清單
 
 依據《P2P Modular Messenger Codex 開發總規格 v1.2》整理。此文件以可執行、可驗收及可追蹤依賴為原則；`P0` 為 V1 MVP 必要工作，`P1` 為 V1.5，`P2` 以後為後續版本。
 
