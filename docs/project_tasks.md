@@ -190,7 +190,7 @@
 
 | ID | 主機可完成範圍 | 主機驗收條件 | 仍需外部驗證 |
 |---|---|---|---|
-| V2-01 | Emoji 與 Reaction（進行中：事件契約、SQLite 冪等 materialization 已完成） | 定義版本化 reaction event；同一使用者／訊息／emoji 冪等更新；SQLite、P2P、Mailbox 與雙語 UI tests 通過 | 雙真機離線同步與通知呈現 |
+| V2-01 | Emoji 與 Reaction（✅ 主機範圍完成） | 定義版本化 reaction event；同一使用者／訊息／emoji 冪等更新；SQLite、P2P、Mailbox 與雙語 UI tests 通過 | 雙真機離線同步與通知呈現 |
 | V2-02 | 內建貼圖與貼圖包工具 | 訊息只傳 sticker ID；建立 manifest schema、大小／格式／授權檢查與 zip-slip 防護；內建資產、離線同步及 AVD UI 通過 | 真機資源占用與大量貼圖包操作 |
 | V2-03 | 圖片／語音訊息基礎 | 定義加密 attachment metadata、大小上限、按需下載、取消／重試與 Low Power／行動網路政策；以 fake transport、fixture 與 AVD 驗證 UI | 真實相機、麥克風、權限、行動網路與耗電 |
 | V2-04 | 單則翻譯框架 | 原文不可改寫；provider interface、明確 opt-in、語言／provider cache key、可清除本機快取與 fake provider tests | 真實雲端 provider、費用、資料處理條款與網路失敗 |
