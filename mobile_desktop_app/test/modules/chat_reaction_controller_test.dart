@@ -104,6 +104,10 @@ void main() {
         home: ChatPage(controller: controller, title: 'Peer'),
       ));
       await tester.pumpAndSettle();
+      await tester.runAsync(
+        () => _waitUntil(() => !controller.loading),
+      );
+      await tester.pump();
 
       await tester.longPress(find.text('Hello'));
       await tester.pumpAndSettle();
@@ -111,6 +115,12 @@ void main() {
       expect(find.text(testCase.$2), findsOneWidget);
       await tester.tap(find.text('👍'));
       await tester.pumpAndSettle();
+      await tester.runAsync(
+        () => _waitUntil(
+          () => controller.reactionsFor(_message.messageId).isNotEmpty,
+        ),
+      );
+      await tester.pump();
 
       expect(find.text('👍 1'), findsOneWidget);
     });
@@ -126,3 +136,11 @@ const _message = MessageEnvelope(
   payload: {'text': 'Hello'},
   createdAt: 1,
 );
+
+Future<void> _waitUntil(bool Function() condition) async {
+  for (var attempt = 0; attempt < 100; attempt++) {
+    if (condition()) return;
+    await Future<void>.delayed(const Duration(milliseconds: 10));
+  }
+  throw StateError('Timed out waiting for asynchronous UI state.');
+}
