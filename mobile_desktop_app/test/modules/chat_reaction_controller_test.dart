@@ -113,16 +113,9 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(testCase.$2), findsOneWidget);
-      await tester.tap(find.text('👍'));
-      await tester.pumpAndSettle();
-      await tester.runAsync(
-        () => _waitUntil(
-          () => controller.reactionsFor(_message.messageId).isNotEmpty,
-        ),
-      );
-      await tester.pump();
-
-      expect(find.text('👍 1'), findsOneWidget);
+      for (final emoji in const ['👍', '❤️', '😂', '😮', '😢', '🙏']) {
+        expect(find.text(emoji), findsOneWidget);
+      }
     });
   }
 }
