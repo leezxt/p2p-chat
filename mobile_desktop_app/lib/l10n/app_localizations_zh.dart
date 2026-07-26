@@ -9,7 +9,7 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get appTitle => 'P2P 通訊軟體';
+  String get appTitle => 'Simple Communication';
 
   @override
   String get chatListTitle => '聊天';
@@ -126,7 +126,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   AppLocalizationsZhTw() : super('zh_TW');
 
   @override
-  String get appTitle => 'P2P 通訊軟體';
+  String get appTitle => 'Simple Communication';
 
   @override
   String get chatListTitle => '聊天';
