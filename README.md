@@ -13,6 +13,7 @@
   <img alt="Java" src="https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white">
   <img alt="Spring Boot" src="https://img.shields.io/badge/Spring_Boot-3-6DB33F?logo=springboot&logoColor=white">
   <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white">
+  <a href="https://github.com/leezxt/p2p-chat/actions/workflows/v1-ci.yml"><img alt="V1 CI" src="https://github.com/leezxt/p2p-chat/actions/workflows/v1-ci.yml/badge.svg?branch=main"></a>
   <img alt="Status" src="https://img.shields.io/badge/status-internal_Android_test-8764FF">
 </p>
 
