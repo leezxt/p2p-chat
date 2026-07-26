@@ -19,8 +19,10 @@ Android application ID、iOS Bundle ID、Firebase project 與加密 domain strin
 - [x] GitHub README 加入產品動機、應用場景、架構、開發沿革與驗證邊界
 - [x] 加入原創 Logo、架構展示圖、技術棧 badges 與英文 README
 - [x] 統一 Android／iOS／Windows／App UI 顯示名稱
-- [ ] 在可用 Flutter 3.44+ 環境重跑 `gen-l10n`、format、analyze 與完整測試
-- [ ] 處理 Kotlin plugin、`android.builtInKotlin`／`android.newDsl` 與 Gradle 10 警告
+- [x] Flutter 3.44.6 完成 dependency／l10n generation、format、analyze 與完整自動化測試；
+  [V1 CI run 30207910328](https://github.com/leezxt/p2p-chat/actions/runs/30207910328) 全部成功
+- [ ] 等待 `flutter_webrtc`／`mobile_scanner` 支援 Built-in Kotlin；目前 Flutter template
+  管理的 `android.builtInKotlin=false`／`android.newDsl=false` 必須保留
 - [x] Android API 35 模擬器完整 APK 啟動，並產出深色首頁、Low Power Mode、App Lock 截圖
 - [x] 產出 34 秒 Android API 35 操作 Demo（首頁、Low Power Mode、App Lock、語言選單）
 - [ ] 補充 Android 真機操作影片與截圖
