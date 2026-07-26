@@ -69,6 +69,8 @@ asset；這是模擬器執行證據，不取代兩台 Android 真機驗收。
 |---|---|---|
 | <img src="docs/images/app-dark-home.png" alt="Simple Communication 深色首頁" width="240"> | <img src="docs/images/app-low-power-mode.png" alt="Low Power Mode 設定" width="240"> | <img src="docs/images/app-lock-settings.png" alt="App Lock 設定" width="240"> |
 
+[▶ 查看 34 秒 Android 操作 Demo](docs/media/simple-communication-android-demo.mp4)
+
 ## 系統架構
 
 端點負責訊息內容、本機資料、金鑰與加解密；伺服器只協助雙方建立連線，

@@ -72,6 +72,8 @@ not a substitute for validation on two physical Android devices.
 |---|---|---|
 | <img src="docs/images/app-dark-home.png" alt="Simple Communication dark home" width="240"> | <img src="docs/images/app-low-power-mode.png" alt="Low Power Mode settings" width="240"> | <img src="docs/images/app-lock-settings.png" alt="App Lock settings" width="240"> |
 
+[▶ Watch the 34-second Android demo](docs/media/simple-communication-android-demo.mp4)
+
 ## Architecture
 
 Endpoints own message content, local data, device keys, and cryptographic

@@ -22,7 +22,8 @@ Android application ID、iOS Bundle ID、Firebase project 與加密 domain strin
 - [ ] 在可用 Flutter 3.44+ 環境重跑 `gen-l10n`、format、analyze 與完整測試
 - [ ] 處理 Kotlin plugin、`android.builtInKotlin`／`android.newDsl` 與 Gradle 10 警告
 - [x] Android API 35 模擬器完整 APK 啟動，並產出深色首頁、Low Power Mode、App Lock 截圖
-- [ ] 製作一分鐘操作 Demo 與 Android 真機截圖
+- [x] 產出 34 秒 Android API 35 操作 Demo（首頁、Low Power Mode、App Lock、語言選單）
+- [ ] 補充 Android 真機操作影片與截圖
 
 ### 需要 Android API 24+ 真機
 
