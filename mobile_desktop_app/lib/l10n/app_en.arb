@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "P2P Messenger",
+  "appTitle": "Simple Communication",
   "chatListTitle": "Chats",
   "syncMessages": "Sync messages",
   "messagesSynced": "Messages synced",
@@ -77,7 +77,7 @@
   "appLockBiometricDescription": "Use fingerprint or Face ID to unlock",
   "appLockBiometricUnavailable": "No supported biometric method is enrolled",
   "appLockBiometricEnableReason": "Confirm your identity to enable biometric unlock",
-  "appLockBiometricUnlockReason": "Authenticate to unlock P2P Messenger",
+  "appLockBiometricUnlockReason": "Authenticate to unlock Simple Communication",
   "appLockBiometricFailed": "Biometric authentication was not completed. Use your PIN.",
   "appLockBiometricLockedOut": "Biometrics are locked. Use your PIN.",
   "appLockHideNotificationContent": "Hide notification content",

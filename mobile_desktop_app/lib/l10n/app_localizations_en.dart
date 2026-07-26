@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'P2P Messenger';
+  String get appTitle => 'Simple Communication';
 
   @override
   String get chatListTitle => 'Chats';
@@ -225,7 +225,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appLockBiometricUnlockReason =>
-      'Authenticate to unlock P2P Messenger';
+      'Authenticate to unlock Simple Communication';
 
   @override
   String get appLockBiometricFailed =>

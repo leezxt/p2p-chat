@@ -102,7 +102,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'P2P Messenger'**
+  /// **'Simple Communication'**
   String get appTitle;
 
   /// No description provided for @chatListTitle.
@@ -504,7 +504,7 @@ abstract class AppLocalizations {
   /// No description provided for @appLockBiometricUnlockReason.
   ///
   /// In en, this message translates to:
-  /// **'Authenticate to unlock P2P Messenger'**
+  /// **'Authenticate to unlock Simple Communication'**
   String get appLockBiometricUnlockReason;
 
   /// No description provided for @appLockBiometricFailed.

@@ -1,6 +1,6 @@
 {
   "@@locale": "zh_TW",
-  "appTitle": "P2P 通訊軟體",
+  "appTitle": "Simple Communication",
   "chatListTitle": "聊天",
   "syncMessages": "同步訊息",
   "messagesSynced": "訊息已同步",
@@ -77,7 +77,7 @@
   "appLockBiometricDescription": "使用指紋或 Face ID 解鎖",
   "appLockBiometricUnavailable": "裝置未設定支援的生物辨識方式",
   "appLockBiometricEnableReason": "請驗證身分以啟用生物辨識解鎖",
-  "appLockBiometricUnlockReason": "請驗證身分以解鎖 P2P Messenger",
+  "appLockBiometricUnlockReason": "請驗證身分以解鎖 Simple Communication",
   "appLockBiometricFailed": "未完成生物辨識，請改用 PIN",
   "appLockBiometricLockedOut": "生物辨識已鎖定，請改用 PIN",
   "appLockHideNotificationContent": "隱藏通知內容",

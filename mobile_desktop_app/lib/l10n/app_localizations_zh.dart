@@ -9,7 +9,7 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get appTitle => 'P2P 通訊軟體';
+  String get appTitle => 'Simple Communication';
 
   @override
   String get chatListTitle => '聊天';
@@ -214,7 +214,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appLockBiometricEnableReason => '請驗證身分以啟用生物辨識解鎖';
 
   @override
-  String get appLockBiometricUnlockReason => '請驗證身分以解鎖 P2P Messenger';
+  String get appLockBiometricUnlockReason =>
+      '請驗證身分以解鎖 Simple Communication';
 
   @override
   String get appLockBiometricFailed => '未完成生物辨識，請改用 PIN';
@@ -246,7 +247,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   AppLocalizationsZhTw() : super('zh_TW');
 
   @override
-  String get appTitle => 'P2P 通訊軟體';
+  String get appTitle => 'Simple Communication';
 
   @override
   String get chatListTitle => '聊天';
@@ -451,7 +452,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get appLockBiometricEnableReason => '請驗證身分以啟用生物辨識解鎖';
 
   @override
-  String get appLockBiometricUnlockReason => '請驗證身分以解鎖 P2P Messenger';
+  String get appLockBiometricUnlockReason =>
+      '請驗證身分以解鎖 Simple Communication';
 
   @override
   String get appLockBiometricFailed => '未完成生物辨識，請改用 PIN';

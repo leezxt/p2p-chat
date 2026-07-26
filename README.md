@@ -1,8 +1,125 @@
-# P2P Modular Messenger
+# Simple Communication
 
-Mobile-first、模組化、低成本、去中心化優先的 P2P 通訊軟體。
+<p align="center">
+  <img src="docs/images/simple-communication-logo.png" alt="Simple Communication logo" width="220">
+</p>
 
-依據《P2P Modular Messenger Codex 開發總規格 v1.2》建置。核心原則：**先核心、後模組；先手機、後電腦；先文字、後影音；先低資源、後高功能。**
+<p align="center">
+  <strong>繁體中文</strong> · <a href="README.en.md">English</a>
+</p>
+
+<p align="center">
+  <img alt="Flutter" src="https://img.shields.io/badge/Flutter-3.44%2B-02569B?logo=flutter&logoColor=white">
+  <img alt="Java" src="https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white">
+  <img alt="Spring Boot" src="https://img.shields.io/badge/Spring_Boot-3-6DB33F?logo=springboot&logoColor=white">
+  <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white">
+  <img alt="Status" src="https://img.shields.io/badge/status-internal_Android_test-8764FF">
+</p>
+
+一個乾淨、私密、低成本的模組化 P2P 通訊專案。
+
+目前市場上的通訊軟體逐漸加入社群、短影音、購物、遊戲與廣告等功能，
+使單純的溝通被複雜介面和商業內容干擾。Simple Communication 希望將通訊重新做成
+一項安靜的基礎服務：以 1 對 1 文字訊息為核心，讓隱私、低資源與低伺服器成本成為
+架構預設，而不是事後補上的選項。
+
+本專案由 **李任鈞** 個人開發，自 2026-07-12 開始設計與實作，作為畢業專題、
+專案成果報告與軟體工程面試作品。
+
+依據《P2P Modular Messenger Codex 開發總規格 v1.2》建置。核心原則：
+**先核心、後模組；先手機、後電腦；先文字、後影音；先低資源、後高功能。**
+
+## 產品定位
+
+Simple Communication 不是要複製 LINE、WhatsApp 或 Discord，而是以四項約束控制產品方向：
+
+1. **手機優先**：App 進入背景後不維持 WebRTC 長連線，改以推播與離線同步喚醒。
+2. **隱私預設**：聊天內容不以明文上傳伺服器，裝置私鑰不以明文保存。
+3. **模組化**：Core 不直接依賴單一功能；跨模組溝通透過 Event Bus。
+4. **成本可控**：Backend 只承擔身份、信令、Presence、離線 Mailbox 與 Push Outbox。
+
+核心不是單純減少功能，而是要求每個新增功能都能證明其價值、資源成本與隱私邊界。
+
+## 應用場景
+
+### 隱私通訊
+
+- 訊息內容由通訊雙方持有，不依賴平台保存明文。
+- 使用端點加密、安全儲存與 Safety Number 進行身份核對。
+- 適合重視內容所有權與隱私邊界的個人使用者。
+
+### 低成本社群通訊
+
+- 即時訊息優先採 P2P 傳輸，降低中央伺服器流量。
+- Presence 採低頻更新，離線 Mailbox 僅在直連失敗時使用。
+- 適合沒有大型平台基礎設施預算的小型團體與社群。
+
+### 跨裝置個人通訊
+
+- Flutter App 以手機為主要端點，Desktop 作為按需延伸。
+- 模組具有 `init / activate / sleep / dispose` 生命週期，避免高耗能能力常駐。
+- 後續規劃包含 Desktop Link、裝置撤銷與新訊息同步。
+
+## 系統架構
+
+端點負責訊息內容、本機資料、金鑰與加解密；伺服器只協助雙方建立連線，
+並在無法 P2P 直連時暫存密文。
+
+![Simple Communication 系統架構](docs/images/simple-communication-architecture.png)
+
+```mermaid
+flowchart LR
+    A["裝置 A<br/>Flutter / SQLite<br/>Secure Storage / Crypto"]
+    S["協調服務<br/>Identity / Signaling / Presence<br/>Encrypted Mailbox / Push Outbox"]
+    B["裝置 B<br/>Flutter / SQLite<br/>Secure Storage / Crypto"]
+
+    A <-->|"優先：WebRTC P2P 密文"| B
+    A -->|"信令、Presence"| S
+    B -->|"信令、Presence"| S
+    A -. "直連失敗：Mailbox 密文" .-> S
+    S -. "離線同步與 ACK" .-> B
+```
+
+訊息傳遞流程：
+
+1. 訊息先寫入本機 SQLite，再進入傳輸佇列。
+2. 透過 authenticated signaling 建立 WebRTC DataChannel。
+3. P2P 失敗時，將密文送入 Offline Mailbox。
+4. 以 `STORED → DELIVERED → READ` 完成 ACK 閉環；ACK 遺失時可冪等重送。
+
+因此短暫斷線、App 重啟或 ACK 遺失不會直接造成訊息遺失或重複顯示。
+
+## 開發沿革
+
+| 日期 | 階段 | 主要成果 |
+|---|---|---|
+| 2026-07-12 | 核心成立 | Flutter Core、SQLite 聊天、Java Backend |
+| 2026-07-13～14 | 通訊閉環 | Identity、WebRTC P2P、Offline Mailbox 與 ACK |
+| 2026-07-15～16 | 安全與低功耗 | 加密儲存、Presence、Push Outbox |
+| 2026-07-17～18 | V1.5 能力 | Low Power Mode、App Lock、Safety Number |
+| 2026-07-19 | 發布工程 | Backup／Restore、Monitor／Alert、RC 文件 |
+
+每個階段均以「可編譯、可測試、可回退」為完成原則，並同步更新測試與交接文件。
+
+## 目前成果與驗證邊界
+
+### 已完成並驗證
+
+- Android 雙 AVD 的 authenticated encrypted P2P 與 Mailbox ACK 閉環。
+- Java 52 項測試、Flutter 自動化測試與 PostgreSQL smoke。
+- Low Power Mode、App Lock 與 Safety Number 核心功能。
+- Production Backup／Restore、Monitor／Alert 與 off-host export fixtures。
+- GitHub Actions 的 Java、Flutter、PostgreSQL 與 Windows Desktop 工作。
+
+### 已實作、仍待正式環境驗證
+
+- 兩台 Android 真機 E2E、實際斷網、OS kill 與 ACK 遺失恢復。
+- 真機冷啟動、記憶體、背景網路與長時間耗電。
+- 真實 FCM／APNs、Android 系統通知與 iPhone runtime。
+- 正式 Android application ID、keystore、iOS Bundle ID 與 distribution signing。
+- 公開 HTTPS/WSS、registry digest、正式排程、外部告警與 off-host restore drill。
+
+目前定位仍是**內部 Android 測試版**；上述 Gate 完成前不對外宣稱正式 V1 RC。
 
 ## Monorepo 結構
 

@@ -1,4 +1,4 @@
-# P2P Modular Messenger 交接清單
+# Simple Communication 交接清單
 
 本文件是接手開發與驗收進度的單一清單。完整依賴與驗收條件仍以
 [`project_tasks.md`](project_tasks.md) 為準。
@@ -6,6 +6,41 @@
 目前主要發布目標仍是 v1.2 藍圖的 V1；因剩餘 Gate 受真機與外部環境阻塞，
 使用者已授權先行實作 V1.5 Safety Number、App Lock 與 Low Power Mode 的電腦端
 工作。V2～V5 仍暫停於 backlog。
+
+## 接手摘要（2026-07-26）
+
+目前品牌名稱為 **Simple Communication**。Repository 名稱、Dart package、
+Android application ID、iOS Bundle ID、Firebase project 與加密 domain string
+維持既有識別，以避免破壞相容性；Android、iOS、Windows 與 App UI 的使用者可見名稱
+已統一。
+
+### 現在可以直接進行
+
+- [x] GitHub README 加入產品動機、應用場景、架構、開發沿革與驗證邊界
+- [x] 加入原創 Logo、架構展示圖、技術棧 badges 與英文 README
+- [x] 統一 Android／iOS／Windows／App UI 顯示名稱
+- [ ] 在可用 Flutter 3.44+ 環境重跑 `gen-l10n`、format、analyze 與完整測試
+- [ ] 處理 Kotlin plugin、`android.builtInKotlin`／`android.newDsl` 與 Gradle 10 警告
+- [ ] 製作一分鐘操作 Demo 與真實 App 截圖
+
+### 需要 Android API 24+ 真機
+
+- [ ] 兩台真機 encrypted P2P、Mailbox fallback 與 `STORED → DELIVERED → READ`
+- [ ] 實際斷網、OS kill、ACK 遺失恢復與重複訊息驗證
+- [ ] App Lock 生物辨識、Safety Number 相機掃碼與雙機人工核對
+- [ ] 冷啟動、記憶體、背景連線、網路與長時間耗電量測
+
+### 需要正式憑證或部署環境
+
+- [ ] 真實 FCM／APNs 與 Android／iPhone notification runtime
+- [ ] Android application ID／keystore 與 iOS Bundle ID／distribution signing
+- [ ] 公開 DNS／ACME、registry digest 與 production HTTPS/WSS smoke
+- [ ] 正式排程、外部告警、加密 off-host storage 與 restore drill
+- [ ] 產生最終 Android／iOS artifacts 並記錄 SHA-256
+
+詳細依賴仍以 [`project_tasks.md`](project_tasks.md) 與
+[`release_candidate_v1.md`](release_candidate_v1.md) 為準。下方保留歷次交接紀錄，
+供追溯測試證據與決策背景。
 
 ## 勾選規則
 
