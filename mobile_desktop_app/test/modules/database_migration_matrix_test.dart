@@ -75,6 +75,7 @@ void main() {
             'mailbox_receipts',
             'app_settings',
             'safety_number_verifications',
+            'message_reactions',
           ]),
         );
       } finally {

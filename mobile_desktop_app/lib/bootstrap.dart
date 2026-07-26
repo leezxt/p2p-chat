@@ -22,6 +22,7 @@ import 'modules/presence/presence_module.dart';
 import 'modules/push/push_module.dart';
 import 'modules/settings/settings_module.dart';
 import 'modules/safety_number/safety_number_module.dart';
+import 'modules/reaction/reaction_module.dart';
 import 'shared/utils/id_generator.dart';
 
 /// 啟動結果：交給 App 根 Widget 使用。
@@ -87,6 +88,7 @@ Future<Bootstrap> bootstrap({
     currentUserId: currentUserId,
     currentDeviceId: currentDeviceId,
   ));
+  registry.register(ReactionModule());
   registry.register(MailboxModule());
 
   await registry.initEnabledModules();

@@ -9,7 +9,7 @@ class Migration {
 }
 
 /// 目前 schema 版本。每次新增 migration 時 +1。
-const int kCurrentDbVersion = 8;
+const int kCurrentDbVersion = 9;
 
 /// 依版本排序的 migration 清單。
 const List<Migration> kMigrations = [
@@ -176,5 +176,21 @@ const List<Migration> kMigrations = [
       verified_at INTEGER NOT NULL
     )
     ''',
+  ]),
+  Migration(9, [
+    '''
+    CREATE TABLE message_reactions (
+      target_message_id TEXT NOT NULL,
+      reactor_user_id TEXT NOT NULL,
+      emoji TEXT NOT NULL,
+      active INTEGER NOT NULL CHECK (active IN (0, 1)),
+      event_id TEXT NOT NULL,
+      updated_at INTEGER NOT NULL,
+      schema_version INTEGER NOT NULL,
+      PRIMARY KEY (target_message_id, reactor_user_id, emoji)
+    )
+    ''',
+    'CREATE INDEX idx_message_reactions_target_active '
+        'ON message_reactions (target_message_id, active)',
   ]),
 ];

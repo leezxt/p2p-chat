@@ -66,8 +66,8 @@ class ChatSqfliteDao implements ChatDao {
     required int limit,
     int? beforeCreatedAt,
   }) async {
-    final where = StringBuffer('conversation_id = ?');
-    final args = <Object?>[conversationId];
+    final where = StringBuffer('conversation_id = ? AND type != ?');
+    final args = <Object?>[conversationId, MessageType.reaction.wire];
     if (beforeCreatedAt != null) {
       where.write(' AND created_at < ?');
       args.add(beforeCreatedAt);
