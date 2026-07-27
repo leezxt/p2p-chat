@@ -8,6 +8,7 @@ import 'chat_controller.dart';
 import '../../safety_number/domain/safety_number_service.dart';
 import '../../safety_number/presentation/safety_number_page.dart';
 import '../../reaction/domain/reaction_event.dart';
+import '../../sticker/domain/sticker_pack_manifest.dart';
 
 /// 單一聊天室畫面。以 [ChatController] 驅動，支援送出文字與向上載入更舊訊息。
 class ChatPage extends StatefulWidget {
@@ -105,6 +106,7 @@ class _ChatPageState extends State<ChatPage> {
                     mine: widget.controller.isMine(messages[i]),
                     reactions:
                         widget.controller.reactionsFor(messages[i].messageId),
+                    sticker: widget.controller.stickerAsset(messages[i]),
                     onReaction: (emoji) =>
                         widget.controller.toggleReaction(messages[i], emoji),
                   ),
@@ -112,7 +114,12 @@ class _ChatPageState extends State<ChatPage> {
               },
             ),
           ),
-          _InputBar(controller: _inputController, onSend: _send),
+          _InputBar(
+            controller: _inputController,
+            onSend: _send,
+            stickerPacks: widget.controller.stickerPacks,
+            onSticker: widget.controller.sendSticker,
+          ),
         ],
       ),
     );
@@ -125,11 +132,13 @@ class _MessageBubble extends StatelessWidget {
     required this.mine,
     required this.reactions,
     required this.onReaction,
+    this.sticker,
   });
   final MessageEnvelope message;
   final bool mine;
   final List<ReactionEvent> reactions;
   final Future<void> Function(String emoji) onReaction;
+  final StickerAsset? sticker;
 
   @override
   Widget build(BuildContext context) {
@@ -155,9 +164,19 @@ class _MessageBubble extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                message.text ?? l10n.unsupportedMessageType(message.type.wire),
-              ),
+              if (sticker != null)
+                Image.asset(
+                  sticker!.path,
+                  width: 128,
+                  height: 128,
+                  fit: BoxFit.contain,
+                  semanticLabel: l10n.stickerMessage,
+                )
+              else
+                Text(
+                  message.text ??
+                      l10n.unsupportedMessageType(message.type.wire),
+                ),
               if (counts.isNotEmpty) ...[
                 const SizedBox(height: 6),
                 Wrap(
@@ -242,9 +261,16 @@ class _MessageBubble extends StatelessWidget {
 }
 
 class _InputBar extends StatelessWidget {
-  const _InputBar({required this.controller, required this.onSend});
+  const _InputBar({
+    required this.controller,
+    required this.onSend,
+    required this.stickerPacks,
+    required this.onSticker,
+  });
   final TextEditingController controller;
   final Future<void> Function() onSend;
+  final List<StickerPackManifest> stickerPacks;
+  final Future<void> Function(String packId, String stickerId) onSticker;
 
   @override
   Widget build(BuildContext context) {
@@ -254,6 +280,13 @@ class _InputBar extends StatelessWidget {
         padding: const EdgeInsets.all(8),
         child: Row(
           children: [
+            IconButton(
+              onPressed: stickerPacks.isEmpty
+                  ? null
+                  : () => _showStickerPicker(context),
+              tooltip: l10n.chooseSticker,
+              icon: const Icon(Icons.emoji_emotions_outlined),
+            ),
             Expanded(
               child: TextField(
                 controller: controller,
@@ -276,5 +309,56 @@ class _InputBar extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _showStickerPicker(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final selected = await showModalBottomSheet<(String, String)>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.chooseSticker,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 12),
+              for (final pack in stickerPacks) ...[
+                Text(
+                  Localizations.localeOf(context).languageCode == 'en'
+                      ? pack.names['en']!
+                      : pack.names['zh_TW']!,
+                ),
+                Wrap(
+                  children: pack.stickers
+                      .map(
+                        (sticker) => IconButton(
+                          tooltip: sticker.id,
+                          onPressed: () => Navigator.pop(
+                            context,
+                            (pack.packId, sticker.id),
+                          ),
+                          icon: Image.asset(
+                            sticker.path,
+                            width: 48,
+                            height: 48,
+                          ),
+                        ),
+                      )
+                      .toList(growable: false),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+    if (selected != null) {
+      await onSticker(selected.$1, selected.$2);
+    }
   }
 }

@@ -89,6 +89,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get addReaction => '新增表情回應';
 
   @override
+  String get chooseSticker => '選擇貼圖';
+
+  @override
+  String get stickerMessage => '貼圖訊息';
+
+  @override
   String toggleReaction(String emoji) {
     return '切換 $emoji 表情回應';
   }
@@ -332,6 +338,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get addReaction => '新增表情回應';
+
+  @override
+  String get chooseSticker => '選擇貼圖';
+
+  @override
+  String get stickerMessage => '貼圖訊息';
 
   @override
   String toggleReaction(String emoji) {

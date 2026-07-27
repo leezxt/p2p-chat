@@ -10,6 +10,7 @@ import 'package:p2p_chat_app/modules/chat/domain/conversation.dart';
 import 'package:p2p_chat_app/modules/chat/presentation/chat_controller.dart';
 import 'package:p2p_chat_app/modules/chat/presentation/chat_page.dart';
 import 'package:p2p_chat_app/modules/reaction/data/reaction_repository.dart';
+import 'package:p2p_chat_app/modules/sticker/data/built_in_sticker_catalog.dart';
 import 'package:p2p_chat_app/l10n/app_localizations.dart';
 import 'package:p2p_chat_app/shared/models/message_envelope.dart';
 import 'package:p2p_chat_app/shared/models/message_type.dart';
@@ -27,6 +28,7 @@ void main() {
   late ChatRepository chat;
   late ReactionRepository reactions;
   late ChatController controller;
+  late BuiltInStickerCatalog stickerCatalog;
 
   setUp(() async {
     directory = await Directory.systemTemp.createTemp('p2p_chat_reactions_');
@@ -39,6 +41,8 @@ void main() {
     dao = FakeChatDao();
     chat = ChatRepository(dao, EventBus());
     reactions = ReactionRepository(database.db);
+    stickerCatalog = BuiltInStickerCatalog();
+    await stickerCatalog.load();
     await chat.createConversation(
       const Conversation(
         id: 'conversation-1',
@@ -55,6 +59,7 @@ void main() {
       currentUserId: 'user-a',
       currentDeviceId: 'device-a',
       reactionRepository: reactions,
+      stickerCatalog: stickerCatalog,
     );
     await controller.loadInitial();
   });
@@ -92,6 +97,19 @@ void main() {
     );
   });
 
+  test('sendSticker 只儲存 packId 與 stickerId', () async {
+    await controller.sendSticker('simple_communication', 'flutter');
+
+    final sticker = dao.messages.last;
+    expect(sticker.type, MessageType.sticker);
+    expect(sticker.payload, {
+      'packId': 'simple_communication',
+      'stickerId': 'flutter',
+    });
+    expect(sticker.payload, isNot(contains('path')));
+    expect(sticker.payload, isNot(contains('bytes')));
+  });
+
   for (final testCase in const [
     (Locale('en'), 'Add reaction'),
     (Locale('zh', 'TW'), '新增表情回應'),
@@ -116,6 +134,31 @@ void main() {
       for (final emoji in const ['👍', '❤️', '😂', '😮', '😢', '🙏']) {
         expect(find.text(emoji), findsOneWidget);
       }
+    });
+  }
+
+  for (final testCase in const [
+    (Locale('en'), 'Choose sticker'),
+    (Locale('zh', 'TW'), '選擇貼圖'),
+  ]) {
+    testWidgets('${testCase.$1} 可開啟內建貼圖選擇器', (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        locale: testCase.$1,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: ChatPage(controller: controller, title: 'Peer'),
+      ));
+      await tester.pumpAndSettle();
+      await tester.runAsync(
+        () => _waitUntil(() => !controller.loading),
+      );
+      await tester.pump();
+
+      await tester.tap(find.byTooltip(testCase.$2));
+      await tester.pumpAndSettle();
+
+      expect(find.text(testCase.$2), findsOneWidget);
+      expect(find.byTooltip('flutter'), findsOneWidget);
     });
   }
 }

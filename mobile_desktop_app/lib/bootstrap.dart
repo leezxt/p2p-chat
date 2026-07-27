@@ -23,6 +23,7 @@ import 'modules/push/push_module.dart';
 import 'modules/settings/settings_module.dart';
 import 'modules/safety_number/safety_number_module.dart';
 import 'modules/reaction/reaction_module.dart';
+import 'modules/sticker/sticker_module.dart';
 import 'shared/utils/id_generator.dart';
 
 /// 啟動結果：交給 App 根 Widget 使用。
@@ -84,11 +85,14 @@ Future<Bootstrap> bootstrap({
   registry.register(P2pModule());
   registry.register(SettingsModule());
   registry.register(PresenceModule());
+  // Experience repositories must be available before Chat captures route
+  // dependencies during registerRoutes.
+  registry.register(ReactionModule());
+  registry.register(StickerModule());
   registry.register(ChatModule(
     currentUserId: currentUserId,
     currentDeviceId: currentDeviceId,
   ));
-  registry.register(ReactionModule());
   registry.register(MailboxModule());
 
   await registry.initEnabledModules();

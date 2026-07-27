@@ -31,6 +31,8 @@
   "messageInputHint": "Type a message",
   "sendMessage": "Send message",
   "addReaction": "Add reaction",
+  "chooseSticker": "Choose sticker",
+  "stickerMessage": "Sticker message",
   "toggleReaction": "Toggle {emoji} reaction",
   "@toggleReaction": {
     "placeholders": {

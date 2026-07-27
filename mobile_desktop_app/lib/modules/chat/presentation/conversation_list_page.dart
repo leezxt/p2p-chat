@@ -21,6 +21,7 @@ import '../../app_lock/presentation/app_lock_settings_page.dart';
 import '../../low_power/domain/low_power_mode_service.dart';
 import '../../low_power/presentation/low_power_settings_page.dart';
 import '../../reaction/data/reaction_repository.dart';
+import '../../sticker/data/built_in_sticker_catalog.dart';
 
 /// 聊天室列表畫面（App 首頁）。可建立本機測試聊天室並進入聊天。
 class ConversationListPage extends StatefulWidget {
@@ -41,6 +42,7 @@ class ConversationListPage extends StatefulWidget {
     this.lowPowerModeService,
     this.localeController,
     this.reactionRepository,
+    this.stickerCatalog,
   });
 
   final ChatRepository repository;
@@ -58,6 +60,7 @@ class ConversationListPage extends StatefulWidget {
   final LowPowerModeService? lowPowerModeService;
   final LocaleController? localeController;
   final ReactionRepository? reactionRepository;
+  final BuiltInStickerCatalog? stickerCatalog;
 
   @override
   State<ConversationListPage> createState() => _ConversationListPageState();
@@ -196,6 +199,7 @@ class _ConversationListPageState extends State<ConversationListPage> {
       transport: widget.transport,
       markRead: widget.markRead,
       reactionRepository: widget.reactionRepository,
+      stickerCatalog: widget.stickerCatalog,
     );
     await Navigator.of(context).push(MaterialPageRoute<void>(
       builder: (_) => ChatPage(

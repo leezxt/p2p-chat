@@ -255,6 +255,18 @@ abstract class AppLocalizations {
   /// **'Add reaction'**
   String get addReaction;
 
+  /// No description provided for @chooseSticker.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose sticker'**
+  String get chooseSticker;
+
+  /// No description provided for @stickerMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sticker message'**
+  String get stickerMessage;
+
   /// No description provided for @toggleReaction.
   ///
   /// In en, this message translates to:

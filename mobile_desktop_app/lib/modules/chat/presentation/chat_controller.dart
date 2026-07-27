@@ -9,6 +9,9 @@ import '../data/chat_repository.dart';
 import '../../mailbox/domain/message_transport_coordinator.dart';
 import '../../reaction/data/reaction_repository.dart';
 import '../../reaction/domain/reaction_event.dart';
+import '../../sticker/data/built_in_sticker_catalog.dart';
+import '../../sticker/domain/sticker_message.dart';
+import '../../sticker/domain/sticker_pack_manifest.dart';
 
 /// 單一聊天室的 UI 狀態控制器。
 ///
@@ -26,6 +29,7 @@ class ChatController extends ChangeNotifier {
     this.transport,
     this.markRead,
     this.reactionRepository,
+    this.stickerCatalog,
   })  : _repository = repository,
         _ids = ids {
     _reactionSubscription = reactionRepository?.changes.listen((messageId) {
@@ -45,6 +49,7 @@ class ChatController extends ChangeNotifier {
   final MessageTransportCoordinator? transport;
   final Future<void> Function(String messageId)? markRead;
   final ReactionRepository? reactionRepository;
+  final BuiltInStickerCatalog? stickerCatalog;
 
   final List<MessageEnvelope> _messages = [];
   final Map<String, List<ReactionEvent>> _reactions = {};
@@ -109,6 +114,40 @@ class ChatController extends ChangeNotifier {
       senderDeviceId: currentDeviceId,
       type: MessageType.text,
       payload: {'text': trimmed},
+      createdAt: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+    );
+    await _repository.saveOutgoingMessage(message);
+    final target = targetDeviceId;
+    final coordinator = transport;
+    if (target != null && coordinator != null) {
+      await coordinator.send(target, message);
+    }
+    _messages.add(message);
+    notifyListeners();
+  }
+
+  List<StickerPackManifest> get stickerPacks =>
+      stickerCatalog?.packs ?? const [];
+
+  StickerAsset? stickerAsset(MessageEnvelope message) {
+    final catalog = stickerCatalog;
+    if (catalog == null || message.type != MessageType.sticker) return null;
+    try {
+      final sticker = StickerMessage.fromEnvelope(message);
+      return catalog.resolve(sticker.packId, sticker.stickerId);
+    } on FormatException {
+      return null;
+    }
+  }
+
+  Future<void> sendSticker(String packId, String stickerId) async {
+    if (stickerCatalog?.resolve(packId, stickerId) == null) return;
+    final message =
+        StickerMessage(packId: packId, stickerId: stickerId).toEnvelope(
+      messageId: _ids.message(),
+      conversationId: conversationId,
+      senderUserId: currentUserId,
+      senderDeviceId: currentDeviceId,
       createdAt: DateTime.now().millisecondsSinceEpoch ~/ 1000,
     );
     await _repository.saveOutgoingMessage(message);

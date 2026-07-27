@@ -23,6 +23,7 @@ import '../safety_number/domain/safety_number_service.dart';
 import '../app_lock/domain/app_lock_service.dart';
 import '../low_power/domain/low_power_mode_service.dart';
 import '../reaction/data/reaction_repository.dart';
+import '../sticker/data/built_in_sticker_catalog.dart';
 
 /// 聊天模組（規格 §6 Foundation Module）。
 ///
@@ -112,6 +113,9 @@ class ChatModule implements AppModule {
               localeController: _services.get<LocaleController>(),
               reactionRepository: _services.isRegistered<ReactionRepository>()
                   ? _services.get<ReactionRepository>()
+                  : null,
+              stickerCatalog: _services.isRegistered<BuiltInStickerCatalog>()
+                  ? _services.get<BuiltInStickerCatalog>()
                   : null,
             ));
   }

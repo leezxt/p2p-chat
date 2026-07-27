@@ -31,6 +31,8 @@
   "messageInputHint": "輸入訊息",
   "sendMessage": "傳送訊息",
   "addReaction": "新增表情回應",
+  "chooseSticker": "選擇貼圖",
+  "stickerMessage": "貼圖訊息",
   "toggleReaction": "切換 {emoji} 表情回應",
   "@toggleReaction": {
     "placeholders": {

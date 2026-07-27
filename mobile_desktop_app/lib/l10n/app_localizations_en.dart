@@ -92,6 +92,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addReaction => 'Add reaction';
 
   @override
+  String get chooseSticker => 'Choose sticker';
+
+  @override
+  String get stickerMessage => 'Sticker message';
+
+  @override
   String toggleReaction(String emoji) {
     return 'Toggle $emoji reaction';
   }
