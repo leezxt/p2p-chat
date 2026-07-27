@@ -32,7 +32,7 @@ Android application ID、iOS Bundle ID、Firebase project 與加密 domain strin
 
 - [x] V2-01 Emoji／Reaction 主機範圍：版本化事件、SQLite 冪等、P2P／Mailbox fallback、即時更新與雙語 UI tests
 - [ ] V2-01 外部 Gate：雙真機離線同步、系統通知呈現與實際操作驗收
-- [ ] V2-02 內建貼圖／貼圖包：只傳 ID、manifest、限制、授權與 zip-slip 防護
+- [ ] V2-02 內建貼圖／貼圖包：🚧 只傳 ID、嚴格 manifest、hash／格式／容量／授權、zip-slip 防護、內建資產與雙語 Widget tests 已完成；AVD UI、離線雙端與真機資源驗收待完成
 - [ ] V2-05 Storage Manager：分類統計、preview-first 清理與關鍵資料保護
 - [ ] V2-06 Smart Notification：聊天室偏好、App Lock 隱私與 provider-neutral routing
 - [ ] V2-04 單則翻譯：原文不改寫、明確 opt-in、本機快取與 fake provider
