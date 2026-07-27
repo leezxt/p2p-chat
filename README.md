@@ -52,7 +52,7 @@ Simple Communication 不是要複製 LINE、WhatsApp 或 Discord，而是以四�
 ### 低成本社群通訊
 
 - 即時訊息優先採 P2P 傳輸，降低中央伺服器流量。
-- Presence 採低頻更新，離線 Mailbox 僅在直連失敗時使用。
+- Presence 採低頻更新；Mailbox 在前景啟動／返回時立即同步，之後一般模式每 60 秒、Low Power 每 5 分鐘同步一次，進背景即停止（背景以 Push 與手動同步保底）。
 - 適合沒有大型平台基礎設施預算的小型團體與社群。
 
 ### 跨裝置個人通訊

@@ -23,6 +23,8 @@
 - 聊天內容走 P2P，不經中央伺服器 → 無流量成本。
 - 離線信箱只存密文，預設 TTL 7 天、上限 30 天；每 recipient device 最多 1,000 則/100 MiB，收到 `DELIVERED` 後可清除 ciphertext → 控制儲存成長。
 - Presence 低頻（前景 60s、背景不更新）→ 降低請求數。
+- Mailbox 僅在前景自動同步（一般 60s、Low Power 5 分鐘），進背景停止排程；
+  增加的是受限的密文 mailbox request，不建立常駐連線。
 - 背景依賴推播喚醒，不維持長連線 → 降低連線與頻寬。
 - 圖片 / 大檔案不自動下載 → 降低頻寬。
 - TURN 只在 P2P 直連失敗時 fallback → 控制最貴的頻寬成本。

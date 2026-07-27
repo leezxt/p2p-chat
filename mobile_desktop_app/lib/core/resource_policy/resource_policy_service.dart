@@ -15,6 +15,10 @@ class ResourcePolicyService {
   /// 前景 presence heartbeat 間隔秒數。低功耗時降低更新頻率。
   int get presenceHeartbeatSeconds => _config.lowPowerMode ? 180 : 60;
 
+  /// 前景 mailbox 自動同步間隔；背景一律停用，改由 Push / 手動同步喚醒。
+  Duration get foregroundMailboxSyncInterval =>
+      Duration(minutes: _config.lowPowerMode ? 5 : 1);
+
   /// 背景是否維持 P2P。永遠 false（規格 §5.2、§26 規則 6）。
   bool get keepP2pInBackground => false;
 

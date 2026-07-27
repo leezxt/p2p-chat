@@ -14,6 +14,7 @@ import 'modules/app_lock/domain/app_lock_service.dart';
 import 'modules/app_lock/presentation/app_lock_gate.dart';
 import 'modules/chat/chat_module.dart';
 import 'modules/mailbox/domain/mailbox_refresh_service.dart';
+import 'modules/mailbox/domain/foreground_mailbox_sync_scheduler.dart';
 import 'modules/push/domain/notification_launch_source.dart';
 import 'modules/push/domain/push_launch_coordinator.dart';
 
@@ -40,8 +41,10 @@ class _P2pChatAppState extends State<P2pChatApp> with WidgetsBindingObserver {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   late final LocaleController _localeController;
   PushLaunchCoordinator? _pushLaunchCoordinator;
+  ForegroundMailboxSyncScheduler? _foregroundMailboxSync;
   late final AppLifecycleCoordinator _lifecycle = AppLifecycleCoordinator(
     onBackground: () async {
+      _foregroundMailboxSync?.stop();
       final presenceState = widget.registry.stateOf('presence');
       if (presenceState != null &&
           presenceState != ModuleState.sleeping &&
@@ -59,6 +62,7 @@ class _P2pChatAppState extends State<P2pChatApp> with WidgetsBindingObserver {
       }
     },
     onForeground: () async {
+      await _foregroundMailboxSync?.start();
       final state = widget.registry.stateOf('presence');
       if (state != null &&
           state != ModuleState.active &&
@@ -73,7 +77,10 @@ class _P2pChatAppState extends State<P2pChatApp> with WidgetsBindingObserver {
     super.initState();
     _localeController = widget.services.get<LocaleController>();
     WidgetsBinding.instance.addObserver(this);
-    if (widget.services.isRegistered<MailboxRefreshService>()) {
+    if (widget.services.isRegistered<MailboxRefreshService>() &&
+        widget.services.isRegistered<ForegroundMailboxSyncScheduler>()) {
+      _foregroundMailboxSync =
+          widget.services.get<ForegroundMailboxSyncScheduler>();
       _pushLaunchCoordinator = PushLaunchCoordinator(
         source: widget.notificationLaunchSource,
         mailbox: widget.services.get<MailboxRefreshService>(),
@@ -123,6 +130,7 @@ class _P2pChatAppState extends State<P2pChatApp> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     unawaited(_pushLaunchCoordinator?.dispose());
+    _foregroundMailboxSync?.dispose();
     widget.registry.disposeAll();
     super.dispose();
   }

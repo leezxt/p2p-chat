@@ -71,6 +71,10 @@ installed → enabled → active
 平常狀態建議：Chat=enabled、P2P=sleeping、Sticker/File/Sync=sleeping、
 Voice/Video Call=disabled、Presence=low-power、Mailbox=scheduled。
 
+Mailbox 在前景進入時立即執行一次冪等同步，之後一般模式每 60 秒、Low Power
+每 5 分鐘同步一次；App 進背景即停止排程，仍以 Push 喚醒與使用者手動同步作為
+背景／失敗保底，不維持長連線。
+
 ## 運行模式
 
 正確：平常休眠 → 收推播或開聊天室 → 建立 P2P → 傳完短暫維持 → 閒置斷線 → 進背景關閉 P2P。
