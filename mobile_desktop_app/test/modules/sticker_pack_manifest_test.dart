@@ -33,11 +33,9 @@ void main() {
     (oversized['stickers'] as List).first['bytes'] =
         StickerPackManifest.maxStickerBytes + 1;
     final duplicate = _manifest();
-    (duplicate['stickers'] as List).add(
-      Map<String, Object?>.from(
-        (duplicate['stickers'] as List).first as Map,
-      ),
-    );
+    final duplicateStickers =
+        duplicate['stickers'] as List<Map<String, Object>>;
+    duplicateStickers.add(Map<String, Object>.from(duplicateStickers.first));
 
     expect(
       () => StickerPackManifest.fromJson(oversized),
