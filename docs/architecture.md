@@ -125,10 +125,16 @@ V3-04 以既有 `MessageBox` 的雙向 authenticated `crypto_box` 建立私鑰�
 `DesktopLinkPairingService.confirm` 沒有有效 proof 時 fail-closed。未完成的 token 只存在 RAM，
 不寫入 SQLite；App 重啟、逾期、竄改或重放都需重新 challenge。
 
-此資料層仍未包含桌面端 presentation／交付、實際 desktop runtime 或 transport、每副端重新
-加密或副端金鑰銷毀。Windows host 專項測試以 fake `MessageBox` 驗證 protocol state；尚未執行
-原生 libsodium proof path。因此不能把它當作「已可同步」、「已完成 Desktop App 身份驗收」或
-「已證實撤銷後無法解密」的 runtime 證據。
+V3-05 將既有 `DesktopLinkPairingRequestIssuer` 與 `DesktopLinkKeyPossessionResponder` 接到
+Desktop Companion host UI：desktop target 的 Desktop Link route 會生成 pairing QR，讓使用者手動
+輸入手機主裝置 ID、貼入手機 challenge 並複製 encrypted response。此畫面不讀取／輸出私鑰、
+不建立網路／背景工作、不新增 SQLite token state；手機端仍需顯示 ID、驗證 response 並讓使用者
+明確同意。
+
+此資料層仍未完成**原生 desktop runtime** 的 presentation／clipboard／secure-storage 驗收，也未
+包含自動交付、實際 transport、每副端重新加密或副端金鑰銷毀。Windows host 專項測試以 fake
+`MessageBox` 驗證 protocol state 與 Widget flow；尚未執行原生 libsodium proof path。因此不能把它
+當作「已可同步」、「已完成 Desktop App 身份驗收」或「已證實撤銷後無法解密」的 runtime 證據。
 
 ## 運行模式
 
@@ -154,9 +160,9 @@ heartbeat 60s、同時 P2P 連線最多 3 條、閒置 2 分鐘斷線。Low Powe
 - **V1.5** 安全 / 省資源：App Lock、Low Power、Safety Number、背景斷 P2P、閒置斷線、通知隱藏內容。
 - **V2** 體驗：Emoji、Reaction、貼圖、語音 / 圖片訊息、單則翻譯、Storage Manager、Smart Notification、Username。
 - **V3** 多裝置 / 進階：Desktop Link 主機安全核心、一次性 QR 請求檢閱／明確確認、
-  公開金鑰／fingerprint binding 與手機端私鑰持有 proof gate 已完成；電腦副端 UI／交付、
-  原生 Desktop runtime、實際多裝置同步、撤銷後 per-device 加密驗證、檔案傳輸、語音通話、
-  匯出匯入、Contact Discovery 仍待實作。
+  公開金鑰／fingerprint binding、手機端私鑰持有 proof gate 與 Desktop Companion host UI 已完成；
+  原生 Desktop runtime／自動交付、實際多裝置同步、撤銷後 per-device 加密驗證、檔案傳輸、
+  語音通話、匯出匯入、Contact Discovery 仍待實作。
 - **V4** 社群 / 視訊：視訊通話、小群組、廣播、共享筆記 / 待辦、訊息排程。
 - **V5** AI / 生態：即時字幕、寫作輔助、聊天摘要、離線翻譯語言包、貼圖開源生態。
 

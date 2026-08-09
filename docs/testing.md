@@ -171,6 +171,8 @@ flutter test --concurrency=1 test/modules/desktop_link_service_test.dart `
   test/modules/desktop_link_pairing_request_test.dart `
   test/modules/desktop_link_pairing_request_issuer_test.dart `
   test/modules/desktop_link_key_possession_test.dart `
+  test/modules/desktop_link_companion_service_test.dart `
+  test/modules/desktop_link_companion_page_test.dart `
   test/modules/desktop_link_pairing_service_test.dart `
   test/modules/desktop_link_pairing_page_test.dart `
   test/modules/desktop_link_module_test.dart `
@@ -179,18 +181,22 @@ flutter test --concurrency=1 test/modules/desktop_link_service_test.dart `
 dart analyze
 ```
 
-這組目前共 35 項測試，驗證 v1→v15 SQLite 升級（含安全作廢沒有公開金鑰 binding 的
+這組目前共 38 項測試，驗證 v1→v15 SQLite 升級（含安全作廢沒有公開金鑰 binding 的
 v14 暫存 request）、手機明確授權、嚴格新訊息切點與撤銷 fail-closed，以及 QR payload
 的嚴格版本／欄位／效期驗證、32-byte X25519 公開金鑰與重算 fingerprint binding、canonical
 request issuer、一次性 request state，以及用短效 RAM token 建立的雙向 authenticated
 challenge-response。後者涵蓋正常 proof、竄改 response、錯誤桌面 key、重放、過期與變更
 公開金鑰後不能沿用 proof，也確認沒有有效 proof 時 `confirm` 會 fail-closed。
 
+V3-05 另驗證 desktop companion 以本機公開金鑰建立短效 request、只為本機 desktop key 回覆
+手機 challenge，並以 Widget test 檢查「輸入手機 device ID → QR 顯示 → 貼入 challenge → 輸出
+encrypted response」的手動交付流程。它不啟動 Windows runner 或任何網路 transport。
+
 `NIX_SKIP_SODIUM_BUILD_HOOKS=1` 會略過這台 Windows 主機缺少 C++ native toolchain 的 sodium
 build hook；私鑰持有 protocol 測試因此注入 test-only `MessageBox` fake，僅驗證協定狀態與
 binding，不是原生 libsodium／secure storage 的 runtime 驗收。這組也不包含真實相機掃碼、
-桌面端 QR presentation／目標主裝置交付、可用的桌面端 UI、真實傳輸、per-device 加密，或已撤銷
-副端的 runtime 金鑰銷毀驗收。
+原生 desktop runner 的 QR／clipboard runtime、目標主裝置自動交付、真實傳輸、per-device 加密，
+或已撤銷副端的 runtime 金鑰銷毀驗收。
 
 Localization 變更需重新產生程式碼，並驗證語言解析、SQLite 偏好保存與兩種語言 UI：
 

@@ -69,10 +69,12 @@ Simple Communication 不是要複製 LINE、WhatsApp 或 Discord，而是以四�
   明確同意且完成雙向 authenticated X25519 `crypto_box` challenge-response 後才會建立授權。
   challenge 的一次性 token 只存在手機 RAM；SQLite v14 保存一次性處理狀態，SQLite v15 再把
   QR 的公開金鑰與 fingerprint 綁定，兩者都不保存 QR 原文或 token。
-- QR 內容仍是**不可信輸入**：私鑰持有 proof 的 protocol 與手機端授權閘門已實作，但
-  桌面端 presentation／交付、Desktop transport、per-device 加密傳輸、真實相機與原生
-  libsodium runtime 尚未驗收；因此不宣稱已完成跨裝置訊息同步、完整桌面 App 身份驗收，
-  或既有副端金鑰清除。
+- Desktop target 的同一入口會呈現 Desktop Companion：手動輸入手機 device ID 後顯示短效 QR，
+  貼入手機 challenge 後輸出 encrypted response；流程沒有網路、背景工作或 token persistence。
+- QR 內容仍是**不可信輸入**：私鑰持有 proof、手機端授權閘門與 Desktop Companion host UI 已實作，
+  但原生桌面 runtime／自動交付、Desktop transport、per-device 加密傳輸、真實相機與原生
+  libsodium runtime 尚未驗收；因此不宣稱已完成跨裝置訊息同步、完整桌面 App 身份驗收，或既有
+  副端金鑰清除。
 
 ## App 畫面
 
@@ -123,7 +125,7 @@ flowchart LR
 | 2026-07-15～16 | 安全與低功耗 | 加密儲存、Presence、Push Outbox |
 | 2026-07-17～18 | V1.5 能力 | Low Power Mode、App Lock、Safety Number |
 | 2026-07-19 | 發布工程 | Backup／Restore、Monitor／Alert、RC 文件 |
-| 2026-08-09 | V3 安全基礎 | Desktop Link 授權、只同步新訊息、撤銷閘門、一次性 QR 檢閱、公開金鑰 binding 與私鑰持有 challenge-response 閘門 |
+| 2026-08-09 | V3 安全基礎 | Desktop Link 授權、只同步新訊息、撤銷閘門、一次性 QR 檢閱、公開金鑰 binding、私鑰持有 challenge-response 閘門與 Desktop Companion host UI |
 
 每個階段均以「可編譯、可測試、可回退」為完成原則，並同步更新測試與交接文件。
 
@@ -137,7 +139,8 @@ flowchart LR
 - Desktop Link 主機安全核心：SQLite v13 授權狀態、SQLite v14 一次性配對請求狀態、
   SQLite v15 公開金鑰／fingerprint binding、短效 RAM challenge、雙向 `crypto_box`
   私鑰持有 proof、明確手機授權、嚴格新訊息切點與撤銷 fail-closed 規則；沒有有效 proof
-  時 QR 不會取得授權。此項目前是主機 fake-crypto／Widget 證據，非原生或 Desktop runtime 證據。
+  時 QR 不會取得授權。Desktop Companion 可顯示 QR 並手動回覆 challenge；此項目前是主機
+  fake-crypto／Widget 證據，非原生或 Desktop runtime 證據。
 - Production Backup／Restore、Monitor／Alert 與 off-host export fixtures。
 - GitHub Actions 的 Java、Flutter、PostgreSQL 與 Windows Desktop 工作。
 
@@ -148,9 +151,9 @@ flowchart LR
 - 真實 FCM／APNs、Android 系統通知與 iPhone runtime。
 - 正式 Android application ID、keystore、iOS Bundle ID 與 distribution signing。
 - 公開 HTTPS/WSS、registry digest、正式排程、外部告警與 off-host restore drill。
-- 可使用的桌面端 QR presentation／challenge responder、目標主裝置發現與自動交付、原生
-  libsodium／secure-storage proof runtime、真實相機掃碼驗收、桌面端 transport、每副端重新加密、
-  跨裝置歷史／新訊息同步，以及撤銷後的副端金鑰銷毀驗證。
+- Desktop Companion 的 Windows／macOS／Linux 原生 runner／clipboard／secure-storage 驗收、
+  目標主裝置發現與自動交付、原生 libsodium proof runtime、真實相機掃碼驗收、桌面端 transport、
+  每副端重新加密、跨裝置歷史／新訊息同步，以及撤銷後的副端金鑰銷毀驗證。
 
 目前定位仍是**內部 Android 測試版**；上述 Gate 完成前不對外宣稱正式 V1 RC。
 

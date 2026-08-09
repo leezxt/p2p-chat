@@ -70,12 +70,15 @@ user value, resource cost, and privacy boundary.
   challenge-response. The one-time challenge token lives only in phone RAM;
   SQLite v14 stores one-time handling state while SQLite v15 binds the QR's
   public key to its fingerprint. Neither stores a raw QR payload or token.
-- QR content remains **untrusted input**. The private-key-possession protocol
-  and mobile authorization gate are implemented, but desktop presentation and
-  handoff, Desktop transport, per-device encryption, real camera behavior, and
-  native libsodium runtime validation remain pending. This does not claim
-  working cross-device sync, full desktop-App identity acceptance, or deletion
-  of a previously linked device's key material.
+- On a desktop target, the same entry opens Desktop Companion: it accepts the
+  phone device ID, shows a short-lived QR, and emits an encrypted response to a
+  pasted phone challenge. It has no network, background work, or token persistence.
+- QR content remains **untrusted input**. The private-key-possession protocol,
+  mobile authorization gate, and Desktop Companion host UI are implemented, but
+  native desktop runtime/automatic handoff, Desktop transport, per-device
+  encryption, real camera behavior, and native libsodium runtime validation
+  remain pending. This does not claim working cross-device sync, full desktop-App
+  identity acceptance, or deletion of a previously linked device's key material.
 
 ## App screenshots
 
@@ -127,7 +130,7 @@ recoverable without showing duplicate messages.
 | 2026-07-15–16 | Security and efficiency | Secure key storage, Presence, Push Outbox |
 | 2026-07-17–18 | V1.5 capabilities | Low Power Mode, App Lock, Safety Number |
 | 2026-07-19 | Release engineering | Backup/Restore, Monitor/Alert, RC documentation |
-| 2026-08-09 | V3 safety foundation | Desktop Link authorization, new-message cutoff, revoke gate, one-time QR pairing review, public-key binding, and a private-key-possession challenge-response gate |
+| 2026-08-09 | V3 safety foundation | Desktop Link authorization, new-message cutoff, revoke gate, one-time QR pairing review, public-key binding, a private-key-possession challenge-response gate, and Desktop Companion host UI |
 
 Each stage is expected to remain buildable, testable, and reversible.
 
@@ -142,8 +145,9 @@ Each stage is expected to remain buildable, testable, and reversible.
   one-time pairing-request state, SQLite v15 public-key/fingerprint binding,
   short-lived RAM challenge state, two-way `crypto_box` private-key-possession
   proof, explicit mobile approval, strict new-message cutoff, and fail-closed
-  revocation. A QR cannot authorize a link without a valid proof. This is
-  host fake-crypto/Widget evidence, not native or Desktop runtime evidence.
+  revocation. A QR cannot authorize a link without a valid proof. Desktop
+  Companion can display the QR and manually answer a challenge. This is host
+  fake-crypto/Widget evidence, not native or Desktop runtime evidence.
 - Production backup, restore, monitoring, alerting, and off-host export fixtures.
 - GitHub Actions for Java, Flutter, PostgreSQL, and Windows Desktop.
 
@@ -155,11 +159,11 @@ Each stage is expected to remain buildable, testable, and reversible.
 - Production Android application ID, keystore, iOS Bundle ID, and signing.
 - Public HTTPS/WSS, registry digest, scheduled monitoring, external alerts,
   and an off-host restore drill.
-- A usable desktop QR presentation/challenge responder, primary-device discovery
-  and automatic handoff, native libsodium/secure-storage proof runtime, real
-  camera scan validation, desktop transport, per-device re-encryption,
-  cross-device history/new-message sync, and validation that revocation removes
-  access to new messages on a companion device.
+- Native Windows/macOS/Linux runner, clipboard, and secure-storage validation for
+  Desktop Companion; primary-device discovery and automatic handoff; native
+  libsodium proof runtime; real camera scan validation; desktop transport;
+  per-device re-encryption; cross-device history/new-message sync; and validation
+  that revocation removes access to new messages on a companion device.
 
 The current build remains an **internal Android test build**. It is not presented
 as a public V1 release candidate until the remaining release gates are complete.

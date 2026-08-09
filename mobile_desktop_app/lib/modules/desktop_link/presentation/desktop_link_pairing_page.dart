@@ -7,6 +7,7 @@ import '../domain/desktop_link_key_possession.dart';
 import '../domain/desktop_link_pairing_request.dart';
 import '../domain/desktop_link_pairing_service.dart';
 import '../domain/desktop_link_service.dart';
+import 'desktop_link_payload_input_dialog.dart';
 import 'desktop_link_qr_scanner.dart';
 
 /// 手機主裝置的 Desktop Link 管理與明確配對確認畫面。
@@ -15,11 +16,13 @@ class DesktopLinkPairingPage extends StatefulWidget {
     super.key,
     required this.pairingService,
     required this.desktopLinkService,
+    required this.primaryDeviceId,
     this.qrScanner = const MobileDesktopLinkQrScanner(),
   });
 
   final DesktopLinkPairingActions pairingService;
   final DesktopLinkManager desktopLinkService;
+  final String primaryDeviceId;
   final DesktopLinkQrScanner qrScanner;
 
   @override
@@ -43,8 +46,8 @@ class _DesktopLinkPairingPageState extends State<DesktopLinkPairingPage> {
     final l10n = AppLocalizations.of(context);
     final payload = await showDialog<String>(
       context: context,
-      builder: (_) => _PayloadInputDialog(
-        title: Text(l10n.desktopLinkPair),
+      builder: (_) => DesktopLinkPayloadInputDialog(
+        title: l10n.desktopLinkPair,
         inputLabel: l10n.desktopLinkRequestData,
         cancelLabel: l10n.cancel,
         submitLabel: l10n.desktopLinkReviewRequest,
@@ -93,8 +96,8 @@ class _DesktopLinkPairingPageState extends State<DesktopLinkPairingPage> {
     final l10n = AppLocalizations.of(context);
     final payload = await showDialog<String>(
       context: context,
-      builder: (_) => _PayloadInputDialog(
-        title: Text(l10n.desktopLinkKeyProofPasteResponse),
+      builder: (_) => DesktopLinkPayloadInputDialog(
+        title: l10n.desktopLinkKeyProofPasteResponse,
         inputLabel: l10n.desktopLinkKeyProofResponseData,
         cancelLabel: l10n.cancel,
         submitLabel: l10n.desktopLinkKeyProofStart,
@@ -270,6 +273,28 @@ class _DesktopLinkPairingPageState extends State<DesktopLinkPairingPage> {
               const SizedBox(height: 8),
               Text(l10n.desktopLinkPairDescription),
               const SizedBox(height: 16),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.desktopLinkPrimaryDeviceId,
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      SelectableText(widget.primaryDeviceId),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.desktopLinkPrimaryDeviceIdDescription,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
               if (widget.qrScanner.isSupported) ...[
                 FilledButton.icon(
                   onPressed: _submitting ? null : _scanRequest,
@@ -426,55 +451,4 @@ class _DesktopLinkPairingPageState extends State<DesktopLinkPairingPage> {
       ),
     );
   }
-}
-
-/// 讓 controller 與 dialog route 同時釋放，避免按下確認後 route exit animation 仍在讀取
-/// 已 dispose 的 controller。兩種手動貼上流程共用，且只把 trim 後的輸入回傳給呼叫端。
-class _PayloadInputDialog extends StatefulWidget {
-  const _PayloadInputDialog({
-    required this.title,
-    required this.inputLabel,
-    required this.cancelLabel,
-    required this.submitLabel,
-  });
-
-  final Widget title;
-  final String inputLabel;
-  final String cancelLabel;
-  final String submitLabel;
-
-  @override
-  State<_PayloadInputDialog> createState() => _PayloadInputDialogState();
-}
-
-class _PayloadInputDialogState extends State<_PayloadInputDialog> {
-  final _controller = TextEditingController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => AlertDialog(
-        title: widget.title,
-        content: TextField(
-          controller: _controller,
-          autofocus: true,
-          minLines: 3,
-          maxLines: 8,
-          decoration: InputDecoration(labelText: widget.inputLabel),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(widget.cancelLabel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, _controller.text.trim()),
-            child: Text(widget.submitLabel),
-          ),
-        ],
-      );
 }

@@ -366,6 +366,91 @@ class AppLocalizationsEn extends AppLocalizations {
       'Scan or paste a short-lived pairing request from your desktop. Review its fingerprint before approving.';
 
   @override
+  String get desktopLinkPrimaryDeviceId => 'Primary phone device ID';
+
+  @override
+  String get desktopLinkPrimaryDeviceIdDescription =>
+      'Enter this identifier in the desktop pairing helper. It is an identifier, not a secret.';
+
+  @override
+  String get desktopLinkCompanionTitle => 'Set up this desktop';
+
+  @override
+  String get desktopLinkCompanionDescription =>
+      'Create a short-lived pairing QR for your primary phone. This step does not transfer messages or create a network connection.';
+
+  @override
+  String get desktopLinkCompanionPrimaryDeviceId => 'Primary phone device ID';
+
+  @override
+  String get desktopLinkCompanionPrimaryDeviceIdHelp =>
+      'Copy it from the primary phone\'s Desktop Link page.';
+
+  @override
+  String get desktopLinkCompanionDisplayName => 'Desktop name';
+
+  @override
+  String get desktopLinkCompanionGenerate => 'Create pairing QR';
+
+  @override
+  String get desktopLinkCompanionRequestReady => 'Pairing QR ready';
+
+  @override
+  String get desktopLinkCompanionPairingQr => 'Desktop pairing QR code';
+
+  @override
+  String get desktopLinkCompanionRequestNotice =>
+      'Scan this QR from the primary phone, then paste its encrypted verification challenge below. The QR alone does not grant access.';
+
+  @override
+  String get desktopLinkCompanionRequestPayload => 'Pairing request data';
+
+  @override
+  String get desktopLinkCompanionPasteChallenge =>
+      'Paste phone verification challenge';
+
+  @override
+  String get desktopLinkCompanionChallengeData =>
+      'Phone verification challenge data';
+
+  @override
+  String get desktopLinkCompanionCreateResponse => 'Create desktop response';
+
+  @override
+  String get desktopLinkCompanionResponseReady =>
+      'Encrypted desktop response ready';
+
+  @override
+  String get desktopLinkCompanionResponseNotice =>
+      'Return this encrypted response to the primary phone, then complete private-key verification and explicit approval there.';
+
+  @override
+  String get desktopLinkCompanionResponsePayload =>
+      'Desktop verification response data';
+
+  @override
+  String get desktopLinkCompanionCopyResponse => 'Copy desktop response';
+
+  @override
+  String get desktopLinkCompanionResponseCopied => 'Desktop response copied';
+
+  @override
+  String get desktopLinkCompanionResponseCopyFailed =>
+      'Unable to copy the desktop response';
+
+  @override
+  String get desktopLinkCompanionInvalidInput =>
+      'Enter a valid primary phone device ID and desktop name.';
+
+  @override
+  String get desktopLinkCompanionChallengeInvalid =>
+      'The phone challenge is invalid, expired, or not intended for this desktop.';
+
+  @override
+  String get desktopLinkCompanionNoTransport =>
+      'This is a local pairing presentation and manual handoff only. Desktop transport, message sync, and per-device encryption are not implemented.';
+
+  @override
   String get desktopLinkRequestData => 'Desktop pairing QR content';
 
   @override

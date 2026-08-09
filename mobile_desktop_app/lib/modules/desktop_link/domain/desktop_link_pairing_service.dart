@@ -72,7 +72,7 @@ class DesktopLinkPairingService implements DesktopLinkPairingActions {
     return _keyPossessionService.createChallenge(request);
   }
 
-  /// 接收未來 desktop presentation／transport 交付的 response。成功後只標記本次
+  /// 接收 Desktop Companion 手動交付或未來 transport 交付的 response。成功後只標記本次
   /// request 已完成 proof；使用者仍必須明確按下確認才會進入授權。
   @override
   Future<void> verifyKeyPossessionResponse(String rawPayload) async {

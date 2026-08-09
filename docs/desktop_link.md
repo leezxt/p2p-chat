@@ -1,12 +1,13 @@
-# Desktop Link／Device Sync／Revoke（V3 主機安全核心、配對與私鑰持有 proof）
+# Desktop Link／Device Sync／Revoke（V3 主機安全核心、配對、私鑰持有 proof 與 Desktop Companion）
 
 ## 狀態與範圍
 
 目前已完成的是手機主端上的**本機安全決策、配對請求檢閱與私鑰持有 challenge-response
-授權閘門**，不是可對外宣稱已完成的桌面版或多裝置同步功能。它不建立連線、不保存訊息
-內容／私鑰，也不會在背景常駐。手機 UI 可透過可替換 adapter 掃描或貼入 QR 內容；目前的
-challenge／response 亦只能以加密 payload 手動複製貼上，實際相機權限／掃碼與桌面 runtime
-尚未驗收。
+授權閘門**，以及可由主機 Widget 驗證的 **Desktop Companion 配對呈現／手動交付畫面**；
+不是可對外宣稱已完成的桌面版或多裝置同步功能。它不建立連線、不保存訊息內容／私鑰，也不會
+在背景常駐。手機 UI 可透過可替換 adapter 掃描或貼入 QR 內容；Desktop Companion 可顯示 QR、
+接受加密 challenge 並輸出 response，但它們仍以使用者手動複製貼上交付，尚未做實際相機、
+desktop runtime 或 transport 驗收。
 
 已完成並以主機自動化測試驗證：
 
@@ -36,6 +37,10 @@ challenge／response 亦只能以加密 payload 手動複製貼上，實際相�
   暫存位元組；不寫入 SQLite。重新啟動、逾期或失敗後必須重新產生 challenge。
 - 沒有有效 proof 時，`confirm` 不會建立授權；proof 成功後，仍須由使用者在確認對話框明確
   同意才會建立 Desktop Link。
+- V3-05 在 desktop target 的 `DesktopLinkModule.route` 轉到 Desktop Companion：使用者手動輸入
+  手機主裝置 ID（手機檢閱頁會顯示）、設定顯示名稱後，可生成包含本機公開 X25519 key 的短效
+  pairing QR，並貼入手機 encrypted challenge 取得 encrypted response。它不讀取／顯示私鑰，
+  不建立 socket、P2P、mailbox 或同步，畫面離開後不保存 UI payload。
 
 ## 本機資料模型
 
@@ -68,6 +73,9 @@ v15 會刻意作廢 v14 的暫存 request：舊資料只有自行宣告的 finge
 V3-04 刻意**不增加 SQLite schema**：challenge token、待驗證資料與 proof 成功狀態均為短效
 RAM state，不能在 app restart 後被重用，也不會成為備份、log 或資料庫內容。
 
+V3-05 也不增加資料表：Desktop Companion 的 request QR 與 encrypted response 僅為頁面 RAM
+state；它沒有同步游標、訊息內容、transport retry 或任何新的長期識別資料。
+
 ## API 邊界
 
 `DesktopLinkService` 提供以下本機 API：
@@ -97,7 +105,14 @@ RAM state，不能在 app restart 後被重用，也不會成為備份、log 或
 桌面 UI、網路、掃碼或持久化；目前手機檢閱頁只顯示可手動傳遞的加密 challenge payload，並接受
 手動貼入的 response payload。
 
-`DesktopLinkPairingRequestIssuer` 是供未來 desktop presentation 使用的純 domain helper：
+`DesktopLinkCompanionService` 與 `DesktopLinkCompanionPage` 是 desktop presentation 的主機範圍：
+
+1. service 以本機 desktop device ID／公開 X25519 key 透過 `DesktopLinkPairingRequestIssuer` 產生
+   canonical request，並把手機交付的 challenge 交給 `DesktopLinkKeyPossessionResponder`。
+2. page 只顯示 QR／可選取的 payload 與複製 response 操作；它不自動尋找手機、不自動傳輸，
+   也不會把 token 或 secret key 放進 UI state。
+
+`DesktopLinkPairingRequestIssuer` 仍是純 domain helper：
 
 1. 以本機副端 device ID 與公開 X25519 key 產生 request ID、短效期限、canonical public key
    payload 與可重算 fingerprint。
@@ -109,9 +124,10 @@ RAM state，不能在 app restart 後被重用，也不會成為備份、log 或
 
 ## 尚未實作／不可宣稱的能力
 
-- Windows／macOS／Linux 桌面端的 QR presentation、目標主裝置發現／交付與 challenge responder
-  UI。現況只有可重用的 domain responder 與手機端手動密文複製貼上，並沒有可使用的桌面配對
-  產品或自動傳遞流程。QR 本身的 fingerprint binding 也不能單獨當成私鑰持有證明。
+- Windows／macOS／Linux 的**實際 runtime** presentation 驗收、目標主裝置發現與自動交付。現況
+  已有 host-tested Desktop Companion QR／responder UI，但尚未在原生 desktop runner 驗證，亦沒有
+  Bluetooth／LAN／relay 或其他自動傳遞流程。QR 本身的 fingerprint binding 不能單獨當成私鑰
+  持有證明。
 - Android／iOS 真實相機權限允許／拒絕、相機掃碼與錯誤畫面的 runtime 驗收。
 - 實際 Windows／macOS／Linux Desktop transport、連線生命週期、離線重試與同步 UI。
 - 原生 libsodium／secure-storage 環境中的 challenge-response runtime 驗證；本輪 host test 以
@@ -120,9 +136,9 @@ RAM state，不能在 app restart 後被重用，也不會成為備份、log 或
 - 已撤銷副端不能收到或解密**新**訊息的端對端 runtime 證明。
 - 歷史訊息同步、檔案／附件同步、衝突處理、網路中斷恢復與真機／桌面資源量測。
 
-因此，V3-01～V3-04 的完成標示只代表「可由主機驗證的安全核心、手機端請求檢閱、公開金鑰
-binding 與 protocol-level 私鑰持有 gate」；它不替代 V1 真機、Push、iOS 或正式環境 Gate，
-也不代表桌面副端已可使用。
+因此，V3-01～V3-05 的完成標示只代表「可由主機驗證的安全核心、手機端請求檢閱、公開金鑰
+binding、protocol-level 私鑰持有 gate 與 desktop pairing presentation Widget」；它不替代 V1
+真機、Push、iOS 或正式環境 Gate，也不代表桌面副端已可使用。
 
 ## 主機驗證
 
@@ -135,6 +151,8 @@ $env:NIX_SKIP_SODIUM_BUILD_HOOKS='1'
   test\modules\desktop_link_pairing_request_test.dart `
   test\modules\desktop_link_pairing_request_issuer_test.dart `
   test\modules\desktop_link_key_possession_test.dart `
+  test\modules\desktop_link_companion_service_test.dart `
+  test\modules\desktop_link_companion_page_test.dart `
   test\modules\desktop_link_pairing_service_test.dart `
   test\modules\desktop_link_pairing_page_test.dart `
   test\modules\desktop_link_module_test.dart `
@@ -143,9 +161,11 @@ $env:NIX_SKIP_SODIUM_BUILD_HOOKS='1'
 ..\.tools\flutter\bin\cache\dart-sdk\bin\dart.exe analyze
 ```
 
-此命令目前有 35 項測試：v1→v15 migration、v14 未綁定公開金鑰 request 的安全作廢、
+此命令目前有 38 項測試：v1→v15 migration、v14 未綁定公開金鑰 request 的安全作廢、
 原本的授權／撤銷閘門、版本化 request、公開金鑰／fingerprint binding、canonical issuer、
 一次性狀態機、雙向 challenge-response（正常、竄改、錯誤金鑰、重放、過期及更換公開金鑰）
-與「先 proof、後明確同意」的手機 UI。`NIX_SKIP_SODIUM_BUILD_HOOKS=1` 只避開此 Windows
-主機缺少 C++ native toolchain 的 sodium hook；這些 proof test 使用 test-only `MessageBox`
-fake，不代表原生 libsodium、相機、桌面 runtime、真實私鑰持有 proof 或實機加密驗收通過。
+與「先 proof、後明確同意」的手機 UI，另涵蓋 Desktop Companion QR 產生、手動 challenge
+回應與輸入 fail-closed Widget／service flow。`NIX_SKIP_SODIUM_BUILD_HOOKS=1` 只避開此 Windows
+主機缺少 C++ native toolchain 的 sodium hook；這些 proof／desktop UI test 使用 test-only
+`MessageBox` fake，不代表原生 libsodium、相機、桌面 runtime、真實私鑰持有 proof 或實機加密
+驗收通過。

@@ -24,7 +24,8 @@ class DesktopLinkPairingRequestIssuer {
   final Uuid _uuid;
   final DateTime Function() _clock;
 
-  /// 產生只可使用一次的短效 request；QR 呈現由未來 desktop presentation adapter 負責。
+  /// 產生只可使用一次的短效 request；V3-05 的 Desktop Companion 畫面會把它呈現為 QR。
+  /// 這個 helper 本身仍不建立連線或交付 payload。
   DesktopLinkPairingRequest issue({
     required String targetPrimaryDeviceId,
     required String displayName,

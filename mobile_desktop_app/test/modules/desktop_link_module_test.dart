@@ -15,6 +15,7 @@ import 'package:p2p_chat_app/modules/crypto/domain/message_box.dart';
 import 'package:p2p_chat_app/modules/desktop_link/data/desktop_link_pairing_repository.dart';
 import 'package:p2p_chat_app/modules/desktop_link/data/desktop_link_repository.dart';
 import 'package:p2p_chat_app/modules/desktop_link/desktop_link_module.dart';
+import 'package:p2p_chat_app/modules/desktop_link/domain/desktop_link_companion_service.dart';
 import 'package:p2p_chat_app/modules/desktop_link/domain/desktop_link_key_possession.dart';
 import 'package:p2p_chat_app/modules/desktop_link/domain/desktop_link_pairing_service.dart';
 import 'package:p2p_chat_app/modules/desktop_link/domain/desktop_link_service.dart';
@@ -73,7 +74,9 @@ void main() {
       expect(services.isRegistered<DesktopLinkPairingRepository>(), isTrue);
       expect(services.isRegistered<DesktopLinkKeyPossessionService>(), isTrue);
       expect(services.isRegistered<DesktopLinkPairingService>(), isTrue);
+      expect(services.isRegistered<DesktopLinkCompanionService>(), isTrue);
       expect(routes.contains(DesktopLinkModule.route), isTrue);
+      expect(routes.contains(DesktopLinkModule.companionRoute), isTrue);
       await expectLater(
         services.get<DesktopLinkService>().authorize(
               deviceId: 'primary-phone',

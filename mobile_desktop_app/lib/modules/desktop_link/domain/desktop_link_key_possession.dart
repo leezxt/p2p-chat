@@ -510,7 +510,7 @@ class DesktopLinkKeyPossessionService {
   int _nowEpochSeconds() => _clock().millisecondsSinceEpoch ~/ 1000;
 }
 
-/// 桌面端可重用的 responder。未來 desktop presentation／transport 只需把手機傳來的
+/// 桌面端可重用的 responder。Desktop Companion 或未來 transport 只需把手機傳來的
 /// [DesktopLinkKeyPossessionChallenge] payload 交給它；本身不持久化、不建立連線。
 class DesktopLinkKeyPossessionResponder {
   DesktopLinkKeyPossessionResponder({

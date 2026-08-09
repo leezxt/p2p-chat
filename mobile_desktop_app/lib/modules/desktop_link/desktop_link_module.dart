@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../../core/database/database_service.dart';
 import '../../core/module/app_module.dart';
 import '../../core/module/module_context.dart';
@@ -7,9 +9,11 @@ import '../crypto/domain/message_box.dart';
 import '../identity/domain/identity_session.dart';
 import 'data/desktop_link_pairing_repository.dart';
 import 'data/desktop_link_repository.dart';
+import 'domain/desktop_link_companion_service.dart';
 import 'domain/desktop_link_key_possession.dart';
 import 'domain/desktop_link_pairing_service.dart';
 import 'domain/desktop_link_service.dart';
+import 'presentation/desktop_link_companion_page.dart';
 import 'presentation/desktop_link_pairing_page.dart';
 
 /// Desktop Link／Device Sync／Revoke 的主機安全核心。
@@ -17,24 +21,27 @@ import 'presentation/desktop_link_pairing_page.dart';
 /// 模組本身不維持連線，也不在背景工作；真正桌面 transport 會在未來按需啟動。
 class DesktopLinkModule extends AppModule {
   static const route = '/desktop-link';
+  static const companionRoute = '$route/companion';
 
+  late final String _primaryDeviceId;
   late final DesktopLinkService _desktopLinkService;
   late final DesktopLinkKeyPossessionService _keyPossessionService;
   late final DesktopLinkPairingService _pairingService;
+  late final DesktopLinkCompanionService _companionService;
 
   @override
   String get name => 'desktop_link';
 
   @override
   Future<void> init(ModuleContext context) async {
-    final primaryDeviceId = context.services.get<IdentitySession>().deviceId;
+    _primaryDeviceId = context.services.get<IdentitySession>().deviceId;
     final repository = DesktopLinkRepository(
       context.services.get<DatabaseService>().db,
     );
     context.services.registerSingleton<DesktopLinkRepository>(repository);
     _desktopLinkService = DesktopLinkService(
       repository: repository,
-      primaryDeviceId: primaryDeviceId,
+      primaryDeviceId: _primaryDeviceId,
       eventBus: context.eventBus,
     );
     context.services.registerSingleton<DesktopLinkService>(_desktopLinkService);
@@ -48,7 +55,7 @@ class DesktopLinkModule extends AppModule {
     _keyPossessionService = DesktopLinkKeyPossessionService(
       box: context.services.get<MessageBox>(),
       primaryKey: context.services.get<DeviceKeyMaterial>(),
-      primaryDeviceId: primaryDeviceId,
+      primaryDeviceId: _primaryDeviceId,
     );
     context.services.registerSingleton<DesktopLinkKeyPossessionService>(
       _keyPossessionService,
@@ -57,10 +64,18 @@ class DesktopLinkModule extends AppModule {
       repository: pairingRepository,
       desktopLinkService: _desktopLinkService,
       keyPossessionService: _keyPossessionService,
-      primaryDeviceId: primaryDeviceId,
+      primaryDeviceId: _primaryDeviceId,
     );
     context.services.registerSingleton<DesktopLinkPairingService>(
       _pairingService,
+    );
+    _companionService = DesktopLinkCompanionService(
+      box: context.services.get<MessageBox>(),
+      desktopKey: context.services.get<DeviceKeyMaterial>(),
+      desktopDeviceId: _primaryDeviceId,
+    );
+    context.services.registerSingleton<DesktopLinkCompanionService>(
+      _companionService,
     );
   }
 
@@ -68,11 +83,30 @@ class DesktopLinkModule extends AppModule {
   void registerRoutes(RouteRegistry routes) {
     routes.add(
       route,
-      (context, args) => DesktopLinkPairingPage(
-        pairingService: _pairingService,
-        desktopLinkService: _desktopLinkService,
-      ),
+      (context, args) => _usesCompanionPresentation
+          ? DesktopLinkCompanionPage(companionService: _companionService)
+          : DesktopLinkPairingPage(
+              pairingService: _pairingService,
+              desktopLinkService: _desktopLinkService,
+              primaryDeviceId: _primaryDeviceId,
+            ),
     );
+    routes.add(
+      companionRoute,
+      (context, args) =>
+          DesktopLinkCompanionPage(companionService: _companionService),
+    );
+  }
+
+  static bool get _usesCompanionPresentation {
+    if (kIsWeb) return false;
+    return switch (defaultTargetPlatform) {
+      TargetPlatform.linux ||
+      TargetPlatform.macOS ||
+      TargetPlatform.windows =>
+        true,
+      _ => false,
+    };
   }
 
   @override

@@ -741,6 +741,150 @@ abstract class AppLocalizations {
   /// **'Scan or paste a short-lived pairing request from your desktop. Review its fingerprint before approving.'**
   String get desktopLinkPairDescription;
 
+  /// No description provided for @desktopLinkPrimaryDeviceId.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary phone device ID'**
+  String get desktopLinkPrimaryDeviceId;
+
+  /// No description provided for @desktopLinkPrimaryDeviceIdDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter this identifier in the desktop pairing helper. It is an identifier, not a secret.'**
+  String get desktopLinkPrimaryDeviceIdDescription;
+
+  /// No description provided for @desktopLinkCompanionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up this desktop'**
+  String get desktopLinkCompanionTitle;
+
+  /// No description provided for @desktopLinkCompanionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a short-lived pairing QR for your primary phone. This step does not transfer messages or create a network connection.'**
+  String get desktopLinkCompanionDescription;
+
+  /// No description provided for @desktopLinkCompanionPrimaryDeviceId.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary phone device ID'**
+  String get desktopLinkCompanionPrimaryDeviceId;
+
+  /// No description provided for @desktopLinkCompanionPrimaryDeviceIdHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy it from the primary phone\'s Desktop Link page.'**
+  String get desktopLinkCompanionPrimaryDeviceIdHelp;
+
+  /// No description provided for @desktopLinkCompanionDisplayName.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop name'**
+  String get desktopLinkCompanionDisplayName;
+
+  /// No description provided for @desktopLinkCompanionGenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create pairing QR'**
+  String get desktopLinkCompanionGenerate;
+
+  /// No description provided for @desktopLinkCompanionRequestReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing QR ready'**
+  String get desktopLinkCompanionRequestReady;
+
+  /// No description provided for @desktopLinkCompanionPairingQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop pairing QR code'**
+  String get desktopLinkCompanionPairingQr;
+
+  /// No description provided for @desktopLinkCompanionRequestNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan this QR from the primary phone, then paste its encrypted verification challenge below. The QR alone does not grant access.'**
+  String get desktopLinkCompanionRequestNotice;
+
+  /// No description provided for @desktopLinkCompanionRequestPayload.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing request data'**
+  String get desktopLinkCompanionRequestPayload;
+
+  /// No description provided for @desktopLinkCompanionPasteChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste phone verification challenge'**
+  String get desktopLinkCompanionPasteChallenge;
+
+  /// No description provided for @desktopLinkCompanionChallengeData.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone verification challenge data'**
+  String get desktopLinkCompanionChallengeData;
+
+  /// No description provided for @desktopLinkCompanionCreateResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Create desktop response'**
+  String get desktopLinkCompanionCreateResponse;
+
+  /// No description provided for @desktopLinkCompanionResponseReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypted desktop response ready'**
+  String get desktopLinkCompanionResponseReady;
+
+  /// No description provided for @desktopLinkCompanionResponseNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Return this encrypted response to the primary phone, then complete private-key verification and explicit approval there.'**
+  String get desktopLinkCompanionResponseNotice;
+
+  /// No description provided for @desktopLinkCompanionResponsePayload.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop verification response data'**
+  String get desktopLinkCompanionResponsePayload;
+
+  /// No description provided for @desktopLinkCompanionCopyResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy desktop response'**
+  String get desktopLinkCompanionCopyResponse;
+
+  /// No description provided for @desktopLinkCompanionResponseCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop response copied'**
+  String get desktopLinkCompanionResponseCopied;
+
+  /// No description provided for @desktopLinkCompanionResponseCopyFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to copy the desktop response'**
+  String get desktopLinkCompanionResponseCopyFailed;
+
+  /// No description provided for @desktopLinkCompanionInvalidInput.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid primary phone device ID and desktop name.'**
+  String get desktopLinkCompanionInvalidInput;
+
+  /// No description provided for @desktopLinkCompanionChallengeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'The phone challenge is invalid, expired, or not intended for this desktop.'**
+  String get desktopLinkCompanionChallengeInvalid;
+
+  /// No description provided for @desktopLinkCompanionNoTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a local pairing presentation and manual handoff only. Desktop transport, message sync, and per-device encryption are not implemented.'**
+  String get desktopLinkCompanionNoTransport;
+
   /// No description provided for @desktopLinkRequestData.
   ///
   /// In en, this message translates to:

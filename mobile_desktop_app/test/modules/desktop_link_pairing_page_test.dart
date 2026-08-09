@@ -22,6 +22,7 @@ void main() {
         DesktopLinkPairingPage(
           pairingService: pairing,
           desktopLinkService: links,
+          primaryDeviceId: 'primary-phone',
           qrScanner: scanner,
         ),
       ),
@@ -32,6 +33,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(scanner.calls, 1);
+    expect(find.text('primary-phone'), findsOneWidget);
     expect(find.text('Pairing request ready for review'), findsOneWidget);
     expect(find.textContaining('Windows test desktop'), findsOneWidget);
     expect(find.text(request.publicKeyFingerprint), findsOneWidget);
@@ -42,9 +44,11 @@ void main() {
     expect(pairing.confirmCalls, 0);
     expect(links.links, isEmpty);
 
-    await tester.tap(
-      find.widgetWithText(FilledButton, 'Verify desktop private key'),
-    );
+    final startProof =
+        find.widgetWithText(FilledButton, 'Verify desktop private key');
+    await tester.drag(find.byType(ListView), const Offset(0, -360));
+    await tester.pumpAndSettle();
+    await tester.tap(startProof);
     await tester.pumpAndSettle();
     expect(find.text('Encrypted challenge ready'), findsOneWidget);
     expect(

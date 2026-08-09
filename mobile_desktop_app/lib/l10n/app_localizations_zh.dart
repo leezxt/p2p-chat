@@ -348,6 +348,84 @@ class AppLocalizationsZh extends AppLocalizations {
       '掃描或貼上桌面端產生的短效配對請求。核對 fingerprint 後，再決定是否同意。';
 
   @override
+  String get desktopLinkPrimaryDeviceId => '主要手機裝置 ID';
+
+  @override
+  String get desktopLinkPrimaryDeviceIdDescription =>
+      '請把這個識別碼輸入桌面配對助手。它是識別資料，不是秘密。';
+
+  @override
+  String get desktopLinkCompanionTitle => '設定這台桌面裝置';
+
+  @override
+  String get desktopLinkCompanionDescription =>
+      '為主要手機建立短效配對 QR Code。這個步驟不傳輸訊息，也不建立網路連線。';
+
+  @override
+  String get desktopLinkCompanionPrimaryDeviceId => '主要手機裝置 ID';
+
+  @override
+  String get desktopLinkCompanionPrimaryDeviceIdHelp => '請從主要手機的「桌面連結」頁面複製。';
+
+  @override
+  String get desktopLinkCompanionDisplayName => '桌面裝置名稱';
+
+  @override
+  String get desktopLinkCompanionGenerate => '建立配對 QR Code';
+
+  @override
+  String get desktopLinkCompanionRequestReady => '配對 QR Code 已準備好';
+
+  @override
+  String get desktopLinkCompanionPairingQr => '桌面配對 QR Code';
+
+  @override
+  String get desktopLinkCompanionRequestNotice =>
+      '使用主要手機掃描此 QR Code，然後把加密驗證 challenge 貼到下方。QR Code 本身不會取得存取權。';
+
+  @override
+  String get desktopLinkCompanionRequestPayload => '配對請求資料';
+
+  @override
+  String get desktopLinkCompanionPasteChallenge => '貼上手機驗證 challenge';
+
+  @override
+  String get desktopLinkCompanionChallengeData => '手機驗證 challenge 資料';
+
+  @override
+  String get desktopLinkCompanionCreateResponse => '建立桌面驗證回應';
+
+  @override
+  String get desktopLinkCompanionResponseReady => '加密桌面回應已準備好';
+
+  @override
+  String get desktopLinkCompanionResponseNotice =>
+      '將此加密回應交回主要手機，再由手機完成私鑰驗證與明確同意。';
+
+  @override
+  String get desktopLinkCompanionResponsePayload => '桌面驗證回應資料';
+
+  @override
+  String get desktopLinkCompanionCopyResponse => '複製桌面回應';
+
+  @override
+  String get desktopLinkCompanionResponseCopied => '已複製桌面回應';
+
+  @override
+  String get desktopLinkCompanionResponseCopyFailed => '無法複製桌面回應';
+
+  @override
+  String get desktopLinkCompanionInvalidInput => '請輸入有效的主要手機裝置 ID 與桌面裝置名稱。';
+
+  @override
+  String get desktopLinkCompanionChallengeInvalid =>
+      '手機 challenge 無效、已過期，或並非傳給這台桌面裝置。';
+
+  @override
+  String get desktopLinkCompanionNoTransport =>
+      '目前只有本機配對呈現與手動交付流程；尚未建立 Desktop transport、訊息同步或每副端加密。';
+
+  @override
   String get desktopLinkRequestData => '桌面配對 QR 內容';
 
   @override
@@ -787,6 +865,84 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String get desktopLinkPairDescription =>
       '掃描或貼上桌面端產生的短效配對請求。核對 fingerprint 後，再決定是否同意。';
+
+  @override
+  String get desktopLinkPrimaryDeviceId => '主要手機裝置 ID';
+
+  @override
+  String get desktopLinkPrimaryDeviceIdDescription =>
+      '請把這個識別碼輸入桌面配對助手。它是識別資料，不是秘密。';
+
+  @override
+  String get desktopLinkCompanionTitle => '設定這台桌面裝置';
+
+  @override
+  String get desktopLinkCompanionDescription =>
+      '為主要手機建立短效配對 QR Code。這個步驟不傳輸訊息，也不建立網路連線。';
+
+  @override
+  String get desktopLinkCompanionPrimaryDeviceId => '主要手機裝置 ID';
+
+  @override
+  String get desktopLinkCompanionPrimaryDeviceIdHelp => '請從主要手機的「桌面連結」頁面複製。';
+
+  @override
+  String get desktopLinkCompanionDisplayName => '桌面裝置名稱';
+
+  @override
+  String get desktopLinkCompanionGenerate => '建立配對 QR Code';
+
+  @override
+  String get desktopLinkCompanionRequestReady => '配對 QR Code 已準備好';
+
+  @override
+  String get desktopLinkCompanionPairingQr => '桌面配對 QR Code';
+
+  @override
+  String get desktopLinkCompanionRequestNotice =>
+      '使用主要手機掃描此 QR Code，然後把加密驗證 challenge 貼到下方。QR Code 本身不會取得存取權。';
+
+  @override
+  String get desktopLinkCompanionRequestPayload => '配對請求資料';
+
+  @override
+  String get desktopLinkCompanionPasteChallenge => '貼上手機驗證 challenge';
+
+  @override
+  String get desktopLinkCompanionChallengeData => '手機驗證 challenge 資料';
+
+  @override
+  String get desktopLinkCompanionCreateResponse => '建立桌面驗證回應';
+
+  @override
+  String get desktopLinkCompanionResponseReady => '加密桌面回應已準備好';
+
+  @override
+  String get desktopLinkCompanionResponseNotice =>
+      '將此加密回應交回主要手機，再由手機完成私鑰驗證與明確同意。';
+
+  @override
+  String get desktopLinkCompanionResponsePayload => '桌面驗證回應資料';
+
+  @override
+  String get desktopLinkCompanionCopyResponse => '複製桌面回應';
+
+  @override
+  String get desktopLinkCompanionResponseCopied => '已複製桌面回應';
+
+  @override
+  String get desktopLinkCompanionResponseCopyFailed => '無法複製桌面回應';
+
+  @override
+  String get desktopLinkCompanionInvalidInput => '請輸入有效的主要手機裝置 ID 與桌面裝置名稱。';
+
+  @override
+  String get desktopLinkCompanionChallengeInvalid =>
+      '手機 challenge 無效、已過期，或並非傳給這台桌面裝置。';
+
+  @override
+  String get desktopLinkCompanionNoTransport =>
+      '目前只有本機配對呈現與手動交付流程；尚未建立 Desktop transport、訊息同步或每副端加密。';
 
   @override
   String get desktopLinkRequestData => '桌面配對 QR 內容';
