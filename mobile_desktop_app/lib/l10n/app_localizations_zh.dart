@@ -294,6 +294,26 @@ class AppLocalizationsZh extends AppLocalizations {
   String storageCacheCleared(Object size) {
     return '已清理 $size 快取';
   }
+
+  @override
+  String get smartNotification => '聊天室通知';
+
+  @override
+  String get notificationMute => '靜音此聊天室';
+
+  @override
+  String get notificationMuteDescription => '此聊天室有新訊息時不建立通知';
+
+  @override
+  String get notificationPreview => '顯示通知預覽';
+
+  @override
+  String get notificationPreviewDescription =>
+      '只有 App Lock 隱私策略允許時，才顯示本機寄件者與訊息內容';
+
+  @override
+  String get notificationPrivacyNotice =>
+      '即使已開啟預覽，App Lock 鎖定或已啟用通知隱私時，內容仍會隱藏。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -586,4 +606,24 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String storageCacheCleared(Object size) {
     return '已清理 $size 快取';
   }
+
+  @override
+  String get smartNotification => '聊天室通知';
+
+  @override
+  String get notificationMute => '靜音此聊天室';
+
+  @override
+  String get notificationMuteDescription => '此聊天室有新訊息時不建立通知';
+
+  @override
+  String get notificationPreview => '顯示通知預覽';
+
+  @override
+  String get notificationPreviewDescription =>
+      '只有 App Lock 隱私策略允許時，才顯示本機寄件者與訊息內容';
+
+  @override
+  String get notificationPrivacyNotice =>
+      '即使已開啟預覽，App Lock 鎖定或已啟用通知隱私時，內容仍會隱藏。';
 }

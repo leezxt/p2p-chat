@@ -80,6 +80,12 @@ Storage Manager 是無網路、無背景常駐的本機模組。它量測 SQLite
 `storage_cache_entries` 的可重建快取索引，身份、裝置／金鑰、安全設定、聊天紀錄與
 `mailbox_pending_queue` 的未送密文永遠不在清理範圍內。
 
+Smart Notification 將每個聊天室的 `muted`／`allow_preview` 偏好保存於 SQLite。
+`muted` 直接抑制 provider 的通知建立；預覽則必須同時經聊天室明確允許與
+`NotificationPresentationPolicy` 的 App Lock 檢查。狀態未知、App 已鎖定或使用者
+開啟通知隱私時，一律回傳不含寄件者與內容的通用文字。此層是 provider-neutral，
+不含 FCM/APNs SDK 或系統通知權限處理。
+
 ## 運行模式
 
 正確：平常休眠 → 收推播或開聊天室 → 建立 P2P → 傳完短暫維持 → 閒置斷線 → 進背景關閉 P2P。

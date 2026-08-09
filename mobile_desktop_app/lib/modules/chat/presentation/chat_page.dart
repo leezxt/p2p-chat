@@ -9,6 +9,8 @@ import '../../safety_number/domain/safety_number_service.dart';
 import '../../safety_number/presentation/safety_number_page.dart';
 import '../../reaction/domain/reaction_event.dart';
 import '../../sticker/domain/sticker_pack_manifest.dart';
+import '../../smart_notification/domain/smart_notification_service.dart';
+import '../../smart_notification/presentation/smart_notification_settings_page.dart';
 
 /// 單一聊天室畫面。以 [ChatController] 驅動，支援送出文字與向上載入更舊訊息。
 class ChatPage extends StatefulWidget {
@@ -18,12 +20,14 @@ class ChatPage extends StatefulWidget {
     required this.title,
     this.safetyNumberService,
     this.peerUserId,
+    this.smartNotificationService,
   });
 
   final ChatController controller;
   final String title;
   final SafetyNumberService? safetyNumberService;
   final String? peerUserId;
+  final SmartNotificationService? smartNotificationService;
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -66,6 +70,19 @@ class _ChatPageState extends State<ChatPage> {
       appBar: AppBar(
         title: Text(widget.title),
         actions: [
+          if (widget.smartNotificationService case final service?)
+            IconButton(
+              tooltip: AppLocalizations.of(context).smartNotification,
+              icon: const Icon(Icons.notifications_outlined),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => SmartNotificationSettingsPage(
+                    conversationId: widget.controller.conversationId,
+                    service: service,
+                  ),
+                ),
+              ),
+            ),
           if (widget.safetyNumberService != null && widget.peerUserId != null)
             IconButton(
               tooltip: AppLocalizations.of(context).safetyNumber,

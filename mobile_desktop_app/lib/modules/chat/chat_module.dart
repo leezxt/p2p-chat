@@ -25,6 +25,7 @@ import '../low_power/domain/low_power_mode_service.dart';
 import '../reaction/data/reaction_repository.dart';
 import '../sticker/data/built_in_sticker_catalog.dart';
 import '../storage/domain/storage_manager_service.dart';
+import '../smart_notification/domain/smart_notification_service.dart';
 
 /// 聊天模組（規格 §6 Foundation Module）。
 ///
@@ -121,6 +122,10 @@ class ChatModule implements AppModule {
               storageManagerService:
                   _services.isRegistered<StorageManagerService>()
                       ? _services.get<StorageManagerService>()
+                      : null,
+              smartNotificationService:
+                  _services.isRegistered<SmartNotificationService>()
+                      ? _services.get<SmartNotificationService>()
                       : null,
             ));
   }

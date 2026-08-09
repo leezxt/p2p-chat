@@ -108,5 +108,11 @@
   "storageClearCacheDescription": "Only rebuildable cache is removed. Chats and security data stay on this device.",
   "storageClearCacheConfirmation": "Remove {size} of rebuildable cache? This does not delete chats, identity, keys, or unsent messages.",
   "@storageClearCacheConfirmation": {"placeholders": {"size": {"type": "String"}}},
-  "storageCacheCleared": "Cleared {size} of cache"
+  "storageCacheCleared": "Cleared {size} of cache",
+  "smartNotification": "Chat notifications",
+  "notificationMute": "Mute this chat",
+  "notificationMuteDescription": "Do not create notifications for new messages in this chat",
+  "notificationPreview": "Show notification preview",
+  "notificationPreviewDescription": "Show local sender and message details only when App Lock allows it",
+  "notificationPrivacyNotice": "Even when enabled, previews stay hidden while App Lock is locked or notification privacy is enabled."
 }

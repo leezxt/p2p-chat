@@ -644,6 +644,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cleared {size} of cache'**
   String storageCacheCleared(Object size);
+
+  /// No description provided for @smartNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat notifications'**
+  String get smartNotification;
+
+  /// No description provided for @notificationMute.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute this chat'**
+  String get notificationMute;
+
+  /// No description provided for @notificationMuteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not create notifications for new messages in this chat'**
+  String get notificationMuteDescription;
+
+  /// No description provided for @notificationPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Show notification preview'**
+  String get notificationPreview;
+
+  /// No description provided for @notificationPreviewDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Show local sender and message details only when App Lock allows it'**
+  String get notificationPreviewDescription;
+
+  /// No description provided for @notificationPrivacyNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Even when enabled, previews stay hidden while App Lock is locked or notification privacy is enabled.'**
+  String get notificationPrivacyNotice;
 }
 
 class _AppLocalizationsDelegate

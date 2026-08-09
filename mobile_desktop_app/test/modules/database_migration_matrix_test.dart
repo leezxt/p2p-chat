@@ -77,6 +77,7 @@ void main() {
             'safety_number_verifications',
             'message_reactions',
             'storage_cache_entries',
+            'notification_preferences',
           ]),
         );
       } finally {

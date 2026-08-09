@@ -24,6 +24,7 @@ import '../../reaction/data/reaction_repository.dart';
 import '../../sticker/data/built_in_sticker_catalog.dart';
 import '../../storage/domain/storage_manager_service.dart';
 import '../../storage/presentation/storage_manager_page.dart';
+import '../../smart_notification/domain/smart_notification_service.dart';
 
 /// 聊天室列表畫面（App 首頁）。可建立本機測試聊天室並進入聊天。
 class ConversationListPage extends StatefulWidget {
@@ -46,6 +47,7 @@ class ConversationListPage extends StatefulWidget {
     this.reactionRepository,
     this.stickerCatalog,
     this.storageManagerService,
+    this.smartNotificationService,
   });
 
   final ChatRepository repository;
@@ -65,6 +67,7 @@ class ConversationListPage extends StatefulWidget {
   final ReactionRepository? reactionRepository;
   final BuiltInStickerCatalog? stickerCatalog;
   final StorageManagerService? storageManagerService;
+  final SmartNotificationService? smartNotificationService;
 
   @override
   State<ConversationListPage> createState() => _ConversationListPageState();
@@ -212,6 +215,7 @@ class _ConversationListPageState extends State<ConversationListPage> {
         safetyNumberService:
             peerUserId == null ? null : widget.safetyNumberService,
         peerUserId: peerUserId,
+        smartNotificationService: widget.smartNotificationService,
       ),
     ));
     await _controller.load();

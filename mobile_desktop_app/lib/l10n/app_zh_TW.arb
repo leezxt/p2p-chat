@@ -108,5 +108,11 @@
   "storageClearCacheDescription": "只移除可重建快取；聊天與安全資料會保留在此裝置。",
   "storageClearCacheConfirmation": "要移除 {size} 的可重建快取嗎？聊天、身份、金鑰與未送訊息不會被刪除。",
   "@storageClearCacheConfirmation": {"placeholders": {"size": {"type": "String"}}},
-  "storageCacheCleared": "已清理 {size} 快取"
+  "storageCacheCleared": "已清理 {size} 快取",
+  "smartNotification": "聊天室通知",
+  "notificationMute": "靜音此聊天室",
+  "notificationMuteDescription": "此聊天室有新訊息時不建立通知",
+  "notificationPreview": "顯示通知預覽",
+  "notificationPreviewDescription": "只有 App Lock 隱私策略允許時，才顯示本機寄件者與訊息內容",
+  "notificationPrivacyNotice": "即使已開啟預覽，App Lock 鎖定或已啟用通知隱私時，內容仍會隱藏。"
 }

@@ -195,7 +195,7 @@
 | V2-03 | 圖片／語音訊息基礎 | 定義加密 attachment metadata、大小上限、按需下載、取消／重試與 Low Power／行動網路政策；以 fake transport、fixture 與 AVD 驗證 UI | 真實相機、麥克風、權限、行動網路與耗電 |
 | V2-04 | 單則翻譯框架 | 原文不可改寫；provider interface、明確 opt-in、語言／provider cache key、可清除本機快取與 fake provider tests | 真實雲端 provider、費用、資料處理條款與網路失敗 |
 | V2-05 | Storage Manager（✅ 主機核心完成） | SQLite v10 快取索引、DB／快取／附件分類、preview-first 確認、只清可重建 cache，並以 tests 保護身份／金鑰／聊天／未送 mailbox | 真機磁碟壓力、OS 清理、大量資料效能與未來真實附件 |
-| V2-06 | Smart Notification | 聊天室 mute／privacy 偏好、鎖定時通用文字、provider-neutral policy 與 cold/warm routing tests | 真實 FCM／APNs、系統權限與 OEM 行為 |
+| V2-06 | Smart Notification（✅ 主機核心完成） | SQLite v11 per-chat mute／preview 偏好、App Lock 雙重隱私判定、provider-neutral 決策與聊天室設定 UI／tests | 真實 FCM／APNs、系統權限、cold/warm provider routing 與 OEM 行為 |
 
 建議主機實作順序：`V2-01 → V2-02 → V2-05 → V2-06 → V2-04 → V2-03`。
 前四項主要沿用既有文字訊息、Mailbox、App Lock 與設定架構；圖片／語音的資源與

@@ -310,4 +310,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String storageCacheCleared(Object size) {
     return 'Cleared $size of cache';
   }
+
+  @override
+  String get smartNotification => 'Chat notifications';
+
+  @override
+  String get notificationMute => 'Mute this chat';
+
+  @override
+  String get notificationMuteDescription =>
+      'Do not create notifications for new messages in this chat';
+
+  @override
+  String get notificationPreview => 'Show notification preview';
+
+  @override
+  String get notificationPreviewDescription =>
+      'Show local sender and message details only when App Lock allows it';
+
+  @override
+  String get notificationPrivacyNotice =>
+      'Even when enabled, previews stay hidden while App Lock is locked or notification privacy is enabled.';
 }

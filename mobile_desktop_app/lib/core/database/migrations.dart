@@ -9,7 +9,7 @@ class Migration {
 }
 
 /// 目前 schema 版本。每次新增 migration 時 +1。
-const int kCurrentDbVersion = 10;
+const int kCurrentDbVersion = 11;
 
 /// 依版本排序的 migration 清單。
 const List<Migration> kMigrations = [
@@ -199,6 +199,16 @@ const List<Migration> kMigrations = [
     CREATE TABLE storage_cache_entries (
       cache_key TEXT PRIMARY KEY,
       byte_size INTEGER NOT NULL CHECK (byte_size >= 0),
+      updated_at INTEGER NOT NULL
+    )
+    ''',
+  ]),
+  Migration(11, [
+    '''
+    CREATE TABLE notification_preferences (
+      conversation_id TEXT PRIMARY KEY,
+      muted INTEGER NOT NULL DEFAULT 0 CHECK (muted IN (0, 1)),
+      allow_preview INTEGER NOT NULL DEFAULT 0 CHECK (allow_preview IN (0, 1)),
       updated_at INTEGER NOT NULL
     )
     ''',
