@@ -227,9 +227,10 @@ runner 內的主裝置角色 proof 驗證。若要在本機額外測 copy，需�
 clipboard。CI 在 GitHub-hosted Windows runner 會加上這個旗標。腳本會拒絕設定
 `NIX_SKIP_SODIUM_BUILD_HOOKS` 的 native run，避免 fake crypto 成為 runtime evidence。
 
-這些測試證明 Windows runner 可載入相關 plugin，並驗證本機 desktop pairing flow；它們不啟動
-真實手機相機、也不建立 Desktop transport、per-device re-encryption、跨裝置訊息同步或撤銷後
-資料不可解密的端對端情境。
+這些測試證明 Windows runner 可載入相關 plugin，並驗證 desktop pairing flow；
+[PR #54 V1 CI run 31317162765](https://github.com/leezxt/p2p-chat/actions/runs/31317162765) 已在
+`e576e43` 對應版本通過 native Companion integration。它們不啟動真實手機相機、也不建立 Desktop
+transport、per-device re-encryption、跨裝置訊息同步或撤銷後資料不可解密的端對端情境。
 
 Windows CI 會額外以兩個獨立 App process 執行 secure storage phase。`write` phase 清除
 專用測試 key、建立裝置金鑰並保存非秘密 fingerprint marker；`verify` phase 由新的 App

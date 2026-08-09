@@ -75,17 +75,19 @@ Android application ID、iOS Bundle ID、Firebase project 與加密 domain strin
   route 會改為顯示本機公開 X25519 key 產生的短效 pairing QR；使用者手動輸入手機主裝置 ID 與
   桌面名稱，貼入手機 challenge 後取得可複製的 encrypted response。手機檢閱頁同時顯示 primary
   device ID，形成無網路、無背景、無 token persistence 的手動流程。service／Widget 與既有 V3
-  專項共 38 項主機測試、`dart analyze` 已於 2026-08-09 通過；這不是 Windows native runtime 或
-  真實跨裝置同步證據。
-- [ ] V3 外部 Gate：Windows／macOS／Linux 原生 runner 的 QR／clipboard／secure-storage runtime、
+  專項共 38 項主機測試、`dart analyze` 已於 2026-08-09 通過；
+  [GitHub Windows CI run 31317162765](https://github.com/leezxt/p2p-chat/actions/runs/31317162765)
+  另以真實 `SodiumMessageBox`、QR rendering、主端角色 proof 與受控 clipboard copy 通過受限
+  Windows native flow。這不是實體手機與桌面的真實跨裝置同步證據。
+- [ ] V3 外部 Gate：macOS／Linux 原生 runner、目前本機 Windows 完整使用者流程、
   目標主裝置 discovery／自動交付，Android／iOS 真實相機權限與掃碼、原生 libsodium challenge
   proof runtime、實際桌面端 transport、每副端重新加密、真實多裝置同步／網路故障，以及撤銷後
   副端無法取得或解密新訊息的 Windows／Android／iOS runtime 驗收。
   `mobile_desktop_app/tool/verify_windows_desktop.ps1` 現在統一 Windows preflight、debug build、
   secure-storage process restart 與 Desktop Companion native integration；native run 一律拒絕
   `NIX_SKIP_SODIUM_BUILD_HOOKS`。本機 2026-08-09 的 preflight 仍顯示未安裝 Visual Studio Desktop
-  development with C++／MSVC／CMake／Windows SDK，故待 GitHub Windows CI 或安裝後的本機 runner
-  執行此入口取得 runtime 證據；未通過前不可勾選外部 Gate。
+  development with C++／MSVC／CMake／Windows SDK；CI 已通過受限 native flow，但本機 runner 仍需
+  安裝後執行此入口，且不能以 CI 成功勾選其餘跨裝置 Gate。
 
 詳細安全邊界與未完成 protocol 見 [`desktop_link.md`](desktop_link.md)。
 

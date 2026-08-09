@@ -71,10 +71,12 @@ Simple Communication 不是要複製 LINE、WhatsApp 或 Discord，而是以四�
   QR 的公開金鑰與 fingerprint 綁定，兩者都不保存 QR 原文或 token。
 - Desktop target 的同一入口會呈現 Desktop Companion：手動輸入手機 device ID 後顯示短效 QR，
   貼入手機 challenge 後輸出 encrypted response；流程沒有網路、背景工作或 token persistence。
-- QR 內容仍是**不可信輸入**：私鑰持有 proof、手機端授權閘門與 Desktop Companion host UI 已實作，
-  但原生桌面 runtime／自動交付、Desktop transport、per-device 加密傳輸、真實相機與原生
-  libsodium runtime 尚未驗收；因此不宣稱已完成跨裝置訊息同步、完整桌面 App 身份驗收，或既有
-  副端金鑰清除。
+- QR 內容仍是**不可信輸入**：私鑰持有 proof、手機端授權閘門與 Desktop Companion host UI 已實作。
+  [GitHub-hosted Windows CI run 31317162765](https://github.com/leezxt/p2p-chat/actions/runs/31317162765)
+  已以真實 `SodiumMessageBox` 驗證 QR rendering、手動 challenge-response 與受控 clipboard copy；
+  但它是在同一 Windows runner 內模擬主裝置角色，並未驗收原生桌面完整使用者流程／自動交付、
+  Desktop transport、per-device 加密傳輸、真實手機相機或既有副端金鑰清除。因此不宣稱已完成
+  跨裝置訊息同步或完整桌面 App 身份驗收。
 
 ## App 畫面
 
@@ -125,7 +127,7 @@ flowchart LR
 | 2026-07-15～16 | 安全與低功耗 | 加密儲存、Presence、Push Outbox |
 | 2026-07-17～18 | V1.5 能力 | Low Power Mode、App Lock、Safety Number |
 | 2026-07-19 | 發布工程 | Backup／Restore、Monitor／Alert、RC 文件 |
-| 2026-08-09 | V3 安全基礎 | Desktop Link 授權、只同步新訊息、撤銷閘門、一次性 QR 檢閱、公開金鑰 binding、私鑰持有 challenge-response 閘門與 Desktop Companion host UI |
+| 2026-08-09 | V3 安全基礎 | Desktop Link 授權、只同步新訊息、撤銷閘門、一次性 QR 檢閱、公開金鑰 binding、私鑰持有 challenge-response 閘門、Desktop Companion host UI 與 GitHub-hosted Windows native runtime Gate |
 
 每個階段均以「可編譯、可測試、可回退」為完成原則，並同步更新測試與交接文件。
 
@@ -139,8 +141,10 @@ flowchart LR
 - Desktop Link 主機安全核心：SQLite v13 授權狀態、SQLite v14 一次性配對請求狀態、
   SQLite v15 公開金鑰／fingerprint binding、短效 RAM challenge、雙向 `crypto_box`
   私鑰持有 proof、明確手機授權、嚴格新訊息切點與撤銷 fail-closed 規則；沒有有效 proof
-  時 QR 不會取得授權。Desktop Companion 可顯示 QR 並手動回覆 challenge；此項目前是主機
-  fake-crypto／Widget 證據，非原生或 Desktop runtime 證據。
+  時 QR 不會取得授權。Desktop Companion 可顯示 QR 並手動回覆 challenge；38 項 host tests
+  使用 test-only fake，但 [Windows CI run 31317162765](https://github.com/leezxt/p2p-chat/actions/runs/31317162765)
+  另外以 real sodium、QR rendering、主端角色 proof 與受控 clipboard copy 驗證此限定流程。
+  這不是實體手機／桌面跨裝置同步或完整桌面 App 使用者驗收。
 - Production Backup／Restore、Monitor／Alert 與 off-host export fixtures。
 - GitHub Actions 的 Java、Flutter、PostgreSQL 與 Windows Desktop 工作。
 

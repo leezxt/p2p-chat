@@ -122,23 +122,37 @@ state；它沒有同步游標、訊息內容、transport retry 或任何新的�
 任何未來 transport 必須先經 `selectNewMessages`，再針對目標副端的**新裝置金鑰**加密。
 不得把目前手機端的本機聊天資料庫、既有加密 envelope 或私鑰直接複製到桌面端。
 
+## GitHub-hosted Windows runtime 證據
+
+[V1 CI run 31317162765](https://github.com/leezxt/p2p-chat/actions/runs/31317162765) 的 Windows
+runner 已通過 `desktop_link_companion_runtime_test.dart`：它以真實 `SodiumMessageBox` 為獨立的
+主裝置與 desktop key 產生 `crypto_box` challenge-response，驅動 `DesktopLinkCompanionPage` 輸入
+主裝置 ID、繪製 `QrImageView`、貼入 challenge 並輸出 response；CI 另啟用 `VERIFY_CLIPBOARD=true`
+驗證 copy 後可讀回測試 payload，並在 `finally` 清除。此 job 同時通過 Windows debug build、native
+crypto、Credential Manager 跨 process 與 WebRTC integration。
+
+這是 GitHub-hosted Windows runner 的 native presentation／crypto／clipboard 證據，**不是**一支
+實體手機與一台桌面的跨裝置驗收：主端角色仍在同一 Windows process，測試也不建立 Desktop Link
+transport 或寫入授權資料庫。
+
 ## 尚未實作／不可宣稱的能力
 
-- Windows／macOS／Linux 的**實際 runtime** presentation 驗收、目標主裝置發現與自動交付。現況
-  已有 host-tested Desktop Companion QR／responder UI，但尚未在原生 desktop runner 驗證，亦沒有
-  Bluetooth／LAN／relay 或其他自動傳遞流程。QR 本身的 fingerprint binding 不能單獨當成私鑰
-  持有證明。
+- macOS／Linux 的**實際 runtime** presentation 驗收，以及本機 Windows 使用者完整桌面流程、
+  目標主裝置發現與自動交付。現況沒有 Bluetooth／LAN／relay 或其他自動傳遞流程。QR 本身的
+  fingerprint binding 不能單獨當成私鑰持有證明。
 - Android／iOS 真實相機權限允許／拒絕、相機掃碼與錯誤畫面的 runtime 驗收。
 - 實際 Windows／macOS／Linux Desktop transport、連線生命週期、離線重試與同步 UI。
-- 原生 libsodium／secure-storage 環境中的 challenge-response runtime 驗證；本輪 host test 以
-  test-only `MessageBox` fake 驗證協定邊界，不能替代真實私鑰、原生加密或平台金鑰保存驗收。
+- macOS／Linux、實體手機與本機 Windows 使用者環境中的 challenge-response／secure-storage
+  runtime 驗證。38 項 host test 仍以 test-only `MessageBox` fake 驗證協定邊界；Windows CI 的
+  單一受限 flow 雖已使用真實私鑰與原生加密，仍不能替代跨裝置平台金鑰保存驗收。
 - 對每個副端使用獨立 key material 的加密封裝、key rotation、key wipe 與加入／撤銷協定。
 - 已撤銷副端不能收到或解密**新**訊息的端對端 runtime 證明。
 - 歷史訊息同步、檔案／附件同步、衝突處理、網路中斷恢復與真機／桌面資源量測。
 
-因此，V3-01～V3-05 的完成標示只代表「可由主機驗證的安全核心、手機端請求檢閱、公開金鑰
-binding、protocol-level 私鑰持有 gate 與 desktop pairing presentation Widget」；它不替代 V1
-真機、Push、iOS 或正式環境 Gate，也不代表桌面副端已可使用。
+因此，V3-01～V3-05 的完成標示代表「可由主機驗證的安全核心、手機端請求檢閱、公開金鑰
+binding、protocol-level 私鑰持有 gate、desktop pairing presentation Widget，以及受限的
+GitHub-hosted Windows native flow」；它不替代 V1 真機、Push、iOS 或正式環境 Gate，也不代表
+桌面副端已可使用。
 
 ## 主機驗證
 
@@ -168,4 +182,5 @@ $env:NIX_SKIP_SODIUM_BUILD_HOOKS='1'
 回應與輸入 fail-closed Widget／service flow。`NIX_SKIP_SODIUM_BUILD_HOOKS=1` 只避開此 Windows
 主機缺少 C++ native toolchain 的 sodium hook；這些 proof／desktop UI test 使用 test-only
 `MessageBox` fake，不代表原生 libsodium、相機、桌面 runtime、真實私鑰持有 proof 或實機加密
-驗收通過。
+驗收通過。原生 Windows 證據必須以本文件上方的 CI integration 或安裝 C++ toolchain 後的
+`tool/verify_windows_desktop.ps1 -Build -Runtime` 取得，兩者都不取代跨裝置驗收。

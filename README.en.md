@@ -74,11 +74,14 @@ user value, resource cost, and privacy boundary.
   phone device ID, shows a short-lived QR, and emits an encrypted response to a
   pasted phone challenge. It has no network, background work, or token persistence.
 - QR content remains **untrusted input**. The private-key-possession protocol,
-  mobile authorization gate, and Desktop Companion host UI are implemented, but
-  native desktop runtime/automatic handoff, Desktop transport, per-device
-  encryption, real camera behavior, and native libsodium runtime validation
-  remain pending. This does not claim working cross-device sync, full desktop-App
-  identity acceptance, or deletion of a previously linked device's key material.
+  mobile authorization gate, and Desktop Companion host UI are implemented.
+  [GitHub-hosted Windows CI run 31317162765](https://github.com/leezxt/p2p-chat/actions/runs/31317162765)
+  exercised QR rendering, manual challenge-response, and controlled clipboard
+  copy with a real `SodiumMessageBox`. It still simulates the primary-device role
+  inside one Windows runner; it does not validate a full desktop user journey or
+  automatic handoff, Desktop transport, per-device encryption, a real phone
+  camera, or deletion of a previously linked device's key material. This does
+  not claim working cross-device sync or full desktop-App identity acceptance.
 
 ## App screenshots
 
@@ -130,7 +133,7 @@ recoverable without showing duplicate messages.
 | 2026-07-15–16 | Security and efficiency | Secure key storage, Presence, Push Outbox |
 | 2026-07-17–18 | V1.5 capabilities | Low Power Mode, App Lock, Safety Number |
 | 2026-07-19 | Release engineering | Backup/Restore, Monitor/Alert, RC documentation |
-| 2026-08-09 | V3 safety foundation | Desktop Link authorization, new-message cutoff, revoke gate, one-time QR pairing review, public-key binding, a private-key-possession challenge-response gate, and Desktop Companion host UI |
+| 2026-08-09 | V3 safety foundation | Desktop Link authorization, new-message cutoff, revoke gate, one-time QR pairing review, public-key binding, a private-key-possession challenge-response gate, Desktop Companion host UI, and a GitHub-hosted Windows native runtime gate |
 
 Each stage is expected to remain buildable, testable, and reversible.
 
@@ -146,8 +149,11 @@ Each stage is expected to remain buildable, testable, and reversible.
   short-lived RAM challenge state, two-way `crypto_box` private-key-possession
   proof, explicit mobile approval, strict new-message cutoff, and fail-closed
   revocation. A QR cannot authorize a link without a valid proof. Desktop
-  Companion can display the QR and manually answer a challenge. This is host
-  fake-crypto/Widget evidence, not native or Desktop runtime evidence.
+  Companion can display the QR and manually answer a challenge. The 38 host
+  tests use a test-only fake, while [Windows CI run 31317162765](https://github.com/leezxt/p2p-chat/actions/runs/31317162765)
+  separately verifies this bounded flow with real sodium, QR rendering, a
+  primary-role proof, and controlled clipboard copy. It is not a physical-phone
+  or cross-device-sync acceptance test.
 - Production backup, restore, monitoring, alerting, and off-host export fixtures.
 - GitHub Actions for Java, Flutter, PostgreSQL, and Windows Desktop.
 
