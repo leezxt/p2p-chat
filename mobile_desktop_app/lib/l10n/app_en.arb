@@ -135,6 +135,7 @@
   "desktopLinkApproveDescription": "Only approve a device you control. It will be eligible only for new messages created after this approval; existing messages are not copied.",
   "desktopLinkDeviceName": "Device",
   "desktopLinkFingerprint": "Public-key fingerprint",
+  "desktopLinkKeyBindingNotice": "The QR public key matches this fingerprint, but private-key possession has not been verified yet.",
   "desktopLinkApprove": "Approve link",
   "desktopLinkApproved": "Desktop link approved",
   "desktopLinkReject": "Reject request",

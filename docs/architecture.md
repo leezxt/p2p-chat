@@ -112,6 +112,13 @@ SQLite v14 `desktop_link_pairing_requests` 另保存一次性 QR 配對請求的
 並以 `pending → confirming → confirmed/rejected` 狀態避免重放。QR payload 仍是未驗證
 聲明，不等於桌面端私鑰持有證明。
 
+SQLite v15 將短效 pairing request schema 升級為包含 32-byte X25519 `public_key`，並要求
+`public_key_fingerprint` 可由 device ID 與該公開金鑰重新推導。`DesktopLinkPairingRequestIssuer`
+可由副端公開金鑰產生 canonical request；手機端會拒絕 public key／fingerprint 不一致的 QR。
+升級時會作廢 v14 未綁定公開金鑰的暫存 request，因為它們無法安全補齊 binding；Desktop Link
+授權、聊天與身份資料不受影響。這只排除了 QR 任意聲稱 fingerprint，仍未證明掃出 QR 的
+桌面端持有對應私鑰。
+
 此資料層仍未包含桌面端 pairing requester、signed key-possession challenge、桌面 transport、
 每副端重新加密或副端金鑰銷毀，因此不能把它當作「已可同步」、「已驗證桌面身份」或
 「已證實撤銷後無法解密」的 runtime 證據。
@@ -139,9 +146,9 @@ heartbeat 60s、同時 P2P 連線最多 3 條、閒置 2 分鐘斷線。Low Powe
 - **V1** 核心可用：1:1 文字、P2P DataChannel、離線密文信箱、推播、SQLite、Presence、E2EE、模組化、低功耗。
 - **V1.5** 安全 / 省資源：App Lock、Low Power、Safety Number、背景斷 P2P、閒置斷線、通知隱藏內容。
 - **V2** 體驗：Emoji、Reaction、貼圖、語音 / 圖片訊息、單則翻譯、Storage Manager、Smart Notification、Username。
-- **V3** 多裝置 / 進階：Desktop Link 主機安全核心與一次性 QR 請求檢閱／明確確認流程已完成；
-  電腦副端、signed key-possession proof、實際多裝置同步、撤銷後 per-device 加密驗證、
-  檔案傳輸、語音通話、匯出匯入、Contact Discovery 仍待實作。
+- **V3** 多裝置 / 進階：Desktop Link 主機安全核心、一次性 QR 請求檢閱／明確確認與
+  公開金鑰／fingerprint binding 已完成；電腦副端 UI、私鑰持有 proof、實際多裝置同步、
+  撤銷後 per-device 加密驗證、檔案傳輸、語音通話、匯出匯入、Contact Discovery 仍待實作。
 - **V4** 社群 / 視訊：視訊通話、小群組、廣播、共享筆記 / 待辦、訊息排程。
 - **V5** AI / 生態：即時字幕、寫作輔助、聊天摘要、離線翻譯語言包、貼圖開源生態。
 

@@ -399,6 +399,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get desktopLinkFingerprint => 'Public-key fingerprint';
 
   @override
+  String get desktopLinkKeyBindingNotice =>
+      'The QR public key matches this fingerprint, but private-key possession has not been verified yet.';
+
+  @override
   String get desktopLinkApprove => 'Approve link';
 
   @override

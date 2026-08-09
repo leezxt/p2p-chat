@@ -135,6 +135,7 @@
   "desktopLinkApproveDescription": "只同意由你控制的裝置。它只會取得這次同意後建立的新訊息；既有訊息不會被複製。",
   "desktopLinkDeviceName": "裝置",
   "desktopLinkFingerprint": "公開金鑰 fingerprint",
+  "desktopLinkKeyBindingNotice": "QR 中的公開金鑰已與此 fingerprint 一致，但尚未驗證桌面端持有對應私鑰。",
   "desktopLinkApprove": "同意連結",
   "desktopLinkApproved": "桌面連結已同意",
   "desktopLinkReject": "拒絕請求",

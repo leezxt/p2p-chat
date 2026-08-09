@@ -21,6 +21,7 @@ class DesktopLinkPairingRecord {
       request.targetPrimaryDeviceId == other.targetPrimaryDeviceId &&
       request.deviceId == other.deviceId &&
       request.displayName == other.displayName &&
+      request.publicKeyBase64Url == other.publicKeyBase64Url &&
       request.publicKeyFingerprint == other.publicKeyFingerprint &&
       request.issuedAt == other.issuedAt &&
       request.expiresAt == other.expiresAt;

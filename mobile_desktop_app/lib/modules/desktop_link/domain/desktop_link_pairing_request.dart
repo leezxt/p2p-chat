@@ -1,27 +1,33 @@
 import 'dart:convert';
+import 'dart:typed_data';
+
+import '../../crypto/domain/device_key_fingerprint.dart';
 
 /// 可由桌面端顯示為 QR Code 的短效、一次性配對請求。
 ///
-/// 此 payload 只是一個待確認的公開宣告，不是簽章挑戰，也不能單獨證明桌面端
-/// 持有對應私鑰。手機端必須先驗證目標主裝置、期限與 request ID，並在使用者明確
-/// 確認後才建立 Desktop Link；真正 key possession proof 留待後續 V3 protocol。
+/// request 內的 [publicKey] 是桌面副端後續用於加密的 X25519 公鑰；
+/// [publicKeyFingerprint] 必須由裝置 ID 與該公鑰重新推導，不能由 QR 任意宣告。
+/// 它仍不是私鑰持有證明：手機端必須在後續雙向 challenge-response 成功，且使用者明確
+/// 確認後，才可把它視為可用的 Desktop Link。
 class DesktopLinkPairingRequest {
   const DesktopLinkPairingRequest._({
     required this.requestId,
     required this.targetPrimaryDeviceId,
     required this.deviceId,
     required this.displayName,
+    required Uint8List publicKey,
     required this.publicKeyFingerprint,
     required this.issuedAt,
     required this.expiresAt,
-  });
+  }) : _publicKey = publicKey;
 
-  static const schemaVersion = 1;
+  static const schemaVersion = 2;
   static const payloadType = 'desktop_link_pairing_request';
   static const defaultLifetimeSeconds = 300;
   static const minLifetimeSeconds = 30;
   static const maxLifetimeSeconds = 600;
   static const _maxPayloadLength = 4096;
+  static const _publicKeyBytes = 32;
   static final _requestIdPattern = RegExp(r'^[A-Za-z0-9_-]{16,128}$');
   static const _requiredKeys = {
     'schemaVersion',
@@ -30,6 +36,7 @@ class DesktopLinkPairingRequest {
     'targetPrimaryDeviceId',
     'deviceId',
     'displayName',
+    'publicKey',
     'publicKeyFingerprint',
     'issuedAt',
     'expiresAt',
@@ -40,7 +47,7 @@ class DesktopLinkPairingRequest {
     required String targetPrimaryDeviceId,
     required String deviceId,
     required String displayName,
-    required String publicKeyFingerprint,
+    required Uint8List publicKey,
     required int issuedAt,
     int lifetimeSeconds = defaultLifetimeSeconds,
   }) {
@@ -52,12 +59,17 @@ class DesktopLinkPairingRequest {
         'must be between $minLifetimeSeconds and $maxLifetimeSeconds',
       );
     }
+    final normalizedDeviceId = _requireValue(deviceId, maxLength: 128);
     return _validated(
       requestId: requestId,
       targetPrimaryDeviceId: targetPrimaryDeviceId,
-      deviceId: deviceId,
+      deviceId: normalizedDeviceId,
       displayName: displayName,
-      publicKeyFingerprint: publicKeyFingerprint,
+      publicKey: publicKey,
+      publicKeyFingerprint: computeDeviceKeyFingerprint(
+        normalizedDeviceId,
+        publicKey,
+      ),
       issuedAt: issuedAt,
       expiresAt: issuedAt + lifetimeSeconds,
     );
@@ -83,6 +95,7 @@ class DesktopLinkPairingRequest {
         targetPrimaryDeviceId: _readString(payload, 'targetPrimaryDeviceId'),
         deviceId: _readString(payload, 'deviceId'),
         displayName: _readString(payload, 'displayName'),
+        publicKey: _readPublicKey(payload),
         publicKeyFingerprint: _readString(payload, 'publicKeyFingerprint'),
         issuedAt: _readInt(payload, 'issuedAt'),
         expiresAt: _readInt(payload, 'expiresAt'),
@@ -98,9 +111,15 @@ class DesktopLinkPairingRequest {
   final String targetPrimaryDeviceId;
   final String deviceId;
   final String displayName;
+  final Uint8List _publicKey;
   final String publicKeyFingerprint;
   final int issuedAt;
   final int expiresAt;
+
+  /// 只回傳 copy，避免呼叫端意外改寫用於 fingerprint 驗證的公開資料。
+  Uint8List get publicKey => Uint8List.fromList(_publicKey);
+
+  String get publicKeyBase64Url => _encodePublicKey(_publicKey);
 
   bool isExpiredAt(int epochSeconds) => epochSeconds >= expiresAt;
 
@@ -111,6 +130,7 @@ class DesktopLinkPairingRequest {
         'targetPrimaryDeviceId': targetPrimaryDeviceId,
         'deviceId': deviceId,
         'displayName': displayName,
+        'publicKey': publicKeyBase64Url,
         'publicKeyFingerprint': publicKeyFingerprint,
         'issuedAt': issuedAt,
         'expiresAt': expiresAt,
@@ -123,6 +143,7 @@ class DesktopLinkPairingRequest {
     required String targetPrimaryDeviceId,
     required String deviceId,
     required String displayName,
+    required Uint8List publicKey,
     required String publicKeyFingerprint,
     required int issuedAt,
     required int expiresAt,
@@ -130,7 +151,10 @@ class DesktopLinkPairingRequest {
     final normalizedRequestId = _requireValue(requestId, maxLength: 128);
     if (!_requestIdPattern.hasMatch(normalizedRequestId)) {
       throw ArgumentError.value(
-          requestId, 'requestId', 'has an invalid format');
+        requestId,
+        'requestId',
+        'has an invalid format',
+      );
     }
     final normalizedTarget =
         _requireValue(targetPrimaryDeviceId, maxLength: 128);
@@ -138,19 +162,38 @@ class DesktopLinkPairingRequest {
     final normalizedName = _requireValue(displayName, maxLength: 80);
     final normalizedFingerprint =
         _requireValue(publicKeyFingerprint, minLength: 8, maxLength: 512);
+    final copiedPublicKey = Uint8List.fromList(publicKey);
+    if (copiedPublicKey.length != _publicKeyBytes) {
+      throw ArgumentError.value(
+        publicKey,
+        'publicKey',
+        'must be a $_publicKeyBytes-byte X25519 public key',
+      );
+    }
+    final expectedFingerprint =
+        computeDeviceKeyFingerprint(normalizedDeviceId, copiedPublicKey);
+    if (normalizedFingerprint != expectedFingerprint) {
+      throw ArgumentError.value(
+        publicKeyFingerprint,
+        'publicKeyFingerprint',
+        'does not match deviceId and publicKey',
+      );
+    }
     final lifetime = expiresAt - issuedAt;
     if (issuedAt < 0 ||
         expiresAt <= issuedAt ||
         lifetime < minLifetimeSeconds ||
         lifetime > maxLifetimeSeconds) {
       throw ArgumentError(
-          'Desktop Link pairing request has an invalid lifetime');
+        'Desktop Link pairing request has an invalid lifetime',
+      );
     }
     return DesktopLinkPairingRequest._(
       requestId: normalizedRequestId,
       targetPrimaryDeviceId: normalizedTarget,
       deviceId: normalizedDeviceId,
       displayName: normalizedName,
+      publicKey: copiedPublicKey,
       publicKeyFingerprint: normalizedFingerprint,
       issuedAt: issuedAt,
       expiresAt: expiresAt,
@@ -168,6 +211,21 @@ class DesktopLinkPairingRequest {
     if (value is! int) _invalidPayload();
     return value;
   }
+
+  static Uint8List _readPublicKey(Map<String, Object?> payload) {
+    final encoded = _readString(payload, 'publicKey');
+    if (encoded.isEmpty || encoded.length > 128) _invalidPayload();
+    try {
+      final decoded = base64Url.decode(base64Url.normalize(encoded));
+      if (_encodePublicKey(decoded) != encoded) _invalidPayload();
+      return decoded;
+    } on FormatException {
+      _invalidPayload();
+    }
+  }
+
+  static String _encodePublicKey(Uint8List publicKey) =>
+      base64UrlEncode(publicKey).replaceAll('=', '');
 
   static String _requireValue(
     String value, {

@@ -7,8 +7,8 @@
 使用者已授權先行實作 V1.5 Safety Number、App Lock 與 Low Power Mode 的電腦端
 工作，並於 2026-07-26 授權先行實作可由 Windows 主機／Android AVD 完整驗證的
 V2 工作。V1 真機與 production Gate 不因此降級；使用者已接續授權 V3 Desktop Link
-的主機安全核心與手機端一次性 QR 請求檢閱，但 V3 實際桌面／跨裝置 runtime 仍保留於
-backlog。
+的主機安全核心、手機端一次性 QR 請求檢閱與公開金鑰 binding，但 V3 實際桌面／跨裝置
+runtime 仍保留於 backlog。
 
 ## 接手摘要（2026-07-26）
 
@@ -56,11 +56,18 @@ Android application ID、iOS Bundle ID、Firebase project 與加密 domain strin
 - [x] V3-02 一次性 QR 配對請求與手機端明確確認：SQLite v14
   `desktop_link_pairing_requests`、嚴格版本／欄位／目標主裝置／30–600 秒到期、一次性
   `pending → confirming → confirmed/rejected` 狀態、掃描或貼入後顯示 fingerprint、拒絕後
-  不可重放，以及僅在確認對話框同意後才呼叫 V3-01 授權。V3 專項 26 項主機測試與
-  `dart analyze` 已於 2026-08-09 通過；首頁入口收進「應用工具」選單，避免窄螢幕 AppBar 擠出。
-- [ ] V3 外部 Gate：Android／iOS 真實相機權限與掃碼、桌面端 request 產生與私鑰持有
-  signed challenge、實際桌面端 transport、每副端重新加密、真實多裝置同步／網路故障，
-  以及撤銷後副端無法取得或解密新訊息的 Windows／Android／iOS runtime 驗收。
+  不可重放，以及僅在確認對話框同意後才呼叫 V3-01 授權；首頁入口收進「應用工具」選單，
+  避免窄螢幕 AppBar 擠出。
+- [x] V3-03 QR 公開金鑰 binding 與 canonical request issuer：QR schema v2 必須含 32-byte
+  X25519 `publicKey`，手機端以裝置 ID 與該 key 重算 fingerprint，拒絕不一致內容；
+  `DesktopLinkPairingRequestIssuer` 僅以公開金鑰建立短效 canonical request。SQLite v15
+  安全作廢沒有 key binding 的 v14 暫存 request，不影響既有授權、聊天、身份或金鑰；檢閱頁
+  會明示 key binding 並不等於桌面端持有私鑰。V3 專項 30 項主機測試與 `dart analyze`
+  已於 2026-08-09 通過。
+- [ ] V3 外部 Gate：桌面端 QR presentation、目標主裝置發現／交付與 private-key-possession
+  challenge-response，Android／iOS 真實相機權限與掃碼、實際桌面端 transport、每副端重新加密、
+  真實多裝置同步／網路故障，以及撤銷後副端無法取得或解密新訊息的 Windows／Android／iOS
+  runtime 驗收。
 
 詳細安全邊界與未完成 protocol 見 [`desktop_link.md`](desktop_link.md)。
 

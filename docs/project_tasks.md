@@ -7,7 +7,8 @@
 > `EPIC-12 Safety Number`、`EPIC-11 App Lock` 與 `EPIC-10 Low Power Mode`
 > 的電腦端工作，並於 2026-07-26 授權先行實作可由 Windows 主機／Android AVD
 > 完整驗證的 V2 工作。V1 真機與 production Gate 不因此降級；V3 Desktop Link 的主機安全核心與
-> 手機端一次性 QR 請求檢閱可先行，但 V3 實際桌面／跨裝置 runtime 仍保留於 backlog。
+> 手機端一次性 QR 請求檢閱與公開金鑰 binding 可先行，但 V3 實際桌面／跨裝置 runtime
+> 仍保留於 backlog。
 
 ## 狀態定義
 
@@ -175,7 +176,7 @@
 | P2 | 語音與圖片訊息 | V2 | 按需取得資源、加密保存、行動網路不自動下載大檔 |
 | P2 | 單則翻譯 | V2 | 原文不改寫；本機快取；雲端須明確 opt-in |
 | P2 | Storage Manager、Smart Notification | V2 | 清理行為可預期且不刪私鑰；通知可按聊天室設定 |
-| P3 | Desktop Link、Device Sync、Revoke | V3 | ✅ 主機安全核心與手機端 QR 請求檢閱：明確授權、SQLite v13 同步切點、SQLite v14 一次性 request state、只選授權後新訊息、撤銷 fail-closed；桌面端 pairing requester／signed key proof、transport、per-device 加密與副端撤銷 runtime 驗收仍待完成 |
+| P3 | Desktop Link、Device Sync、Revoke | V3 | ✅ 主機安全核心、手機端 QR 請求檢閱與公開金鑰 binding：明確授權、SQLite v13 同步切點、SQLite v14 一次性 request state、SQLite v15 public-key binding、只選授權後新訊息、撤銷 fail-closed；桌面 UI／私鑰持有 proof、transport、per-device 加密與副端撤銷 runtime 驗收仍待完成 |
 | P3 | File Transfer、Export/Import | V3 | P2P、進度/取消/重試、SHA-256；備份必須加密 |
 | P3 | 1 對 1語音通話 | V3 | 通話結束立即釋放音訊資源，不在背景常駐 |
 | P4 | 1 對 1 視訊通話 | V4 | 按需相機/麥克風、不錄影、低功耗畫質與資源釋放 |
@@ -205,14 +206,15 @@ fallback 與 Low Power Mode 限制，且不得將 AVD 結果標示為真機驗�
 
 ## V3 可由主機先行範圍
 
-V3 的實際桌面端、桌面 pairing requester、相機 QR runtime、跨裝置協定與每副端金鑰
-生命週期仍需多端 runtime 驗收；下列安全決策與手機端檢閱 UX 可先在 Windows host 建立
-並以純 Dart／SQLite／Widget 測試驗證。
+V3 的實際桌面端 UI、相機 QR runtime、私鑰持有 proof、跨裝置協定與每副端金鑰生命週期
+仍需多端 runtime 驗收；下列安全決策與手機端檢閱 UX 可先在 Windows host 建立並以純
+Dart／SQLite／Widget 測試驗證。
 
 | ID | 主機可完成範圍 | 主機驗收條件 | 仍需外部驗證 |
 |---|---|---|---|
 | V3-01 | Desktop Link／Device Sync／Revoke 安全核心（✅） | 獨立模組、SQLite v13 授權資料、主裝置拒絕成為副端、fingerprint 變更 fail-closed、只選 `createdAt > authorized_after` 的新訊息、撤銷後拒絕新選取、Event Bus 事件、v1→v13 migration 與 service tests 通過 | 桌面端 pairing protocol／signed key proof、桌面端連線、per-device 加密與金鑰銷毀、真實同步／網路故障、Windows／Android／iOS runtime、已撤銷副端無法解密新訊息的端對端證明 |
-| V3-02 | 一次性 QR 配對請求與手機明確確認（✅） | SQLite v14 `desktop_link_pairing_requests`、嚴格 schema／目標主裝置／30–600 秒到期／一次性 request ID、`pending → confirming → confirmed/rejected`、掃描或貼入後預覽 fingerprint、拒絕不授權、明確同意後才呼叫 V3-01；26 項 V3 專項 host tests 通過 | 真實 Android／iOS 相機權限與掃碼、桌面端產生 request、signed key-possession challenge、Desktop transport、per-device 加密、跨裝置資料同步與撤銷後新訊息無法解密的 runtime 證明 |
+| V3-02 | 一次性 QR 配對請求與手機明確確認（✅） | SQLite v14 `desktop_link_pairing_requests`、嚴格 schema／目標主裝置／30–600 秒到期／一次性 request ID、`pending → confirming → confirmed/rejected`、掃描或貼入後預覽 fingerprint、拒絕不授權、明確同意後才呼叫 V3-01 | 真實 Android／iOS 相機權限與掃碼、桌面端 UI、private-key-possession challenge、Desktop transport、per-device 加密、跨裝置資料同步與撤銷後新訊息無法解密的 runtime 證明 |
+| V3-03 | QR 公開金鑰 binding 與 canonical request issuer（✅） | QR schema v2 強制 32-byte X25519 `publicKey`，手機端重算 device ID＋key fingerprint 並拒絕不一致內容；`DesktopLinkPairingRequestIssuer` 產生短效 canonical request；SQLite v15 作廢無法補齊 binding 的 v14 暫存 request；30 項 V3 專項 host tests 通過 | 桌面端 QR presentation、目標主裝置發現／交付、sealed 或 signed private-key-possession proof、真實相機／桌面 runtime 與跨裝置同步驗收 |
 
 ## 建議執行順序
 

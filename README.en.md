@@ -66,8 +66,9 @@ user value, resource cost, and privacy boundary.
   that cutoff and rejects new selections immediately after revocation.
 - The mobile side can review a short-lived, one-time, versioned QR pairing
   request. It must target this primary device, and a link is created only after
-  an explicit user approval. SQLite v14 stores one-time handling state, never
-  the raw QR payload.
+  an explicit user approval. SQLite v14 stores one-time handling state, while
+  SQLite v15 binds the QR's public X25519 key to its fingerprint; neither
+  stores the raw QR payload.
 - QR content remains **untrusted input**. There is no desktop private-key
   possession signed challenge, desktop transport, per-device encryption, or
   real camera/Desktop runtime validation yet. This does not claim working
@@ -124,7 +125,7 @@ recoverable without showing duplicate messages.
 | 2026-07-15–16 | Security and efficiency | Secure key storage, Presence, Push Outbox |
 | 2026-07-17–18 | V1.5 capabilities | Low Power Mode, App Lock, Safety Number |
 | 2026-07-19 | Release engineering | Backup/Restore, Monitor/Alert, RC documentation |
-| 2026-08-09 | V3 safety foundation | Desktop Link authorization, new-message cutoff, revoke gate, and one-time QR pairing-request review |
+| 2026-08-09 | V3 safety foundation | Desktop Link authorization, new-message cutoff, revoke gate, one-time QR pairing-request review, and public-key binding |
 
 Each stage is expected to remain buildable, testable, and reversible.
 
@@ -136,9 +137,10 @@ Each stage is expected to remain buildable, testable, and reversible.
 - Java tests, Flutter automated tests, and PostgreSQL smoke tests.
 - Core Low Power Mode, App Lock, and Safety Number capabilities.
 - Desktop Link host safety core: SQLite v13 authorization state, SQLite v14
-  one-time pairing-request state, explicit mobile approval, strict
-  new-message cutoff, and fail-closed revocation. A reviewed QR request never
-  authorizes a link automatically.
+  one-time pairing-request state, SQLite v15 public-key/fingerprint binding,
+  explicit mobile approval, strict new-message cutoff, and fail-closed
+  revocation. A reviewed QR request never authorizes a link automatically and
+  is not private-key-possession proof.
 - Production backup, restore, monitoring, alerting, and off-host export fixtures.
 - GitHub Actions for Java, Flutter, PostgreSQL, and Windows Desktop.
 

@@ -379,6 +379,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get desktopLinkFingerprint => '公開金鑰 fingerprint';
 
   @override
+  String get desktopLinkKeyBindingNotice =>
+      'QR 中的公開金鑰已與此 fingerprint 一致，但尚未驗證桌面端持有對應私鑰。';
+
+  @override
   String get desktopLinkApprove => '同意連結';
 
   @override
@@ -786,6 +790,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get desktopLinkFingerprint => '公開金鑰 fingerprint';
+
+  @override
+  String get desktopLinkKeyBindingNotice =>
+      'QR 中的公開金鑰已與此 fingerprint 一致，但尚未驗證桌面端持有對應私鑰。';
 
   @override
   String get desktopLinkApprove => '同意連結';

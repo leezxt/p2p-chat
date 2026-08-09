@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:sqflite/sqflite.dart';
 
 import '../domain/desktop_link_pairing_exception.dart';
@@ -164,6 +167,7 @@ class DesktopLinkPairingRepository {
         'target_primary_device_id': record.request.targetPrimaryDeviceId,
         'device_id': record.request.deviceId,
         'display_name': record.request.displayName,
+        'public_key': record.request.publicKeyBase64Url,
         'public_key_fingerprint': record.request.publicKeyFingerprint,
         'issued_at': record.request.issuedAt,
         'expires_at': record.request.expiresAt,
@@ -173,20 +177,53 @@ class DesktopLinkPairingRepository {
       };
 
   DesktopLinkPairingRecord _fromRow(Map<String, Object?> row) {
-    final request = DesktopLinkPairingRequest.create(
-      requestId: row['request_id']! as String,
-      targetPrimaryDeviceId: row['target_primary_device_id']! as String,
-      deviceId: row['device_id']! as String,
-      displayName: row['display_name']! as String,
-      publicKeyFingerprint: row['public_key_fingerprint']! as String,
-      issuedAt: row['issued_at']! as int,
-      lifetimeSeconds: (row['expires_at']! as int) - (row['issued_at']! as int),
-    );
+    final request = _requestFromRow(row);
     return DesktopLinkPairingRecord(
       request: request,
       state: DesktopLinkPairingState.values.byName(row['state']! as String),
       createdAt: row['created_at']! as int,
       updatedAt: row['updated_at']! as int,
     );
+  }
+
+  DesktopLinkPairingRequest _requestFromRow(Map<String, Object?> row) {
+    try {
+      final publicKey = _decodePublicKey(row['public_key']);
+      final request = DesktopLinkPairingRequest.create(
+        requestId: row['request_id']! as String,
+        targetPrimaryDeviceId: row['target_primary_device_id']! as String,
+        deviceId: row['device_id']! as String,
+        displayName: row['display_name']! as String,
+        publicKey: publicKey,
+        issuedAt: row['issued_at']! as int,
+        lifetimeSeconds:
+            (row['expires_at']! as int) - (row['issued_at']! as int),
+      );
+      final storedFingerprint = row['public_key_fingerprint'];
+      if (storedFingerprint is! String ||
+          request.publicKeyFingerprint != storedFingerprint) {
+        throw const DesktopLinkPairingInvalidPayload();
+      }
+      return request;
+    } on DesktopLinkPairingException {
+      rethrow;
+    } on FormatException {
+      throw const DesktopLinkPairingInvalidPayload();
+    } on ArgumentError {
+      throw const DesktopLinkPairingInvalidPayload();
+    } on TypeError {
+      throw const DesktopLinkPairingInvalidPayload();
+    }
+  }
+
+  Uint8List _decodePublicKey(Object? value) {
+    if (value is! String || value.isEmpty || value.length > 128) {
+      throw const DesktopLinkPairingInvalidPayload();
+    }
+    final publicKey = base64Url.decode(base64Url.normalize(value));
+    if (base64UrlEncode(publicKey).replaceAll('=', '') != value) {
+      throw const DesktopLinkPairingInvalidPayload();
+    }
+    return publicKey;
   }
 }

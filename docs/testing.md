@@ -162,12 +162,14 @@ flutter test test/modules/p2p_session_lifecycle_test.dart
 flutter test test/core/app_lifecycle_coordinator_test.dart
 ```
 
-Desktop Link／Device Sync／Revoke 的主機安全核心與手機端一次性 QR 請求檢閱流程可用下列命令驗證：
+Desktop Link／Device Sync／Revoke 的主機安全核心、手機端一次性 QR 請求檢閱與公開金鑰
+binding 可用下列命令驗證：
 
 ```powershell
 $env:NIX_SKIP_SODIUM_BUILD_HOOKS='1'
 flutter test --concurrency=1 test/modules/desktop_link_service_test.dart `
   test/modules/desktop_link_pairing_request_test.dart `
+  test/modules/desktop_link_pairing_request_issuer_test.dart `
   test/modules/desktop_link_pairing_service_test.dart `
   test/modules/desktop_link_pairing_page_test.dart `
   test/modules/desktop_link_module_test.dart `
@@ -176,11 +178,12 @@ flutter test --concurrency=1 test/modules/desktop_link_service_test.dart `
 dart analyze
 ```
 
-這組目前共 26 項測試，驗證 v1→v14 SQLite 升級、手機明確授權、嚴格新訊息切點與撤銷
-fail-closed，以及 QR payload 的嚴格版本／欄位／效期驗證、一次性 request state、
-「先檢閱 fingerprint、後明確同意」的 UI 邊界。它不包含真實相機掃碼、桌面端 request
-產生或私鑰持有 signed challenge、桌面端、per-device 加密、真實傳輸或已撤銷副端的
-runtime 金鑰銷毀驗收。
+這組目前共 30 項測試，驗證 v1→v15 SQLite 升級（含安全作廢沒有公開金鑰 binding 的
+v14 暫存 request）、手機明確授權、嚴格新訊息切點與撤銷 fail-closed，以及 QR payload
+的嚴格版本／欄位／效期驗證、32-byte X25519 公開金鑰與重算 fingerprint binding、canonical
+request issuer、一次性 request state 與「先檢閱、後明確同意」的 UI 邊界。它不包含真實相機
+掃碼、桌面端 QR presentation／目標主裝置交付、桌面端私鑰持有 challenge-response、桌面端、
+per-device 加密、真實傳輸或已撤銷副端的 runtime 金鑰銷毀驗收。
 
 Localization 變更需重新產生程式碼，並驗證語言解析、SQLite 偏好保存與兩種語言 UI：
 

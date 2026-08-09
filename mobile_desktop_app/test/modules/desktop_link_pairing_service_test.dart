@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:p2p_chat_app/core/database/database_service.dart';
@@ -50,7 +51,7 @@ void main() {
         targetPrimaryDeviceId: 'another-primary-phone',
         deviceId: 'desktop-windows',
         displayName: 'Windows',
-        publicKeyFingerprint: 'desktop-fingerprint-1234',
+        publicKey: _desktopPublicKey,
         issuedAt: 100,
       );
       final expired = DesktopLinkPairingRequest.create(
@@ -58,7 +59,7 @@ void main() {
         targetPrimaryDeviceId: 'primary-phone',
         deviceId: 'desktop-linux',
         displayName: 'Linux',
-        publicKeyFingerprint: 'desktop-fingerprint-5678',
+        publicKey: _desktopPublicKey,
         issuedAt: 0,
         lifetimeSeconds: 30,
       );
@@ -156,7 +157,7 @@ class _Fixture {
         targetPrimaryDeviceId: 'primary-phone',
         deviceId: 'desktop-windows',
         displayName: 'Windows',
-        publicKeyFingerprint: 'desktop-fingerprint-1234',
+        publicKey: _desktopPublicKey,
         issuedAt: 100,
       );
 
@@ -165,3 +166,7 @@ class _Fixture {
     await directory.delete(recursive: true);
   }
 }
+
+final Uint8List _desktopPublicKey = Uint8List.fromList(
+  List<int>.generate(32, (index) => index + 1),
+);

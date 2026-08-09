@@ -9,7 +9,7 @@ class Migration {
 }
 
 /// 目前 schema 版本。每次新增 migration 時 +1。
-const int kCurrentDbVersion = 14;
+const int kCurrentDbVersion = 15;
 
 /// 依版本排序的 migration 清單。
 const List<Migration> kMigrations = [
@@ -261,6 +261,32 @@ const List<Migration> kMigrations = [
       CHECK (expires_at > issued_at)
     )
     ''',
+    'CREATE INDEX idx_desktop_link_pairing_requests_state_expiry '
+        'ON desktop_link_pairing_requests (state, expires_at)',
+  ]),
+  Migration(15, [
+    // v14 的 request 只保存自行宣告的 fingerprint，無法和公開金鑰綁定。一次性
+    // pairing request 本來就短效；升級時刻意作廢尚未完成的 v14 請求，避免把不可
+    // 驗證的舊宣告帶進可授權流程。Desktop Link 授權、聊天與身份資料不受影響。
+    'ALTER TABLE desktop_link_pairing_requests '
+        'RENAME TO desktop_link_pairing_requests_v14',
+    '''
+    CREATE TABLE desktop_link_pairing_requests (
+      request_id TEXT PRIMARY KEY,
+      target_primary_device_id TEXT NOT NULL,
+      device_id TEXT NOT NULL,
+      display_name TEXT NOT NULL,
+      public_key TEXT NOT NULL,
+      public_key_fingerprint TEXT NOT NULL,
+      issued_at INTEGER NOT NULL,
+      expires_at INTEGER NOT NULL,
+      state TEXT NOT NULL CHECK (state IN ('pending', 'confirming', 'confirmed', 'rejected')),
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      CHECK (expires_at > issued_at)
+    )
+    ''',
+    'DROP TABLE desktop_link_pairing_requests_v14',
     'CREATE INDEX idx_desktop_link_pairing_requests_state_expiry '
         'ON desktop_link_pairing_requests (state, expires_at)',
   ]),

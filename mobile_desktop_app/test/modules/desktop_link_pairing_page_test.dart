@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:p2p_chat_app/l10n/app_localizations.dart';
@@ -31,7 +33,11 @@ void main() {
     expect(scanner.calls, 1);
     expect(find.text('Pairing request ready for review'), findsOneWidget);
     expect(find.textContaining('Windows test desktop'), findsOneWidget);
-    expect(find.text('desktop-fingerprint-1234'), findsOneWidget);
+    expect(find.text(request.publicKeyFingerprint), findsOneWidget);
+    expect(
+      find.textContaining('private-key possession has not been verified'),
+      findsOneWidget,
+    );
     expect(pairing.confirmCalls, 0);
     expect(links.links, isEmpty);
 
@@ -65,9 +71,13 @@ DesktopLinkPairingRequest _request() => DesktopLinkPairingRequest.create(
       targetPrimaryDeviceId: 'primary-phone',
       deviceId: 'desktop-windows',
       displayName: 'Windows test desktop',
-      publicKeyFingerprint: 'desktop-fingerprint-1234',
+      publicKey: _desktopPublicKey,
       issuedAt: 100,
     );
+
+final Uint8List _desktopPublicKey = Uint8List.fromList(
+  List<int>.generate(32, (index) => index + 1),
+);
 
 class _FakeScanner implements DesktopLinkQrScanner {
   _FakeScanner(this.payload);

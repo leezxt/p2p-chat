@@ -801,6 +801,12 @@ abstract class AppLocalizations {
   /// **'Public-key fingerprint'**
   String get desktopLinkFingerprint;
 
+  /// No description provided for @desktopLinkKeyBindingNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'The QR public key matches this fingerprint, but private-key possession has not been verified yet.'**
+  String get desktopLinkKeyBindingNotice;
+
   /// No description provided for @desktopLinkApprove.
   ///
   /// In en, this message translates to:

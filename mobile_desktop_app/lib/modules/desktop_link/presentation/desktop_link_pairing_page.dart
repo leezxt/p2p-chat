@@ -100,6 +100,11 @@ class _DesktopLinkPairingPageState extends State<DesktopLinkPairingPage> {
               const SizedBox(height: 8),
               Text(l10n.desktopLinkFingerprint),
               SelectableText(request.publicKeyFingerprint),
+              const SizedBox(height: 8),
+              Text(
+                l10n.desktopLinkKeyBindingNotice,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
             ],
           ),
         ),
@@ -244,6 +249,11 @@ class _DesktopLinkPairingPageState extends State<DesktopLinkPairingPage> {
                         const SizedBox(height: 8),
                         Text(l10n.desktopLinkFingerprint),
                         SelectableText(request.publicKeyFingerprint),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.desktopLinkKeyBindingNotice,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
                         const SizedBox(height: 16),
                         Wrap(
                           spacing: 12,
