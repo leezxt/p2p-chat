@@ -44,3 +44,31 @@ class DesktopLinkPairingRequestIdCollision extends DesktopLinkPairingException {
   const DesktopLinkPairingRequestIdCollision()
       : super('Desktop Link pairing request ID conflicts with existing data');
 }
+
+/// challenge-response 尚未完成時不得建立 Desktop Link，避免把 QR 公鑰 binding
+/// 誤當成桌面端已持有對應私鑰。
+class DesktopLinkPairingProofRequired extends DesktopLinkPairingException {
+  const DesktopLinkPairingProofRequired()
+      : super('Desktop Link private-key possession proof is required');
+}
+
+class DesktopLinkPairingProofNotIssued extends DesktopLinkPairingException {
+  const DesktopLinkPairingProofNotIssued()
+      : super('Desktop Link key possession challenge was not issued locally');
+}
+
+class DesktopLinkPairingProofExpired extends DesktopLinkPairingException {
+  const DesktopLinkPairingProofExpired()
+      : super('Desktop Link key possession challenge has expired');
+}
+
+class DesktopLinkPairingProofInvalid extends DesktopLinkPairingException {
+  const DesktopLinkPairingProofInvalid()
+      : super('Desktop Link key possession proof is invalid');
+}
+
+class DesktopLinkPairingProofCryptographicFailure
+    extends DesktopLinkPairingException {
+  const DesktopLinkPairingProofCryptographicFailure()
+      : super('Desktop Link key possession cryptographic operation failed');
+}

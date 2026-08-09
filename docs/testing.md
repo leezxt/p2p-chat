@@ -162,14 +162,15 @@ flutter test test/modules/p2p_session_lifecycle_test.dart
 flutter test test/core/app_lifecycle_coordinator_test.dart
 ```
 
-Desktop Link／Device Sync／Revoke 的主機安全核心、手機端一次性 QR 請求檢閱與公開金鑰
-binding 可用下列命令驗證：
+Desktop Link／Device Sync／Revoke 的主機安全核心、手機端一次性 QR 請求檢閱、公開金鑰
+binding 與私鑰持有 challenge-response gate 可用下列命令驗證：
 
 ```powershell
 $env:NIX_SKIP_SODIUM_BUILD_HOOKS='1'
 flutter test --concurrency=1 test/modules/desktop_link_service_test.dart `
   test/modules/desktop_link_pairing_request_test.dart `
   test/modules/desktop_link_pairing_request_issuer_test.dart `
+  test/modules/desktop_link_key_possession_test.dart `
   test/modules/desktop_link_pairing_service_test.dart `
   test/modules/desktop_link_pairing_page_test.dart `
   test/modules/desktop_link_module_test.dart `
@@ -178,12 +179,18 @@ flutter test --concurrency=1 test/modules/desktop_link_service_test.dart `
 dart analyze
 ```
 
-這組目前共 30 項測試，驗證 v1→v15 SQLite 升級（含安全作廢沒有公開金鑰 binding 的
+這組目前共 35 項測試，驗證 v1→v15 SQLite 升級（含安全作廢沒有公開金鑰 binding 的
 v14 暫存 request）、手機明確授權、嚴格新訊息切點與撤銷 fail-closed，以及 QR payload
 的嚴格版本／欄位／效期驗證、32-byte X25519 公開金鑰與重算 fingerprint binding、canonical
-request issuer、一次性 request state 與「先檢閱、後明確同意」的 UI 邊界。它不包含真實相機
-掃碼、桌面端 QR presentation／目標主裝置交付、桌面端私鑰持有 challenge-response、桌面端、
-per-device 加密、真實傳輸或已撤銷副端的 runtime 金鑰銷毀驗收。
+request issuer、一次性 request state，以及用短效 RAM token 建立的雙向 authenticated
+challenge-response。後者涵蓋正常 proof、竄改 response、錯誤桌面 key、重放、過期與變更
+公開金鑰後不能沿用 proof，也確認沒有有效 proof 時 `confirm` 會 fail-closed。
+
+`NIX_SKIP_SODIUM_BUILD_HOOKS=1` 會略過這台 Windows 主機缺少 C++ native toolchain 的 sodium
+build hook；私鑰持有 protocol 測試因此注入 test-only `MessageBox` fake，僅驗證協定狀態與
+binding，不是原生 libsodium／secure storage 的 runtime 驗收。這組也不包含真實相機掃碼、
+桌面端 QR presentation／目標主裝置交付、可用的桌面端 UI、真實傳輸、per-device 加密，或已撤銷
+副端的 runtime 金鑰銷毀驗收。
 
 Localization 變更需重新產生程式碼，並驗證語言解析、SQLite 偏好保存與兩種語言 UI：
 

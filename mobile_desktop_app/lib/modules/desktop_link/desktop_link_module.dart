@@ -2,9 +2,12 @@ import '../../core/database/database_service.dart';
 import '../../core/module/app_module.dart';
 import '../../core/module/module_context.dart';
 import '../../core/routing/route_registry.dart';
+import '../crypto/domain/device_key_material.dart';
+import '../crypto/domain/message_box.dart';
 import '../identity/domain/identity_session.dart';
 import 'data/desktop_link_pairing_repository.dart';
 import 'data/desktop_link_repository.dart';
+import 'domain/desktop_link_key_possession.dart';
 import 'domain/desktop_link_pairing_service.dart';
 import 'domain/desktop_link_service.dart';
 import 'presentation/desktop_link_pairing_page.dart';
@@ -16,6 +19,7 @@ class DesktopLinkModule extends AppModule {
   static const route = '/desktop-link';
 
   late final DesktopLinkService _desktopLinkService;
+  late final DesktopLinkKeyPossessionService _keyPossessionService;
   late final DesktopLinkPairingService _pairingService;
 
   @override
@@ -41,9 +45,18 @@ class DesktopLinkModule extends AppModule {
     context.services.registerSingleton<DesktopLinkPairingRepository>(
       pairingRepository,
     );
+    _keyPossessionService = DesktopLinkKeyPossessionService(
+      box: context.services.get<MessageBox>(),
+      primaryKey: context.services.get<DeviceKeyMaterial>(),
+      primaryDeviceId: primaryDeviceId,
+    );
+    context.services.registerSingleton<DesktopLinkKeyPossessionService>(
+      _keyPossessionService,
+    );
     _pairingService = DesktopLinkPairingService(
       repository: pairingRepository,
       desktopLinkService: _desktopLinkService,
+      keyPossessionService: _keyPossessionService,
       primaryDeviceId: primaryDeviceId,
     );
     context.services.registerSingleton<DesktopLinkPairingService>(
@@ -69,5 +82,5 @@ class DesktopLinkModule extends AppModule {
   Future<void> sleep() async {}
 
   @override
-  void dispose() {}
+  void dispose() => _keyPossessionService.dispose();
 }

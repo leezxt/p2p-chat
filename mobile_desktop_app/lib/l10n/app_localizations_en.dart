@@ -403,6 +403,40 @@ class AppLocalizationsEn extends AppLocalizations {
       'The QR public key matches this fingerprint, but private-key possession has not been verified yet.';
 
   @override
+  String get desktopLinkKeyProofStart => 'Verify desktop private key';
+
+  @override
+  String get desktopLinkKeyProofDescription =>
+      'Create an encrypted challenge and send it to the desktop. Do not approve the link until its response is verified.';
+
+  @override
+  String get desktopLinkKeyProofChallengeReady => 'Encrypted challenge ready';
+
+  @override
+  String get desktopLinkKeyProofChallengeData =>
+      'Desktop verification challenge data';
+
+  @override
+  String get desktopLinkKeyProofPasteResponse =>
+      'Paste desktop verification response';
+
+  @override
+  String get desktopLinkKeyProofResponseData =>
+      'Desktop verification response data';
+
+  @override
+  String get desktopLinkKeyProofVerified =>
+      'The desktop proved possession of the matching private key. Your explicit approval is still required.';
+
+  @override
+  String get desktopLinkKeyProofRequired =>
+      'Verify the desktop private key before approving this link.';
+
+  @override
+  String get desktopLinkKeyProofInvalid =>
+      'The desktop proof is invalid, expired, or does not match. Create a new challenge.';
+
+  @override
   String get desktopLinkApprove => 'Approve link';
 
   @override

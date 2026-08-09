@@ -383,6 +383,34 @@ class AppLocalizationsZh extends AppLocalizations {
       'QR 中的公開金鑰已與此 fingerprint 一致，但尚未驗證桌面端持有對應私鑰。';
 
   @override
+  String get desktopLinkKeyProofStart => '驗證桌面端私鑰';
+
+  @override
+  String get desktopLinkKeyProofDescription =>
+      '先產生加密 challenge 並交給桌面端；回應驗證完成前，請勿同意連結。';
+
+  @override
+  String get desktopLinkKeyProofChallengeReady => '加密 challenge 已準備好';
+
+  @override
+  String get desktopLinkKeyProofChallengeData => '桌面驗證 challenge 資料';
+
+  @override
+  String get desktopLinkKeyProofPasteResponse => '貼上桌面驗證回應';
+
+  @override
+  String get desktopLinkKeyProofResponseData => '桌面驗證回應資料';
+
+  @override
+  String get desktopLinkKeyProofVerified => '已驗證桌面端持有相符的私鑰；仍需由你明確同意才會建立連結。';
+
+  @override
+  String get desktopLinkKeyProofRequired => '請先完成桌面端私鑰驗證，才能同意連結。';
+
+  @override
+  String get desktopLinkKeyProofInvalid => '桌面端私鑰驗證失敗、已過期或不相符；請重新產生 challenge。';
+
+  @override
   String get desktopLinkApprove => '同意連結';
 
   @override
@@ -794,6 +822,34 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String get desktopLinkKeyBindingNotice =>
       'QR 中的公開金鑰已與此 fingerprint 一致，但尚未驗證桌面端持有對應私鑰。';
+
+  @override
+  String get desktopLinkKeyProofStart => '驗證桌面端私鑰';
+
+  @override
+  String get desktopLinkKeyProofDescription =>
+      '先產生加密 challenge 並交給桌面端；回應驗證完成前，請勿同意連結。';
+
+  @override
+  String get desktopLinkKeyProofChallengeReady => '加密 challenge 已準備好';
+
+  @override
+  String get desktopLinkKeyProofChallengeData => '桌面驗證 challenge 資料';
+
+  @override
+  String get desktopLinkKeyProofPasteResponse => '貼上桌面驗證回應';
+
+  @override
+  String get desktopLinkKeyProofResponseData => '桌面驗證回應資料';
+
+  @override
+  String get desktopLinkKeyProofVerified => '已驗證桌面端持有相符的私鑰；仍需由你明確同意才會建立連結。';
+
+  @override
+  String get desktopLinkKeyProofRequired => '請先完成桌面端私鑰驗證，才能同意連結。';
+
+  @override
+  String get desktopLinkKeyProofInvalid => '桌面端私鑰驗證失敗、已過期或不相符；請重新產生 challenge。';
 
   @override
   String get desktopLinkApprove => '同意連結';

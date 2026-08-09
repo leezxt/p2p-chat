@@ -1,6 +1,7 @@
 import '../data/desktop_link_pairing_repository.dart';
 import 'desktop_link.dart';
 import 'desktop_link_pairing_exception.dart';
+import 'desktop_link_key_possession.dart';
 import 'desktop_link_pairing_request.dart';
 import 'desktop_link_service.dart';
 
@@ -11,6 +12,14 @@ import 'desktop_link_service.dart';
 abstract interface class DesktopLinkPairingActions {
   Future<DesktopLinkPairingRequest> prepareQrPayload(String rawPayload);
 
+  Future<DesktopLinkKeyPossessionChallenge> createKeyPossessionChallenge(
+    DesktopLinkPairingRequest request,
+  );
+
+  Future<void> verifyKeyPossessionResponse(String rawPayload);
+
+  bool isKeyPossessionVerified(DesktopLinkPairingRequest request);
+
   Future<DesktopLink> confirm(DesktopLinkPairingRequest request);
 
   Future<void> reject(DesktopLinkPairingRequest request);
@@ -18,22 +27,26 @@ abstract interface class DesktopLinkPairingActions {
 
 /// 將不可信 QR payload 轉為「使用者可檢閱、可明確同意」的配對流程。
 ///
-/// 服務只在手機端持久化一次性請求的處理狀態。它沒有網路、沒有桌面連線，且
-/// 不把 payload 中宣告的 fingerprint 當成私鑰持有證明；後續 transport 必須再做
-/// signed challenge 與 per-device key exchange。
+/// 服務只在手機端持久化一次性請求的處理狀態。它沒有網路、沒有桌面連線；QR payload
+/// 的 fingerprint binding 本身不算 proof，而是由 [DesktopLinkKeyPossessionService] 的
+/// X25519 challenge-response 在 confirm 前建立 protocol-level proof。後續 transport 仍必須
+/// 建立每副端 key exchange、加密封裝與 runtime 驗收。
 class DesktopLinkPairingService implements DesktopLinkPairingActions {
   DesktopLinkPairingService({
     required DesktopLinkPairingRepository repository,
     required DesktopLinkService desktopLinkService,
+    required DesktopLinkKeyPossessionService keyPossessionService,
     required String primaryDeviceId,
     DateTime Function()? clock,
   })  : _repository = repository,
         _desktopLinkService = desktopLinkService,
+        _keyPossessionService = keyPossessionService,
         _primaryDeviceId = primaryDeviceId,
         _clock = clock ?? DateTime.now;
 
   final DesktopLinkPairingRepository _repository;
   final DesktopLinkService _desktopLinkService;
+  final DesktopLinkKeyPossessionService _keyPossessionService;
   final String _primaryDeviceId;
   final DateTime Function() _clock;
 
@@ -47,6 +60,29 @@ class DesktopLinkPairingService implements DesktopLinkPairingActions {
     return request;
   }
 
+  /// 產生給桌面端的 encrypted challenge；此時仍不會授權 Desktop Link。challenge
+  /// state 只存在記憶體，App 重啟或過期時會 fail-closed。
+  @override
+  Future<DesktopLinkKeyPossessionChallenge> createKeyPossessionChallenge(
+    DesktopLinkPairingRequest request,
+  ) async {
+    _ensureTargetsThisPrimary(request);
+    _ensureNotExpired(request);
+    await _repository.prepare(request, now: _nowEpochSeconds());
+    return _keyPossessionService.createChallenge(request);
+  }
+
+  /// 接收未來 desktop presentation／transport 交付的 response。成功後只標記本次
+  /// request 已完成 proof；使用者仍必須明確按下確認才會進入授權。
+  @override
+  Future<void> verifyKeyPossessionResponse(String rawPayload) async {
+    _keyPossessionService.verifyResponsePayload(rawPayload);
+  }
+
+  @override
+  bool isKeyPossessionVerified(DesktopLinkPairingRequest request) =>
+      _keyPossessionService.isVerified(request);
+
   /// 只應在 UI 顯示裝置名稱／fingerprint 並取得使用者確認後呼叫。
   @override
   Future<DesktopLink> confirm(DesktopLinkPairingRequest request) async {
@@ -54,6 +90,7 @@ class DesktopLinkPairingService implements DesktopLinkPairingActions {
     _ensureNotExpired(request);
     await _repository.claimForConfirmation(request, now: _nowEpochSeconds());
     try {
+      _keyPossessionService.requireVerified(request);
       final link = await _desktopLinkService.authorize(
         deviceId: request.deviceId,
         displayName: request.displayName,
@@ -63,6 +100,7 @@ class DesktopLinkPairingService implements DesktopLinkPairingActions {
         request.requestId,
         now: _nowEpochSeconds(),
       );
+      _keyPossessionService.consumeVerified(request);
       return link;
     } catch (_) {
       // 如果授權或最後寫入失敗，保留可重試的 pending 狀態；`authorize` 本身
@@ -80,6 +118,7 @@ class DesktopLinkPairingService implements DesktopLinkPairingActions {
   Future<void> reject(DesktopLinkPairingRequest request) async {
     _ensureTargetsThisPrimary(request);
     await _repository.reject(request, now: _nowEpochSeconds());
+    _keyPossessionService.discard(request);
   }
 
   DesktopLinkPairingRequest _parse(String rawPayload) {

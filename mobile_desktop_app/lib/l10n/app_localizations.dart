@@ -807,6 +807,60 @@ abstract class AppLocalizations {
   /// **'The QR public key matches this fingerprint, but private-key possession has not been verified yet.'**
   String get desktopLinkKeyBindingNotice;
 
+  /// No description provided for @desktopLinkKeyProofStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify desktop private key'**
+  String get desktopLinkKeyProofStart;
+
+  /// No description provided for @desktopLinkKeyProofDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an encrypted challenge and send it to the desktop. Do not approve the link until its response is verified.'**
+  String get desktopLinkKeyProofDescription;
+
+  /// No description provided for @desktopLinkKeyProofChallengeReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypted challenge ready'**
+  String get desktopLinkKeyProofChallengeReady;
+
+  /// No description provided for @desktopLinkKeyProofChallengeData.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop verification challenge data'**
+  String get desktopLinkKeyProofChallengeData;
+
+  /// No description provided for @desktopLinkKeyProofPasteResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste desktop verification response'**
+  String get desktopLinkKeyProofPasteResponse;
+
+  /// No description provided for @desktopLinkKeyProofResponseData.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop verification response data'**
+  String get desktopLinkKeyProofResponseData;
+
+  /// No description provided for @desktopLinkKeyProofVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'The desktop proved possession of the matching private key. Your explicit approval is still required.'**
+  String get desktopLinkKeyProofVerified;
+
+  /// No description provided for @desktopLinkKeyProofRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify the desktop private key before approving this link.'**
+  String get desktopLinkKeyProofRequired;
+
+  /// No description provided for @desktopLinkKeyProofInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'The desktop proof is invalid, expired, or does not match. Create a new challenge.'**
+  String get desktopLinkKeyProofInvalid;
+
   /// No description provided for @desktopLinkApprove.
   ///
   /// In en, this message translates to:

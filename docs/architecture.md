@@ -119,8 +119,15 @@ SQLite v15 將短效 pairing request schema 升級為包含 32-byte X25519 `publ
 授權、聊天與身份資料不受影響。這只排除了 QR 任意聲稱 fingerprint，仍未證明掃出 QR 的
 桌面端持有對應私鑰。
 
-此資料層仍未包含桌面端 pairing requester、signed key-possession challenge、桌面 transport、
-每副端重新加密或副端金鑰銷毀，因此不能把它當作「已可同步」、「已驗證桌面身份」或
+V3-04 以既有 `MessageBox` 的雙向 authenticated `crypto_box` 建立私鑰持有 proof：手機將
+一次性 token 加密給 QR 的桌面公開金鑰，桌面端只有用對應私鑰解開後，才能以自己的私鑰
+加密相同 token 回覆。手機會比對 request／challenge／裝置／fingerprint／token 與期限，且
+`DesktopLinkPairingService.confirm` 沒有有效 proof 時 fail-closed。未完成的 token 只存在 RAM，
+不寫入 SQLite；App 重啟、逾期、竄改或重放都需重新 challenge。
+
+此資料層仍未包含桌面端 presentation／交付、實際 desktop runtime 或 transport、每副端重新
+加密或副端金鑰銷毀。Windows host 專項測試以 fake `MessageBox` 驗證 protocol state；尚未執行
+原生 libsodium proof path。因此不能把它當作「已可同步」、「已完成 Desktop App 身份驗收」或
 「已證實撤銷後無法解密」的 runtime 證據。
 
 ## 運行模式
@@ -146,9 +153,10 @@ heartbeat 60s、同時 P2P 連線最多 3 條、閒置 2 分鐘斷線。Low Powe
 - **V1** 核心可用：1:1 文字、P2P DataChannel、離線密文信箱、推播、SQLite、Presence、E2EE、模組化、低功耗。
 - **V1.5** 安全 / 省資源：App Lock、Low Power、Safety Number、背景斷 P2P、閒置斷線、通知隱藏內容。
 - **V2** 體驗：Emoji、Reaction、貼圖、語音 / 圖片訊息、單則翻譯、Storage Manager、Smart Notification、Username。
-- **V3** 多裝置 / 進階：Desktop Link 主機安全核心、一次性 QR 請求檢閱／明確確認與
-  公開金鑰／fingerprint binding 已完成；電腦副端 UI、私鑰持有 proof、實際多裝置同步、
-  撤銷後 per-device 加密驗證、檔案傳輸、語音通話、匯出匯入、Contact Discovery 仍待實作。
+- **V3** 多裝置 / 進階：Desktop Link 主機安全核心、一次性 QR 請求檢閱／明確確認、
+  公開金鑰／fingerprint binding 與手機端私鑰持有 proof gate 已完成；電腦副端 UI／交付、
+  原生 Desktop runtime、實際多裝置同步、撤銷後 per-device 加密驗證、檔案傳輸、語音通話、
+  匯出匯入、Contact Discovery 仍待實作。
 - **V4** 社群 / 視訊：視訊通話、小群組、廣播、共享筆記 / 待辦、訊息排程。
 - **V5** AI / 生態：即時字幕、寫作輔助、聊天摘要、離線翻譯語言包、貼圖開源生態。
 

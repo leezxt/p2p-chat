@@ -66,14 +66,16 @@ user value, resource cost, and privacy boundary.
   that cutoff and rejects new selections immediately after revocation.
 - The mobile side can review a short-lived, one-time, versioned QR pairing
   request. It must target this primary device, and a link is created only after
-  an explicit user approval. SQLite v14 stores one-time handling state, while
-  SQLite v15 binds the QR's public X25519 key to its fingerprint; neither
-  stores the raw QR payload.
-- QR content remains **untrusted input**. There is no desktop private-key
-  possession signed challenge, desktop transport, per-device encryption, or
-  real camera/Desktop runtime validation yet. This does not claim working
-  cross-device sync, verified desktop identity, or deletion of a previously
-  linked device's key material.
+  an explicit user approval and a two-way authenticated X25519 `crypto_box`
+  challenge-response. The one-time challenge token lives only in phone RAM;
+  SQLite v14 stores one-time handling state while SQLite v15 binds the QR's
+  public key to its fingerprint. Neither stores a raw QR payload or token.
+- QR content remains **untrusted input**. The private-key-possession protocol
+  and mobile authorization gate are implemented, but desktop presentation and
+  handoff, Desktop transport, per-device encryption, real camera behavior, and
+  native libsodium runtime validation remain pending. This does not claim
+  working cross-device sync, full desktop-App identity acceptance, or deletion
+  of a previously linked device's key material.
 
 ## App screenshots
 
@@ -125,7 +127,7 @@ recoverable without showing duplicate messages.
 | 2026-07-15–16 | Security and efficiency | Secure key storage, Presence, Push Outbox |
 | 2026-07-17–18 | V1.5 capabilities | Low Power Mode, App Lock, Safety Number |
 | 2026-07-19 | Release engineering | Backup/Restore, Monitor/Alert, RC documentation |
-| 2026-08-09 | V3 safety foundation | Desktop Link authorization, new-message cutoff, revoke gate, one-time QR pairing-request review, and public-key binding |
+| 2026-08-09 | V3 safety foundation | Desktop Link authorization, new-message cutoff, revoke gate, one-time QR pairing review, public-key binding, and a private-key-possession challenge-response gate |
 
 Each stage is expected to remain buildable, testable, and reversible.
 
@@ -138,9 +140,10 @@ Each stage is expected to remain buildable, testable, and reversible.
 - Core Low Power Mode, App Lock, and Safety Number capabilities.
 - Desktop Link host safety core: SQLite v13 authorization state, SQLite v14
   one-time pairing-request state, SQLite v15 public-key/fingerprint binding,
-  explicit mobile approval, strict new-message cutoff, and fail-closed
-  revocation. A reviewed QR request never authorizes a link automatically and
-  is not private-key-possession proof.
+  short-lived RAM challenge state, two-way `crypto_box` private-key-possession
+  proof, explicit mobile approval, strict new-message cutoff, and fail-closed
+  revocation. A QR cannot authorize a link without a valid proof. This is
+  host fake-crypto/Widget evidence, not native or Desktop runtime evidence.
 - Production backup, restore, monitoring, alerting, and off-host export fixtures.
 - GitHub Actions for Java, Flutter, PostgreSQL, and Windows Desktop.
 
@@ -152,8 +155,9 @@ Each stage is expected to remain buildable, testable, and reversible.
 - Production Android application ID, keystore, iOS Bundle ID, and signing.
 - Public HTTPS/WSS, registry digest, scheduled monitoring, external alerts,
   and an off-host restore drill.
-- A desktop-side pairing requester, private-key-possession signed challenge,
-  real camera scan validation, desktop transport, per-device re-encryption,
+- A usable desktop QR presentation/challenge responder, primary-device discovery
+  and automatic handoff, native libsodium/secure-storage proof runtime, real
+  camera scan validation, desktop transport, per-device re-encryption,
   cross-device history/new-message sync, and validation that revocation removes
   access to new messages on a companion device.
 

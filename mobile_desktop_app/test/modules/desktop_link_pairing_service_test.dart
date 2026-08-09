@@ -5,14 +5,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:p2p_chat_app/core/database/database_service.dart';
 import 'package:p2p_chat_app/core/events/event_bus.dart';
 import 'package:p2p_chat_app/core/logging/logging_service.dart';
+import 'package:p2p_chat_app/modules/crypto/domain/device_key_material.dart';
 import 'package:p2p_chat_app/modules/desktop_link/data/desktop_link_pairing_repository.dart';
 import 'package:p2p_chat_app/modules/desktop_link/data/desktop_link_repository.dart';
 import 'package:p2p_chat_app/modules/desktop_link/domain/desktop_link_pairing_exception.dart';
+import 'package:p2p_chat_app/modules/desktop_link/domain/desktop_link_key_possession.dart';
 import 'package:p2p_chat_app/modules/desktop_link/domain/desktop_link_pairing_record.dart';
 import 'package:p2p_chat_app/modules/desktop_link/domain/desktop_link_pairing_request.dart';
 import 'package:p2p_chat_app/modules/desktop_link/domain/desktop_link_pairing_service.dart';
 import 'package:p2p_chat_app/modules/desktop_link/domain/desktop_link_service.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+import 'fake_message_box.dart';
 
 void main() {
   sqfliteFfiInit();
@@ -30,6 +34,7 @@ void main() {
         isNull,
       );
 
+      await fixture.prove(prepared);
       final link = await fixture.service.confirm(prepared);
       final record = await fixture.pairingRepository.findByRequestId(
         request.requestId,
@@ -38,6 +43,29 @@ void main() {
       expect(link.deviceId, request.deviceId);
       expect(link.isActive, isTrue);
       expect(record!.state, DesktopLinkPairingState.confirmed);
+    } finally {
+      await fixture.close();
+    }
+  });
+
+  test('未完成桌面私鑰 proof 時不能 confirm，但 request 保持可重試', () async {
+    final fixture = await _Fixture.open();
+    try {
+      final request = fixture.request();
+      final prepared = await fixture.service.prepareQrPayload(
+        request.toQrPayload(),
+      );
+
+      await expectLater(
+        fixture.service.confirm(prepared),
+        throwsA(isA<DesktopLinkPairingProofRequired>()),
+      );
+      final record = await fixture.pairingRepository.findByRequestId(
+        request.requestId,
+      );
+      expect(record!.state, DesktopLinkPairingState.pending);
+      expect(await fixture.linkRepository.findByDeviceId(request.deviceId),
+          isNull);
     } finally {
       await fixture.close();
     }
@@ -116,15 +144,45 @@ class _Fixture {
   _Fixture(this.directory, this.database, this._now)
       : linkRepository = DesktopLinkRepository(database.db),
         pairingRepository = DesktopLinkPairingRepository(database.db) {
+    box = TestMessageBox();
+    primarySecret = TestSecureKey(_bytes(80));
+    desktopSecret = TestSecureKey(_bytes(120));
+    box
+      ..registerKey(publicKey: _primaryPublicKey, secretKey: primarySecret)
+      ..registerKey(publicKey: _desktopPublicKey, secretKey: desktopSecret);
+    primaryKey = testDeviceKey(
+      deviceId: 'primary-phone',
+      publicKey: _primaryPublicKey,
+      secretKey: primarySecret,
+    );
+    desktopKey = testDeviceKey(
+      deviceId: 'desktop-windows',
+      publicKey: _desktopPublicKey,
+      secretKey: desktopSecret,
+    );
     linkService = DesktopLinkService(
       repository: linkRepository,
       primaryDeviceId: 'primary-phone',
       eventBus: EventBus(),
       clock: () => _now,
     );
+    keyPossession = DesktopLinkKeyPossessionService(
+      box: box,
+      primaryKey: primaryKey,
+      primaryDeviceId: 'primary-phone',
+      clock: () => _now,
+      challengeIdGenerator: () => 'challenge-0000000001',
+    );
+    responder = DesktopLinkKeyPossessionResponder(
+      box: box,
+      desktopKey: desktopKey,
+      desktopDeviceId: 'desktop-windows',
+      clock: () => _now,
+    );
     service = DesktopLinkPairingService(
       repository: pairingRepository,
       desktopLinkService: linkService,
+      keyPossessionService: keyPossession,
       primaryDeviceId: 'primary-phone',
       clock: () => _now,
     );
@@ -135,7 +193,14 @@ class _Fixture {
   final DateTime _now;
   final DesktopLinkRepository linkRepository;
   final DesktopLinkPairingRepository pairingRepository;
+  late final TestMessageBox box;
+  late final TestSecureKey primarySecret;
+  late final TestSecureKey desktopSecret;
+  late final DeviceKeyMaterial primaryKey;
+  late final DeviceKeyMaterial desktopKey;
   late final DesktopLinkService linkService;
+  late final DesktopLinkKeyPossessionService keyPossession;
+  late final DesktopLinkKeyPossessionResponder responder;
   late final DesktopLinkPairingService service;
 
   static Future<_Fixture> open() async {
@@ -161,7 +226,16 @@ class _Fixture {
         issuedAt: 100,
       );
 
+  Future<void> prove(DesktopLinkPairingRequest request) async {
+    final challenge = await service.createKeyPossessionChallenge(request);
+    final response = responder.respondToChallengePayload(challenge.toPayload());
+    await service.verifyKeyPossessionResponse(response.toPayload());
+  }
+
   Future<void> close() async {
+    keyPossession.dispose();
+    primaryKey.dispose();
+    desktopKey.dispose();
     await database.close();
     await directory.delete(recursive: true);
   }
@@ -170,3 +244,11 @@ class _Fixture {
 final Uint8List _desktopPublicKey = Uint8List.fromList(
   List<int>.generate(32, (index) => index + 1),
 );
+
+final Uint8List _primaryPublicKey = Uint8List.fromList(
+  List<int>.generate(32, (index) => index + 101),
+);
+
+Uint8List _bytes(int seed) => Uint8List.fromList(
+      List<int>.generate(32, (index) => (seed + index) & 0xff),
+    );

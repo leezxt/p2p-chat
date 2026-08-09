@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
 import '../domain/desktop_link.dart';
 import '../domain/desktop_link_pairing_exception.dart';
+import '../domain/desktop_link_key_possession.dart';
 import '../domain/desktop_link_pairing_request.dart';
 import '../domain/desktop_link_pairing_service.dart';
 import '../domain/desktop_link_service.dart';
@@ -28,6 +29,8 @@ class DesktopLinkPairingPage extends StatefulWidget {
 class _DesktopLinkPairingPageState extends State<DesktopLinkPairingPage> {
   late Future<List<DesktopLink>> _links = widget.desktopLinkService.listLinks();
   DesktopLinkPairingRequest? _preparedRequest;
+  DesktopLinkKeyPossessionChallenge? _keyProofChallenge;
+  bool _keyPossessionVerified = false;
   bool _submitting = false;
 
   void _reloadLinks() {
@@ -37,32 +40,16 @@ class _DesktopLinkPairingPageState extends State<DesktopLinkPairingPage> {
   }
 
   Future<void> _pasteRequest() async {
-    final controller = TextEditingController();
     final l10n = AppLocalizations.of(context);
     final payload = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (_) => _PayloadInputDialog(
         title: Text(l10n.desktopLinkPair),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          minLines: 3,
-          maxLines: 8,
-          decoration: InputDecoration(labelText: l10n.desktopLinkRequestData),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: Text(l10n.desktopLinkReviewRequest),
-          ),
-        ],
+        inputLabel: l10n.desktopLinkRequestData,
+        cancelLabel: l10n.cancel,
+        submitLabel: l10n.desktopLinkReviewRequest,
       ),
     );
-    controller.dispose();
     if (!mounted || payload == null || payload.isEmpty) return;
     await _prepare(payload);
   }
@@ -77,9 +64,63 @@ class _DesktopLinkPairingPageState extends State<DesktopLinkPairingPage> {
     try {
       final request = await widget.pairingService.prepareQrPayload(payload);
       if (!mounted) return;
-      setState(() => _preparedRequest = request);
+      setState(() {
+        _preparedRequest = request;
+        _keyProofChallenge = null;
+        _keyPossessionVerified = false;
+      });
     } on DesktopLinkPairingException {
       _showMessage(AppLocalizations.of(context).desktopLinkRequestInvalid);
+    }
+  }
+
+  Future<void> _createKeyProofChallenge() async {
+    final request = _preparedRequest;
+    if (request == null || _submitting || _keyPossessionVerified) return;
+    try {
+      final challenge =
+          await widget.pairingService.createKeyPossessionChallenge(request);
+      if (!mounted) return;
+      setState(() => _keyProofChallenge = challenge);
+    } on DesktopLinkPairingException {
+      _showMessage(AppLocalizations.of(context).desktopLinkKeyProofInvalid);
+    }
+  }
+
+  Future<void> _pasteKeyProofResponse() async {
+    final request = _preparedRequest;
+    if (request == null || _submitting || _keyProofChallenge == null) return;
+    final l10n = AppLocalizations.of(context);
+    final payload = await showDialog<String>(
+      context: context,
+      builder: (_) => _PayloadInputDialog(
+        title: Text(l10n.desktopLinkKeyProofPasteResponse),
+        inputLabel: l10n.desktopLinkKeyProofResponseData,
+        cancelLabel: l10n.cancel,
+        submitLabel: l10n.desktopLinkKeyProofStart,
+      ),
+    );
+    if (!mounted || payload == null || payload.isEmpty) return;
+    setState(() => _submitting = true);
+    try {
+      await widget.pairingService.verifyKeyPossessionResponse(payload);
+      if (!mounted) return;
+      setState(() {
+        _keyPossessionVerified =
+            widget.pairingService.isKeyPossessionVerified(request);
+      });
+      if (!_keyPossessionVerified) {
+        _showMessage(l10n.desktopLinkKeyProofInvalid);
+      }
+    } on DesktopLinkPairingException {
+      if (!mounted) return;
+      setState(() {
+        _keyProofChallenge = null;
+        _keyPossessionVerified = false;
+      });
+      _showMessage(l10n.desktopLinkKeyProofInvalid);
+    } finally {
+      if (mounted) setState(() => _submitting = false);
     }
   }
 
@@ -87,6 +128,10 @@ class _DesktopLinkPairingPageState extends State<DesktopLinkPairingPage> {
     final request = _preparedRequest;
     if (request == null || _submitting) return;
     final l10n = AppLocalizations.of(context);
+    if (!widget.pairingService.isKeyPossessionVerified(request)) {
+      _showMessage(l10n.desktopLinkKeyProofRequired);
+      return;
+    }
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -102,7 +147,7 @@ class _DesktopLinkPairingPageState extends State<DesktopLinkPairingPage> {
               SelectableText(request.publicKeyFingerprint),
               const SizedBox(height: 8),
               Text(
-                l10n.desktopLinkKeyBindingNotice,
+                l10n.desktopLinkKeyProofVerified,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
@@ -126,7 +171,11 @@ class _DesktopLinkPairingPageState extends State<DesktopLinkPairingPage> {
     try {
       await widget.pairingService.confirm(request);
       if (!mounted) return;
-      setState(() => _preparedRequest = null);
+      setState(() {
+        _preparedRequest = null;
+        _keyProofChallenge = null;
+        _keyPossessionVerified = false;
+      });
       _reloadLinks();
       _showMessage(l10n.desktopLinkApproved);
     } on DesktopLinkPairingException {
@@ -145,7 +194,11 @@ class _DesktopLinkPairingPageState extends State<DesktopLinkPairingPage> {
     try {
       await widget.pairingService.reject(request);
       if (!mounted) return;
-      setState(() => _preparedRequest = null);
+      setState(() {
+        _preparedRequest = null;
+        _keyProofChallenge = null;
+        _keyPossessionVerified = false;
+      });
       _showMessage(AppLocalizations.of(context).desktopLinkRejected);
     } on DesktopLinkPairingException {
       _showMessage(AppLocalizations.of(context).desktopLinkRequestInvalid);
@@ -251,17 +304,78 @@ class _DesktopLinkPairingPageState extends State<DesktopLinkPairingPage> {
                         SelectableText(request.publicKeyFingerprint),
                         const SizedBox(height: 8),
                         Text(
-                          l10n.desktopLinkKeyBindingNotice,
+                          _keyPossessionVerified
+                              ? l10n.desktopLinkKeyProofVerified
+                              : l10n.desktopLinkKeyBindingNotice,
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                         const SizedBox(height: 16),
+                        if (!_keyPossessionVerified) ...[
+                          Text(
+                            l10n.desktopLinkKeyProofDescription,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          const SizedBox(height: 12),
+                          FilledButton.icon(
+                            onPressed:
+                                _submitting ? null : _createKeyProofChallenge,
+                            icon: const Icon(Icons.key_outlined),
+                            label: Text(l10n.desktopLinkKeyProofStart),
+                          ),
+                          if (_keyProofChallenge case final challenge?) ...[
+                            const SizedBox(height: 16),
+                            Text(
+                              l10n.desktopLinkKeyProofChallengeReady,
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              l10n.desktopLinkKeyProofChallengeData,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              height: 112,
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .outlineVariant,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: SingleChildScrollView(
+                                  padding: const EdgeInsets.all(8),
+                                  child: SelectableText(challenge.toPayload()),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            OutlinedButton.icon(
+                              onPressed:
+                                  _submitting ? null : _pasteKeyProofResponse,
+                              icon: const Icon(Icons.content_paste),
+                              label: Text(
+                                l10n.desktopLinkKeyProofPasteResponse,
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 16),
+                          Text(
+                            l10n.desktopLinkKeyProofRequired,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          const SizedBox(height: 16),
+                        ],
                         Wrap(
                           spacing: 12,
                           runSpacing: 12,
                           children: [
                             FilledButton.icon(
-                              onPressed:
-                                  _submitting ? null : _confirmPreparedRequest,
+                              onPressed: _submitting || !_keyPossessionVerified
+                                  ? null
+                                  : _confirmPreparedRequest,
                               icon: const Icon(Icons.verified_outlined),
                               label: Text(l10n.desktopLinkApprove),
                             ),
@@ -312,4 +426,55 @@ class _DesktopLinkPairingPageState extends State<DesktopLinkPairingPage> {
       ),
     );
   }
+}
+
+/// 讓 controller 與 dialog route 同時釋放，避免按下確認後 route exit animation 仍在讀取
+/// 已 dispose 的 controller。兩種手動貼上流程共用，且只把 trim 後的輸入回傳給呼叫端。
+class _PayloadInputDialog extends StatefulWidget {
+  const _PayloadInputDialog({
+    required this.title,
+    required this.inputLabel,
+    required this.cancelLabel,
+    required this.submitLabel,
+  });
+
+  final Widget title;
+  final String inputLabel;
+  final String cancelLabel;
+  final String submitLabel;
+
+  @override
+  State<_PayloadInputDialog> createState() => _PayloadInputDialogState();
+}
+
+class _PayloadInputDialogState extends State<_PayloadInputDialog> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+        title: widget.title,
+        content: TextField(
+          controller: _controller,
+          autofocus: true,
+          minLines: 3,
+          maxLines: 8,
+          decoration: InputDecoration(labelText: widget.inputLabel),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(widget.cancelLabel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, _controller.text.trim()),
+            child: Text(widget.submitLabel),
+          ),
+        ],
+      );
 }

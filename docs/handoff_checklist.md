@@ -7,8 +7,8 @@
 使用者已授權先行實作 V1.5 Safety Number、App Lock 與 Low Power Mode 的電腦端
 工作，並於 2026-07-26 授權先行實作可由 Windows 主機／Android AVD 完整驗證的
 V2 工作。V1 真機與 production Gate 不因此降級；使用者已接續授權 V3 Desktop Link
-的主機安全核心、手機端一次性 QR 請求檢閱與公開金鑰 binding，但 V3 實際桌面／跨裝置
-runtime 仍保留於 backlog。
+的主機安全核心、手機端一次性 QR 請求檢閱、公開金鑰 binding 與私鑰持有 challenge-response
+授權 gate，但 V3 實際桌面／跨裝置 runtime 仍保留於 backlog。
 
 ## 接手摘要（2026-07-26）
 
@@ -62,12 +62,18 @@ Android application ID、iOS Bundle ID、Firebase project 與加密 domain strin
   X25519 `publicKey`，手機端以裝置 ID 與該 key 重算 fingerprint，拒絕不一致內容；
   `DesktopLinkPairingRequestIssuer` 僅以公開金鑰建立短效 canonical request。SQLite v15
   安全作廢沒有 key binding 的 v14 暫存 request，不影響既有授權、聊天、身份或金鑰；檢閱頁
-  會明示 key binding 並不等於桌面端持有私鑰。V3 專項 30 項主機測試與 `dart analyze`
-  已於 2026-08-09 通過。
-- [ ] V3 外部 Gate：桌面端 QR presentation、目標主裝置發現／交付與 private-key-possession
-  challenge-response，Android／iOS 真實相機權限與掃碼、實際桌面端 transport、每副端重新加密、
-  真實多裝置同步／網路故障，以及撤銷後副端無法取得或解密新訊息的 Windows／Android／iOS
-  runtime 驗收。
+  會明示 key binding 本身不等於桌面端持有私鑰。
+- [x] V3-04 私鑰持有 challenge-response 與手機授權 gate：沿用既有 X25519 `MessageBox`
+  authenticated `crypto_box`，將短效一次性 token 只放在加密 challenge 與手機 RAM；手機嚴格
+  驗證 request／主副裝置／公開金鑰 fingerprint／challenge／token／效期。竄改、錯誤 key、重放、
+  逾期或 app restart 均 fail-closed，沒有有效 proof 時 `confirm` 不會授權，proof 成功後仍需
+  使用者在確認對話框明確同意。V3 專項 35 項主機測試與 `dart analyze` 已於 2026-08-09 通過。
+  `NIX_SKIP_SODIUM_BUILD_HOOKS=1` 下的 proof 測試使用 test-only `MessageBox` fake，不宣稱
+  原生 libsodium、secure storage、實機或桌面 runtime 已通過。
+- [ ] V3 外部 Gate：桌面端 QR presentation／responder、目標主裝置發現／自動交付，Android／iOS
+  真實相機權限與掃碼、原生 libsodium／secure-storage challenge proof runtime、實際桌面端
+  transport、每副端重新加密、真實多裝置同步／網路故障，以及撤銷後副端無法取得或解密新訊息的
+  Windows／Android／iOS runtime 驗收。
 
 詳細安全邊界與未完成 protocol 見 [`desktop_link.md`](desktop_link.md)。
 
