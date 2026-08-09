@@ -118,6 +118,11 @@ jobs:
           --dart-define=RUNTIME_PLATFORM=Windows
           --dart-define=VERIFY_CLIPBOARD=true
           integration_test/desktop_link_companion_runtime_test.dart
+      - name: Run Windows Desktop Link module route integration
+        run: >-
+          flutter test --no-pub -d windows
+          --dart-define=RUNTIME_PLATFORM=Windows
+          integration_test/desktop_link_module_route_runtime_test.dart
       - name: Verify Windows secure storage across App processes
         shell: pwsh
         run: |

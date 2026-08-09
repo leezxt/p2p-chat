@@ -16,6 +16,7 @@ $repoRoot = Split-Path -Parent $appRoot
 $flutter = Join-Path $repoRoot '.tools\flutter\bin\flutter.bat'
 $cryptoRuntimeTest = Join-Path $appRoot 'integration_test\android_crypto_runtime_test.dart'
 $desktopLinkRuntimeTest = Join-Path $appRoot 'integration_test\desktop_link_companion_runtime_test.dart'
+$desktopLinkRouteRuntimeTest = Join-Path $appRoot 'integration_test\desktop_link_module_route_runtime_test.dart'
 $artifactRoot = Join-Path $appRoot 'build\windows-desktop-runtime'
 
 function Write-OutputFile {
@@ -55,7 +56,11 @@ function Test-WindowsDesktopPreflight {
     if (-not (Test-Path -LiteralPath (Join-Path $appRoot 'windows\runner\main.cpp'))) {
         throw 'The Flutter Windows runner is missing from this checkout.'
     }
-    foreach ($testPath in @($cryptoRuntimeTest, $desktopLinkRuntimeTest)) {
+    foreach ($testPath in @(
+        $cryptoRuntimeTest,
+        $desktopLinkRuntimeTest,
+        $desktopLinkRouteRuntimeTest
+    )) {
         if (-not (Test-Path -LiteralPath $testPath)) {
             throw "The native runtime integration test is missing at $testPath."
         }
@@ -157,5 +162,13 @@ if ($VerifyClipboard) {
 }
 $desktopLinkArguments += 'integration_test/desktop_link_companion_runtime_test.dart'
 Invoke-Flutter -Name 'desktop-link-companion-runtime' -Arguments $desktopLinkArguments
+
+Invoke-Flutter -Name 'desktop-link-module-route-runtime' -Arguments @(
+    'test',
+    '--no-pub',
+    '-d', 'windows',
+    '--dart-define=RUNTIME_PLATFORM=Windows',
+    'integration_test/desktop_link_module_route_runtime_test.dart'
+)
 
 Write-Host 'Windows native desktop runtime verification passed.' -ForegroundColor Green
