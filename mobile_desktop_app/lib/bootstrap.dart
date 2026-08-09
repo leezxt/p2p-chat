@@ -7,6 +7,7 @@ import 'core/events/event_bus.dart';
 import 'core/logging/logging_service.dart';
 import 'core/module/module_context.dart';
 import 'core/module/module_registry.dart';
+import 'core/module/module_lifecycle.dart';
 import 'core/resource_policy/resource_policy_service.dart';
 import 'core/routing/route_registry.dart';
 import 'modules/chat/chat_module.dart';
@@ -27,6 +28,7 @@ import 'modules/sticker/sticker_module.dart';
 import 'modules/storage/storage_module.dart';
 import 'modules/smart_notification/smart_notification_module.dart';
 import 'modules/translation/translation_module.dart';
+import 'modules/attachment/attachment_module.dart';
 import 'shared/utils/id_generator.dart';
 
 /// 啟動結果：交給 App 根 Widget 使用。
@@ -95,6 +97,7 @@ Future<Bootstrap> bootstrap({
   registry.register(StorageModule());
   registry.register(SmartNotificationModule());
   registry.register(TranslationModule());
+  registry.register(AttachmentModule(), initial: ModuleState.disabled);
   registry.register(ChatModule(
     currentUserId: currentUserId,
     currentDeviceId: currentDeviceId,

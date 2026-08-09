@@ -57,6 +57,7 @@ Simple Communication 不是要複製 LINE、WhatsApp 或 Discord，而是以四�
 - Storage Manager 提供本機資料庫／快取／附件分類與預覽式快取清理；身份、金鑰、聊天與未送訊息不會被清除。
 - Smart Notification 讓每個聊天室可獨立靜音；通知預覽需由聊天室與 App Lock 隱私設定雙重允許，預設只顯示通用文字。
 - 單則翻譯採 opt-in 與本機快取；原文永遠不被改寫，尚未設定 provider 時不會傳送任何聊天內容。
+- 圖片／語音附件已定義版本化加密 metadata、大小與 MIME 限制、按需下載／取消／重試策略；真實相機、麥克風與檔案傳輸尚未啟用。
 
 ### 跨裝置個人通訊
 

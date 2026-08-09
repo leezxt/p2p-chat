@@ -91,6 +91,12 @@ Translation Module 預設沒有 provider，且使用者未設定明確同意前�
 `message_translations`，不改寫 `chat_messages` 的原始 payload。使用者可清除單則
 翻譯結果；接入任何雲端 provider 前，必須在 UI 說明實際資料傳送對象與條款。
 
+Attachment Module 預設 disabled，不持有相機、麥克風、檔案控制代碼或背景下載。
+圖片與語音訊息只承載版本化 metadata：attachment ID、允許的 MIME、大小與密文
+SHA-256；圖片上限 10 MiB、語音上限 25 MiB。下載控制器支援手動下載、取消、
+失敗重試與狀態回報；只有使用者明確允許且非 Low Power 的圖片可自動下載，語音
+一律手動下載。實際 encrypted transfer／解密、檔案保存與裝置權限留待外部 Gate。
+
 ## 運行模式
 
 正確：平常休眠 → 收推播或開聊天室 → 建立 P2P → 傳完短暫維持 → 閒置斷線 → 進背景關閉 P2P。

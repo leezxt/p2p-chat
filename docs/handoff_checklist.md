@@ -41,7 +41,8 @@ Android application ID、iOS Bundle ID、Firebase project 與加密 domain strin
 - [ ] V2-06 外部 Gate：真實 FCM／APNs、系統權限、cold/warm provider routing 與 OEM 通知行為
 - [x] V2-04 單則翻譯主機核心：SQLite v12 cache、provider interface、明確 opt-in、原文不改寫、單則清除與 fake provider tests；預設未設定 provider、不傳送內容
 - [ ] V2-04 外部 Gate：選定本機／雲端 provider、費用、資料處理條款與實際網路失敗驗收
-- [ ] V2-03 圖片／語音基礎：加密附件、按需下載、取消／重試與 Low Power 政策
+- [x] V2-03 圖片／語音主機安全核心：Attachment v1 metadata、MIME／大小限制、按需下載／取消／重試與 Low Power policy，模組預設 disabled
+- [ ] V2-03 外部 Gate：真實加密 transfer、相機、麥克風、權限、行動網路、AVD UI 與耗電驗收
 
 詳細主機驗收與外部 Gate 見 [`project_tasks.md`](project_tasks.md#v2-主機可先行範圍)。
 
