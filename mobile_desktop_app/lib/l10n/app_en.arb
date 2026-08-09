@@ -94,5 +94,19 @@
   "lowPowerMode": "Low power mode",
   "lowPowerModeEnabled": "Low power mode is on",
   "lowPowerModeDisabled": "Low power mode is off",
-  "lowPowerModeDescription": "Reduces presence updates, P2P connections, idle time, and automatic downloads"
+  "lowPowerModeDescription": "Reduces presence updates, P2P connections, idle time, and automatic downloads",
+  "storageManager": "Storage manager",
+  "storageTotal": "Total local storage: {size}",
+  "@storageTotal": {"placeholders": {"size": {"type": "String"}}},
+  "storageDatabase": "Local database",
+  "storageCache": "Rebuildable cache",
+  "storageAttachments": "Attachments",
+  "storageProtected": "Protected data",
+  "storageProtectedDescription": "Identity, keys, chats, and unsent mailbox messages ({size}) are never included in cleanup.",
+  "@storageProtectedDescription": {"placeholders": {"size": {"type": "String"}}},
+  "storageClearCache": "Clear cache",
+  "storageClearCacheDescription": "Only rebuildable cache is removed. Chats and security data stay on this device.",
+  "storageClearCacheConfirmation": "Remove {size} of rebuildable cache? This does not delete chats, identity, keys, or unsent messages.",
+  "@storageClearCacheConfirmation": {"placeholders": {"size": {"type": "String"}}},
+  "storageCacheCleared": "Cleared {size} of cache"
 }

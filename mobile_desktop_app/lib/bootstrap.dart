@@ -24,6 +24,7 @@ import 'modules/settings/settings_module.dart';
 import 'modules/safety_number/safety_number_module.dart';
 import 'modules/reaction/reaction_module.dart';
 import 'modules/sticker/sticker_module.dart';
+import 'modules/storage/storage_module.dart';
 import 'shared/utils/id_generator.dart';
 
 /// 啟動結果：交給 App 根 Widget 使用。
@@ -89,6 +90,7 @@ Future<Bootstrap> bootstrap({
   // dependencies during registerRoutes.
   registry.register(ReactionModule());
   registry.register(StickerModule());
+  registry.register(StorageModule());
   registry.register(ChatModule(
     currentUserId: currentUserId,
     currentDeviceId: currentDeviceId,

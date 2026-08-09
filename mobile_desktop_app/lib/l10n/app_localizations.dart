@@ -578,6 +578,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reduces presence updates, P2P connections, idle time, and automatic downloads'**
   String get lowPowerModeDescription;
+
+  /// No description provided for @storageManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage manager'**
+  String get storageManager;
+
+  /// No description provided for @storageTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total local storage: {size}'**
+  String storageTotal(String size);
+
+  /// No description provided for @storageDatabase.
+  ///
+  /// In en, this message translates to:
+  /// **'Local database'**
+  String get storageDatabase;
+
+  /// No description provided for @storageCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Rebuildable cache'**
+  String get storageCache;
+
+  /// No description provided for @storageAttachments.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachments'**
+  String get storageAttachments;
+
+  /// No description provided for @storageProtected.
+  ///
+  /// In en, this message translates to:
+  /// **'Protected data'**
+  String get storageProtected;
+
+  /// No description provided for @storageProtectedDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity, keys, chats, and unsent mailbox messages ({size}) are never included in cleanup.'**
+  String storageProtectedDescription(String size);
+
+  /// No description provided for @storageClearCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear cache'**
+  String get storageClearCache;
+
+  /// No description provided for @storageClearCacheDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Only rebuildable cache is removed. Chats and security data stay on this device.'**
+  String get storageClearCacheDescription;
+
+  /// No description provided for @storageClearCacheConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {size} of rebuildable cache? This does not delete chats, identity, keys, or unsent messages.'**
+  String storageClearCacheConfirmation(String size);
+
+  /// No description provided for @storageCacheCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleared {size} of cache'**
+  String storageCacheCleared(Object size);
 }
 
 class _AppLocalizationsDelegate

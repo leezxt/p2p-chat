@@ -35,7 +35,8 @@ Android application ID、iOS Bundle ID、Firebase project 與加密 domain strin
 - [ ] V2-02 內建貼圖／貼圖包：🚧 只傳 ID、嚴格 manifest、hash／格式／容量／授權、zip-slip 防護、內建資產與雙語 Widget tests 已完成；AVD UI、離線雙端與真機資源驗收待完成
   - [x] 完整 sodium Android debug APK 建置成功；APK 內含三個 ABI 的 `libsodium.so`、貼圖 manifest 與 PNG。大小 `243287062` bytes，SHA-256 `20BA98AAFE855DF6E988439E9C60085E3AE2C0E37230FF0B701F4F97173A0C76`
   - [ ] AVD Gate：舊 AVD 指向已失效的 `<temp>` data partition；以既有 API 35 image 重建 `Simple_Communication_V2_API35`，但目前桌面工作階段無法維持 qemu／adb，因此尚未宣稱 Android UI runtime 通過
-- [ ] V2-05 Storage Manager：分類統計、preview-first 清理與關鍵資料保護
+- [x] V2-05 Storage Manager 主機核心：SQLite v10 快取索引、資料庫／快取／附件分類、preview-first 清理與關鍵資料保護；目前只清可重建快取，不刪聊天、身份、金鑰或未送 mailbox
+- [ ] V2-05 外部 Gate：真機磁碟壓力、OS 清理、大量資料效能與真實附件驗收
 - [ ] V2-06 Smart Notification：聊天室偏好、App Lock 隱私與 provider-neutral routing
 - [ ] V2-04 單則翻譯：原文不改寫、明確 opt-in、本機快取與 fake provider
 - [ ] V2-03 圖片／語音基礎：加密附件、按需下載、取消／重試與 Low Power 政策

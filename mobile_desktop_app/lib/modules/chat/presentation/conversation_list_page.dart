@@ -22,6 +22,8 @@ import '../../low_power/domain/low_power_mode_service.dart';
 import '../../low_power/presentation/low_power_settings_page.dart';
 import '../../reaction/data/reaction_repository.dart';
 import '../../sticker/data/built_in_sticker_catalog.dart';
+import '../../storage/domain/storage_manager_service.dart';
+import '../../storage/presentation/storage_manager_page.dart';
 
 /// 聊天室列表畫面（App 首頁）。可建立本機測試聊天室並進入聊天。
 class ConversationListPage extends StatefulWidget {
@@ -43,6 +45,7 @@ class ConversationListPage extends StatefulWidget {
     this.localeController,
     this.reactionRepository,
     this.stickerCatalog,
+    this.storageManagerService,
   });
 
   final ChatRepository repository;
@@ -61,6 +64,7 @@ class ConversationListPage extends StatefulWidget {
   final LocaleController? localeController;
   final ReactionRepository? reactionRepository;
   final BuiltInStickerCatalog? stickerCatalog;
+  final StorageManagerService? storageManagerService;
 
   @override
   State<ConversationListPage> createState() => _ConversationListPageState();
@@ -267,6 +271,16 @@ class _ConversationListPageState extends State<ConversationListPage> {
                       : Icons.battery_saver_outlined,
                 ),
               ),
+            ),
+          if (widget.storageManagerService case final service?)
+            IconButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => StorageManagerPage(service: service),
+                ),
+              ),
+              tooltip: l10n.storageManager,
+              icon: const Icon(Icons.storage_outlined),
             ),
           if (widget.localeController case final controller?)
             PopupMenuButton<AppLanguage>(

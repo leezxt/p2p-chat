@@ -9,7 +9,7 @@ class Migration {
 }
 
 /// 目前 schema 版本。每次新增 migration 時 +1。
-const int kCurrentDbVersion = 9;
+const int kCurrentDbVersion = 10;
 
 /// 依版本排序的 migration 清單。
 const List<Migration> kMigrations = [
@@ -192,5 +192,15 @@ const List<Migration> kMigrations = [
     ''',
     'CREATE INDEX idx_message_reactions_target_active '
         'ON message_reactions (target_message_id, active)',
+  ]),
+  Migration(10, [
+    // 僅保存可安全重建的快取索引；身份、金鑰、聊天與待送 mailbox 不進此表。
+    '''
+    CREATE TABLE storage_cache_entries (
+      cache_key TEXT PRIMARY KEY,
+      byte_size INTEGER NOT NULL CHECK (byte_size >= 0),
+      updated_at INTEGER NOT NULL
+    )
+    ''',
   ]),
 ];

@@ -268,4 +268,46 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get lowPowerModeDescription =>
       'Reduces presence updates, P2P connections, idle time, and automatic downloads';
+
+  @override
+  String get storageManager => 'Storage manager';
+
+  @override
+  String storageTotal(String size) {
+    return 'Total local storage: $size';
+  }
+
+  @override
+  String get storageDatabase => 'Local database';
+
+  @override
+  String get storageCache => 'Rebuildable cache';
+
+  @override
+  String get storageAttachments => 'Attachments';
+
+  @override
+  String get storageProtected => 'Protected data';
+
+  @override
+  String storageProtectedDescription(String size) {
+    return 'Identity, keys, chats, and unsent mailbox messages ($size) are never included in cleanup.';
+  }
+
+  @override
+  String get storageClearCache => 'Clear cache';
+
+  @override
+  String get storageClearCacheDescription =>
+      'Only rebuildable cache is removed. Chats and security data stay on this device.';
+
+  @override
+  String storageClearCacheConfirmation(String size) {
+    return 'Remove $size of rebuildable cache? This does not delete chats, identity, keys, or unsent messages.';
+  }
+
+  @override
+  String storageCacheCleared(Object size) {
+    return 'Cleared $size of cache';
+  }
 }

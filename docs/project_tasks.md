@@ -194,7 +194,7 @@
 | V2-02 | 內建貼圖與貼圖包工具（🚧 主機核心完成；AVD UI 待驗） | 訊息只傳 sticker ID；建立 manifest schema、大小／格式／授權檢查與 zip-slip 防護；內建資產、離線同步及 AVD UI 通過 | 真機資源占用與大量貼圖包操作 |
 | V2-03 | 圖片／語音訊息基礎 | 定義加密 attachment metadata、大小上限、按需下載、取消／重試與 Low Power／行動網路政策；以 fake transport、fixture 與 AVD 驗證 UI | 真實相機、麥克風、權限、行動網路與耗電 |
 | V2-04 | 單則翻譯框架 | 原文不可改寫；provider interface、明確 opt-in、語言／provider cache key、可清除本機快取與 fake provider tests | 真實雲端 provider、費用、資料處理條款與網路失敗 |
-| V2-05 | Storage Manager | 分類統計 DB／附件／快取；preview-first 清理、保留私鑰／身份／未送訊息；SQLite fixture 與 Widget tests 通過 | 真機磁碟壓力、OS 清理與大量資料效能 |
+| V2-05 | Storage Manager（✅ 主機核心完成） | SQLite v10 快取索引、DB／快取／附件分類、preview-first 確認、只清可重建 cache，並以 tests 保護身份／金鑰／聊天／未送 mailbox | 真機磁碟壓力、OS 清理、大量資料效能與未來真實附件 |
 | V2-06 | Smart Notification | 聊天室 mute／privacy 偏好、鎖定時通用文字、provider-neutral policy 與 cold/warm routing tests | 真實 FCM／APNs、系統權限與 OEM 行為 |
 
 建議主機實作順序：`V2-01 → V2-02 → V2-05 → V2-06 → V2-04 → V2-03`。

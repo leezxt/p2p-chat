@@ -253,6 +253,47 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get lowPowerModeDescription => '降低在線更新、P2P 連線與閒置時間，並停用自動下載';
+
+  @override
+  String get storageManager => '儲存空間管理';
+
+  @override
+  String storageTotal(String size) {
+    return '本機儲存空間：$size';
+  }
+
+  @override
+  String get storageDatabase => '本機資料庫';
+
+  @override
+  String get storageCache => '可重建快取';
+
+  @override
+  String get storageAttachments => '附件';
+
+  @override
+  String get storageProtected => '受保護資料';
+
+  @override
+  String storageProtectedDescription(String size) {
+    return '身份、金鑰、聊天與未送出 Mailbox 訊息（$size）永遠不會納入清理。';
+  }
+
+  @override
+  String get storageClearCache => '清理快取';
+
+  @override
+  String get storageClearCacheDescription => '只移除可重建快取；聊天與安全資料會保留在此裝置。';
+
+  @override
+  String storageClearCacheConfirmation(String size) {
+    return '要移除 $size 的可重建快取嗎？聊天、身份、金鑰與未送訊息不會被刪除。';
+  }
+
+  @override
+  String storageCacheCleared(Object size) {
+    return '已清理 $size 快取';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -504,4 +545,45 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get lowPowerModeDescription => '降低在線更新、P2P 連線與閒置時間，並停用自動下載';
+
+  @override
+  String get storageManager => '儲存空間管理';
+
+  @override
+  String storageTotal(String size) {
+    return '本機儲存空間：$size';
+  }
+
+  @override
+  String get storageDatabase => '本機資料庫';
+
+  @override
+  String get storageCache => '可重建快取';
+
+  @override
+  String get storageAttachments => '附件';
+
+  @override
+  String get storageProtected => '受保護資料';
+
+  @override
+  String storageProtectedDescription(String size) {
+    return '身份、金鑰、聊天與未送出 Mailbox 訊息（$size）永遠不會納入清理。';
+  }
+
+  @override
+  String get storageClearCache => '清理快取';
+
+  @override
+  String get storageClearCacheDescription => '只移除可重建快取；聊天與安全資料會保留在此裝置。';
+
+  @override
+  String storageClearCacheConfirmation(String size) {
+    return '要移除 $size 的可重建快取嗎？聊天、身份、金鑰與未送訊息不會被刪除。';
+  }
+
+  @override
+  String storageCacheCleared(Object size) {
+    return '已清理 $size 快取';
+  }
 }
