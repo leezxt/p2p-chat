@@ -8,8 +8,8 @@
 工作，並於 2026-07-26 授權先行實作可由 Windows 主機／Android AVD 完整驗證的
 V2 工作。V1 真機與 production Gate 不因此降級；使用者已接續授權 V3 Desktop Link
 的主機安全核心、手機端一次性 QR 請求檢閱、公開金鑰 binding、私鑰持有 challenge-response
-授權 gate 與 Desktop Companion host presentation，但 V3 實際桌面／跨裝置 runtime 仍保留於
-backlog。
+授權 gate、Desktop Companion host presentation 與受限的 GitHub-hosted Windows module-route
+runtime；完整桌面／跨裝置 runtime 仍保留於 backlog。
 
 ## 接手摘要（2026-07-26）
 
@@ -76,18 +76,20 @@ Android application ID、iOS Bundle ID、Firebase project 與加密 domain strin
   桌面名稱，貼入手機 challenge 後取得可複製的 encrypted response。手機檢閱頁同時顯示 primary
   device ID，形成無網路、無背景、無 token persistence 的手動流程。service／Widget 與既有 V3
   專項共 38 項主機測試、`dart analyze` 已於 2026-08-09 通過；
-  [GitHub Windows CI run 31317162765](https://github.com/leezxt/p2p-chat/actions/runs/31317162765)
+  [GitHub Windows CI run 31318234695](https://github.com/leezxt/p2p-chat/actions/runs/31318234695)
   另以真實 `SodiumMessageBox`、QR rendering、主端角色 proof 與受控 clipboard copy 通過受限
-  Windows native flow。這不是實體手機與桌面的真實跨裝置同步證據。
-- [ ] V3 外部 Gate：macOS／Linux 原生 runner、目前本機 Windows 完整使用者流程、
-  目標主裝置 discovery／自動交付，Android／iOS 真實相機權限與掃碼、原生 libsodium challenge
-  proof runtime、實際桌面端 transport、每副端重新加密、真實多裝置同步／網路故障，以及撤銷後
-  副端無法取得或解密新訊息的 Windows／Android／iOS runtime 驗收。
+  Windows native flow，並以 SQLite FFI、實際 `ModuleRegistry`、`RouteRegistry` 與 `Navigator`
+  test shell 證明 `/desktop-link` 會選擇 Companion 而不是手機 pairing 頁。這不是實體手機與桌面的
+  真實跨裝置同步，也不等於完整 `bootstrap`／首頁使用者旅程證據。
+- [ ] V3 外部 Gate：macOS／Linux 原生 runner、目前本機 Windows 完整 `bootstrap`／首頁使用者流程、
+  目標主裝置 discovery／自動交付，Android／iOS 真實相機權限與掃碼、實際桌面端 transport、
+  每副端重新加密、真實多裝置同步／網路故障，以及撤銷後副端無法取得或解密新訊息的
+  Windows／Android／iOS runtime 驗收。
   `mobile_desktop_app/tool/verify_windows_desktop.ps1` 現在統一 Windows preflight、debug build、
-  secure-storage process restart 與 Desktop Companion native integration；native run 一律拒絕
-  `NIX_SKIP_SODIUM_BUILD_HOOKS`。本機 2026-08-09 的 preflight 仍顯示未安裝 Visual Studio Desktop
-  development with C++／MSVC／CMake／Windows SDK；CI 已通過受限 native flow，但本機 runner 仍需
-  安裝後執行此入口，且不能以 CI 成功勾選其餘跨裝置 Gate。
+  secure-storage process restart、Desktop Companion native integration 與 module-route integration；
+  native run 一律拒絕 `NIX_SKIP_SODIUM_BUILD_HOOKS`。最後記錄的本機 2026-08-09 preflight 顯示未安裝
+  Visual Studio Desktop development with C++／MSVC／CMake／Windows SDK；CI 已通過受限 native flow，
+  但本機 runner 仍需安裝後執行此入口，且不能以 CI 成功勾選其餘跨裝置 Gate。
 
 詳細安全邊界與未完成 protocol 見 [`desktop_link.md`](desktop_link.md)。
 

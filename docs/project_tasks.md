@@ -7,8 +7,9 @@
 > `EPIC-12 Safety Number`、`EPIC-11 App Lock` 與 `EPIC-10 Low Power Mode`
 > 的電腦端工作，並於 2026-07-26 授權先行實作可由 Windows 主機／Android AVD
 > 完整驗證的 V2 工作。V1 真機與 production Gate 不因此降級；V3 Desktop Link 的主機安全核心、
-> 手機端一次性 QR 請求檢閱、公開金鑰 binding、私鑰持有 proof gate 與 Desktop Companion
-> host presentation 可先行，但 V3 實際桌面／跨裝置 runtime 仍保留於 backlog。
+> 手機端一次性 QR 請求檢閱、公開金鑰 binding、私鑰持有 proof gate、Desktop Companion
+> host presentation 與受限的 GitHub-hosted Windows module-route runtime 可先行，但完整桌面／
+> 跨裝置 runtime 仍保留於 backlog。
 
 ## 狀態定義
 
@@ -176,7 +177,7 @@
 | P2 | 語音與圖片訊息 | V2 | 按需取得資源、加密保存、行動網路不自動下載大檔 |
 | P2 | 單則翻譯 | V2 | 原文不改寫；本機快取；雲端須明確 opt-in |
 | P2 | Storage Manager、Smart Notification | V2 | 清理行為可預期且不刪私鑰；通知可按聊天室設定 |
-| P3 | Desktop Link、Device Sync、Revoke | V3 | ✅ 主機安全核心、手機端 QR 請求檢閱、公開金鑰 binding、RAM-only 私鑰持有 proof gate 與 Desktop Companion host presentation：明確授權、SQLite v13 同步切點、SQLite v14 一次性 request state、SQLite v15 public-key binding、雙向 X25519 `crypto_box` challenge-response、桌面 QR／手動 challenge responder、只選授權後新訊息、撤銷 fail-closed；原生 desktop runtime、transport、per-device 加密與副端撤銷 runtime 驗收仍待完成 |
+| P3 | Desktop Link、Device Sync、Revoke | V3 | ✅ 主機安全核心、手機端 QR 請求檢閱、公開金鑰 binding、RAM-only 私鑰持有 proof gate、Desktop Companion host presentation 與受限 GitHub Windows module-route runtime：明確授權、SQLite v13 同步切點、SQLite v14 一次性 request state、SQLite v15 public-key binding、雙向 X25519 `crypto_box` challenge-response、桌面 QR／手動 challenge responder、`/desktop-link` route 選擇 Companion、只選授權後新訊息、撤銷 fail-closed；完整 desktop runtime、transport、per-device 加密與副端撤銷 runtime 驗收仍待完成 |
 | P3 | File Transfer、Export/Import | V3 | P2P、進度/取消/重試、SHA-256；備份必須加密 |
 | P3 | 1 對 1語音通話 | V3 | 通話結束立即釋放音訊資源，不在背景常駐 |
 | P4 | 1 對 1 視訊通話 | V4 | 按需相機/麥克風、不錄影、低功耗畫質與資源釋放 |
@@ -206,18 +207,19 @@ fallback 與 Low Power Mode 限制，且不得將 AVD 結果標示為真機驗�
 
 ## V3 可由主機先行範圍
 
-V3 的原生桌面端 presentation runtime、相機 QR runtime、目標主裝置自動交付、原生私鑰持有
-proof runtime、跨裝置協定與每副端金鑰生命週期仍需多端驗收；下列安全決策、手機端檢閱 UX 與
-Desktop Companion host UI 可先在 Windows host 建立並以 Dart／SQLite／Widget 與 test-only crypto
-fake 測試驗證。
+V3 的完整桌面端 presentation runtime、相機 QR runtime、目標主裝置自動交付、跨裝置協定與每副端
+金鑰生命週期仍需多端驗收；下列安全決策、手機端檢閱 UX 與 Desktop Companion host UI 可先在
+Windows host 建立並以 Dart／SQLite／Widget 與 test-only crypto fake 測試驗證。GitHub-hosted Windows
+CI 另可驗證受限的 native sodium pairing flow 與 `DesktopLinkModule` 的 module-route 選擇，但不取代
+完整 `bootstrap`、真實手機或跨裝置 runtime。
 
 | ID | 主機可完成範圍 | 主機驗收條件 | 仍需外部驗證 |
 |---|---|---|---|
-| V3-01 | Desktop Link／Device Sync／Revoke 安全核心（✅） | 獨立模組、SQLite v13 授權資料、主裝置拒絕成為副端、fingerprint 變更 fail-closed、只選 `createdAt > authorized_after` 的新訊息、撤銷後拒絕新選取、Event Bus 事件、v1→v13 migration 與 service tests 通過 | 原生桌面端 pairing presentation／連線、per-device 加密與金鑰銷毀、真實同步／網路故障、Windows／Android／iOS runtime、已撤銷副端無法解密新訊息的端對端證明 |
-| V3-02 | 一次性 QR 配對請求與手機明確確認（✅） | SQLite v14 `desktop_link_pairing_requests`、嚴格 schema／目標主裝置／30–600 秒到期／一次性 request ID、`pending → confirming → confirmed/rejected`、掃描或貼入後預覽 fingerprint、拒絕不授權、明確同意後才呼叫 V3-01 | 真實 Android／iOS 相機權限與掃碼、原生桌面端 UI／自動交付、Desktop transport、per-device 加密、跨裝置資料同步與撤銷後新訊息無法解密的 runtime 證明 |
-| V3-03 | QR 公開金鑰 binding 與 canonical request issuer（✅） | QR schema v2 強制 32-byte X25519 `publicKey`，手機端重算 device ID＋key fingerprint 並拒絕不一致內容；`DesktopLinkPairingRequestIssuer` 產生短效 canonical request；SQLite v15 作廢無法補齊 binding 的 v14 暫存 request | 原生桌面 QR presentation、目標主裝置發現／自動交付、真實相機／桌面 runtime 與跨裝置同步驗收 |
-| V3-04 | 私鑰持有 challenge-response 與手機授權 gate（✅） | 沿用既有 X25519 `MessageBox` 的雙向 authenticated `crypto_box`；短效 token 僅存 RAM，完整驗證 request／裝置／公開金鑰 fingerprint／challenge／token／效期；竄改、錯 key、重放、過期與更換 public key 皆 fail-closed，沒有有效 proof 時 `confirm` 拒絕授權 | 原生 responder／presentation runtime、目標主裝置發現與自動交付、原生 libsodium／secure-storage proof runtime、真實相機、Desktop transport、per-device 加密、跨裝置同步與撤銷 runtime 驗收 |
-| V3-05 | Desktop Companion QR／手動 challenge presentation（✅） | desktop target route 顯示手機 ID、名稱輸入、canonical QR、encrypted challenge 貼入與 encrypted response 複製；無網路、無背景、無 SQLite token／訊息 state；service／Widget 與既有 V3 共 38 項 host tests 通過。[GitHub Windows CI run 31317162765](https://github.com/leezxt/p2p-chat/actions/runs/31317162765) 另通過真實 `SodiumMessageBox`、QR rendering、主端角色 proof 與受控 clipboard copy；`tool/verify_windows_desktop.ps1` 拒絕以 `NIX_SKIP_SODIUM_BUILD_HOOKS` 作 native evidence | macOS／Linux runner、目前本機 Windows 完整使用者流程、真實手機相機、目標主裝置 discovery／自動交付、Desktop transport、per-device 加密、跨裝置同步與撤銷 runtime 驗收 |
+| V3-01 | Desktop Link／Device Sync／Revoke 安全核心（✅） | 獨立模組、SQLite v13 授權資料、主裝置拒絕成為副端、fingerprint 變更 fail-closed、只選 `createdAt > authorized_after` 的新訊息、撤銷後拒絕新選取、Event Bus 事件、v1→v13 migration 與 service tests 通過 | 完整原生桌面 pairing presentation／連線、per-device 加密與金鑰銷毀、真實同步／網路故障、Windows／Android／iOS 跨裝置 runtime、已撤銷副端無法解密新訊息的端對端證明 |
+| V3-02 | 一次性 QR 配對請求與手機明確確認（✅） | SQLite v14 `desktop_link_pairing_requests`、嚴格 schema／目標主裝置／30–600 秒到期／一次性 request ID、`pending → confirming → confirmed/rejected`、掃描或貼入後預覽 fingerprint、拒絕不授權、明確同意後才呼叫 V3-01 | 真實 Android／iOS 相機權限與掃碼、完整原生桌面 UI／自動交付、Desktop transport、per-device 加密、跨裝置資料同步與撤銷後新訊息無法解密的 runtime 證明 |
+| V3-03 | QR 公開金鑰 binding 與 canonical request issuer（✅） | QR schema v2 強制 32-byte X25519 `publicKey`，手機端重算 device ID＋key fingerprint 並拒絕不一致內容；`DesktopLinkPairingRequestIssuer` 產生短效 canonical request；SQLite v15 作廢無法補齊 binding 的 v14 暫存 request | macOS／Linux 與本機完整桌面 QR presentation、目標主裝置發現／自動交付、真實相機／桌面 runtime 與跨裝置同步驗收 |
+| V3-04 | 私鑰持有 challenge-response 與手機授權 gate（✅） | 沿用既有 X25519 `MessageBox` 的雙向 authenticated `crypto_box`；短效 token 僅存 RAM，完整驗證 request／裝置／公開金鑰 fingerprint／challenge／token／效期；竄改、錯 key、重放、過期與更換 public key 皆 fail-closed，沒有有效 proof 時 `confirm` 拒絕授權 | 以持久化每裝置 key material 跑完的完整 native responder／presentation runtime、目標主裝置發現與自動交付、真實相機、Desktop transport、per-device 加密、跨裝置同步與撤銷 runtime 驗收 |
+| V3-05 | Desktop Companion QR／手動 challenge presentation（✅） | desktop target route 顯示手機 ID、名稱輸入、canonical QR、encrypted challenge 貼入與 encrypted response 複製；無網路、無背景、無 SQLite token／訊息 state；service／Widget 與既有 V3 共 38 項 host tests 通過。[GitHub Windows CI run 31318234695](https://github.com/leezxt/p2p-chat/actions/runs/31318234695) 另通過真實 `SodiumMessageBox`、QR rendering、主端角色 proof、受控 clipboard copy，以及 SQLite FFI／`ModuleRegistry`／`RouteRegistry`／`Navigator` test shell 到 Companion 的 module-route 驗證；`tool/verify_windows_desktop.ps1` 拒絕以 `NIX_SKIP_SODIUM_BUILD_HOOKS` 作 native evidence | macOS／Linux runner、目前本機 Windows 完整 `bootstrap`／首頁使用者流程、真實手機相機、目標主裝置 discovery／自動交付、Desktop transport、per-device 加密、跨裝置同步與撤銷 runtime 驗收 |
 
 ## 建議執行順序
 

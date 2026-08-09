@@ -72,11 +72,13 @@ Simple Communication 不是要複製 LINE、WhatsApp 或 Discord，而是以四�
 - Desktop target 的同一入口會呈現 Desktop Companion：手動輸入手機 device ID 後顯示短效 QR，
   貼入手機 challenge 後輸出 encrypted response；流程沒有網路、背景工作或 token persistence。
 - QR 內容仍是**不可信輸入**：私鑰持有 proof、手機端授權閘門與 Desktop Companion host UI 已實作。
-  [GitHub-hosted Windows CI run 31317162765](https://github.com/leezxt/p2p-chat/actions/runs/31317162765)
+  [GitHub-hosted Windows CI run 31318234695](https://github.com/leezxt/p2p-chat/actions/runs/31318234695)
   已以真實 `SodiumMessageBox` 驗證 QR rendering、手動 challenge-response 與受控 clipboard copy；
-  但它是在同一 Windows runner 內模擬主裝置角色，並未驗收原生桌面完整使用者流程／自動交付、
-  Desktop transport、per-device 加密傳輸、真實手機相機或既有副端金鑰清除。因此不宣稱已完成
-  跨裝置訊息同步或完整桌面 App 身份驗收。
+  同一 run 新增的 `desktop_link_module_route_runtime_test.dart` 以 SQLite FFI、原生 sodium key
+  material、`ModuleRegistry`、`RouteRegistry` 與 `Navigator` test shell 驗證 `/desktop-link` 會選擇
+  Desktop Companion 而非手機 pairing 頁。這仍是在同一 Windows runner 內模擬主裝置角色，route test
+  也不啟動完整 `bootstrap`／首頁使用者旅程；未驗收自動交付、Desktop transport、per-device 加密傳輸、
+  真實手機相機或既有副端金鑰清除。因此不宣稱已完成跨裝置訊息同步或完整桌面 App 身份驗收。
 
 ## App 畫面
 
@@ -142,9 +144,10 @@ flowchart LR
   SQLite v15 公開金鑰／fingerprint binding、短效 RAM challenge、雙向 `crypto_box`
   私鑰持有 proof、明確手機授權、嚴格新訊息切點與撤銷 fail-closed 規則；沒有有效 proof
   時 QR 不會取得授權。Desktop Companion 可顯示 QR 並手動回覆 challenge；38 項 host tests
-  使用 test-only fake，但 [Windows CI run 31317162765](https://github.com/leezxt/p2p-chat/actions/runs/31317162765)
-  另外以 real sodium、QR rendering、主端角色 proof 與受控 clipboard copy 驗證此限定流程。
-  這不是實體手機／桌面跨裝置同步或完整桌面 App 使用者驗收。
+  使用 test-only fake，但 [Windows CI run 31318234695](https://github.com/leezxt/p2p-chat/actions/runs/31318234695)
+  另外以 real sodium、QR rendering、主端角色 proof、受控 clipboard copy，以及模組 DI／route
+  registry／Navigator 到 Companion 的受限路由流程驗證此限定範圍。這不是實體手機／桌面跨裝置同步、
+  完整 `bootstrap`／首頁導覽或完整桌面 App 使用者驗收。
 - Production Backup／Restore、Monitor／Alert 與 off-host export fixtures。
 - GitHub Actions 的 Java、Flutter、PostgreSQL 與 Windows Desktop 工作。
 
@@ -155,8 +158,8 @@ flowchart LR
 - 真實 FCM／APNs、Android 系統通知與 iPhone runtime。
 - 正式 Android application ID、keystore、iOS Bundle ID 與 distribution signing。
 - 公開 HTTPS/WSS、registry digest、正式排程、外部告警與 off-host restore drill。
-- Desktop Companion 的 Windows／macOS／Linux 原生 runner／clipboard／secure-storage 驗收、
-  目標主裝置發現與自動交付、原生 libsodium proof runtime、真實相機掃碼驗收、桌面端 transport、
+- 本機 Windows C++ toolchain 與 macOS／Linux 原生 runtime、完整 `bootstrap`／首頁到 Desktop
+  Companion 的使用者旅程、目標主裝置發現與自動交付、真實相機掃碼驗收、桌面端 transport、
   每副端重新加密、跨裝置歷史／新訊息同步，以及撤銷後的副端金鑰銷毀驗證。
 
 目前定位仍是**內部 Android 測試版**；上述 Gate 完成前不對外宣稱正式 V1 RC。

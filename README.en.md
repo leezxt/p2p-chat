@@ -75,13 +75,17 @@ user value, resource cost, and privacy boundary.
   pasted phone challenge. It has no network, background work, or token persistence.
 - QR content remains **untrusted input**. The private-key-possession protocol,
   mobile authorization gate, and Desktop Companion host UI are implemented.
-  [GitHub-hosted Windows CI run 31317162765](https://github.com/leezxt/p2p-chat/actions/runs/31317162765)
+  [GitHub-hosted Windows CI run 31318234695](https://github.com/leezxt/p2p-chat/actions/runs/31318234695)
   exercised QR rendering, manual challenge-response, and controlled clipboard
-  copy with a real `SodiumMessageBox`. It still simulates the primary-device role
-  inside one Windows runner; it does not validate a full desktop user journey or
-  automatic handoff, Desktop transport, per-device encryption, a real phone
-  camera, or deletion of a previously linked device's key material. This does
-  not claim working cross-device sync or full desktop-App identity acceptance.
+  copy with a real `SodiumMessageBox`. Its new
+  `desktop_link_module_route_runtime_test.dart` uses SQLite FFI, native sodium key
+  material, `ModuleRegistry`, `RouteRegistry`, and a `Navigator` test shell to
+  verify that `/desktop-link` selects Desktop Companion instead of the phone pairing
+  page. It still simulates the primary-device role inside one Windows runner and
+  does not start the full `bootstrap` or home-screen journey. It does not validate
+  automatic handoff, Desktop transport, per-device encryption, a real phone camera,
+  or deletion of a previously linked device's key material. This does not claim
+  working cross-device sync or full desktop-App identity acceptance.
 
 ## App screenshots
 
@@ -150,10 +154,11 @@ Each stage is expected to remain buildable, testable, and reversible.
   proof, explicit mobile approval, strict new-message cutoff, and fail-closed
   revocation. A QR cannot authorize a link without a valid proof. Desktop
   Companion can display the QR and manually answer a challenge. The 38 host
-  tests use a test-only fake, while [Windows CI run 31317162765](https://github.com/leezxt/p2p-chat/actions/runs/31317162765)
+  tests use a test-only fake, while [Windows CI run 31318234695](https://github.com/leezxt/p2p-chat/actions/runs/31318234695)
   separately verifies this bounded flow with real sodium, QR rendering, a
-  primary-role proof, and controlled clipboard copy. It is not a physical-phone
-  or cross-device-sync acceptance test.
+  primary-role proof, controlled clipboard copy, and the module DI/route
+  registry/Navigator-to-Companion path. It is not a physical-phone, cross-device
+  sync, full `bootstrap`, or complete desktop-user-journey acceptance test.
 - Production backup, restore, monitoring, alerting, and off-host export fixtures.
 - GitHub Actions for Java, Flutter, PostgreSQL, and Windows Desktop.
 
@@ -165,11 +170,11 @@ Each stage is expected to remain buildable, testable, and reversible.
 - Production Android application ID, keystore, iOS Bundle ID, and signing.
 - Public HTTPS/WSS, registry digest, scheduled monitoring, external alerts,
   and an off-host restore drill.
-- Native Windows/macOS/Linux runner, clipboard, and secure-storage validation for
-  Desktop Companion; primary-device discovery and automatic handoff; native
-  libsodium proof runtime; real camera scan validation; desktop transport;
-  per-device re-encryption; cross-device history/new-message sync; and validation
-  that revocation removes access to new messages on a companion device.
+- A local Windows C++-toolchain run and macOS/Linux native runtime; a complete
+  `bootstrap`/home-screen journey to Desktop Companion; primary-device discovery
+  and automatic handoff; real camera scan validation; desktop transport; per-device
+  re-encryption; cross-device history/new-message sync; and validation that
+  revocation removes access to new messages on a companion device.
 
 The current build remains an **internal Android test build**. It is not presented
 as a public V1 release candidate until the remaining release gates are complete.
