@@ -131,16 +131,18 @@ Desktop Companion host UI：desktop target 的 Desktop Link route 會生成 pair
 不建立網路／背景工作、不新增 SQLite token state；手機端仍需顯示 ID、驗證 response 並讓使用者
 明確同意。
 
-GitHub-hosted Windows CI 的 [run 31318234695](https://github.com/leezxt/p2p-chat/actions/runs/31318234695)
+GitHub-hosted Windows CI 的 [run 31319510492](https://github.com/leezxt/p2p-chat/actions/runs/31319510492)
 已在原生 Windows runner 執行 Desktop Companion integration：實際載入 `SodiumMessageBox`、繪製
 `QrImageView`、貼入 challenge、產生 response、由同一 runner 內的主裝置角色驗證 proof，並以
 受控 clipboard copy 驗證畫面動作。相同 job 的 `desktop_link_module_route_runtime_test.dart` 以 SQLite
 FFI、實際 `ModuleRegistry`、`RouteRegistry` 與 `Navigator` test shell 驗證 Windows target 的
-`/desktop-link` 選擇 Companion。既有同一 Windows job 也通過 debug bundle、native crypto、Credential
-Manager 跨 process 與 WebRTC integration。這是受限的 Windows runtime 證據；本機仍缺 Visual Studio
-C++ workload，且未驗收完整 `bootstrap`／桌面使用者流程、實體手機相機／QR、目標主裝置自動交付、
-實際 transport、每副端重新加密或副端金鑰銷毀。因此不能把它當作「已可同步」、「已完成 Desktop
-App 身份驗收」或「已證實撤銷後無法解密」的 runtime 證據。
+`/desktop-link` 選擇 Companion。新增的 `desktop_link_app_entry_runtime_test.dart` 以無後端設定執行
+正式 `bootstrap`、掛載 `P2pChatApp`、確認 `ChatModule.route` 的聊天室首頁，並透過正式「應用工具」
+選單到達 Companion。既有同一 Windows job 也通過 debug bundle、native crypto、Credential Manager 跨
+process 與 WebRTC integration。這是受限的 Windows native App 路由證據；本機仍缺 Visual Studio C++
+workload，且未驗收已安裝桌面 App 的人工操作、實體手機相機／QR、目標主裝置自動交付、實際
+transport、每副端重新加密或副端金鑰銷毀。因此不能把它當作「已可同步」、「已完成 Desktop App
+身份驗收」或「已證實撤銷後無法解密」的 runtime 證據。
 
 ## 運行模式
 
@@ -167,9 +169,9 @@ heartbeat 60s、同時 P2P 連線最多 3 條、閒置 2 分鐘斷線。Low Powe
 - **V2** 體驗：Emoji、Reaction、貼圖、語音 / 圖片訊息、單則翻譯、Storage Manager、Smart Notification、Username。
 - **V3** 多裝置 / 進階：Desktop Link 主機安全核心、一次性 QR 請求檢閱／明確確認、
   公開金鑰／fingerprint binding、手機端私鑰持有 proof gate、Desktop Companion host UI 與受限的
-  GitHub-hosted Windows native Companion／module-route integration 已完成；完整 Desktop 使用者流程／自動交付、
-  實際多裝置同步、撤銷後 per-device 加密驗證、檔案傳輸、語音通話、匯出匯入、Contact Discovery
-  仍待實作。
+  GitHub-hosted Windows native Companion／module-route／App-entry integration 已完成；已安裝 Desktop
+  App 的人工使用者驗收／自動交付、實際多裝置同步、撤銷後 per-device 加密驗證、檔案傳輸、語音通話、
+  匯出匯入、Contact Discovery 仍待實作。
 - **V4** 社群 / 視訊：視訊通話、小群組、廣播、共享筆記 / 待辦、訊息排程。
 - **V5** AI / 生態：即時字幕、寫作輔助、聊天摘要、離線翻譯語言包、貼圖開源生態。
 

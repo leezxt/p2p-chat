@@ -4,11 +4,11 @@
 
 目前已完成的是手機主端上的**本機安全決策、配對請求檢閱與私鑰持有 challenge-response
 授權閘門**，以及可由主機 Widget 驗證的 **Desktop Companion 配對呈現／手動交付畫面**；
-GitHub-hosted Windows CI 另已驗證受限的原生 Companion flow 與 module-route flow。它不是可對外
-宣稱已完成的桌面版或多裝置同步功能：不建立連線、不保存訊息內容／私鑰，也不會在背景常駐。
-手機 UI 可透過可替換 adapter 掃描或貼入 QR 內容；Desktop Companion 可顯示 QR、接受加密
-challenge 並輸出 response，但仍以使用者手動複製貼上交付，尚未完成實際相機、完整桌面使用者
-旅程或 transport 驗收。
+GitHub-hosted Windows CI 另已驗證受限的原生 Companion、module-route 與完整 App-entry flow。
+它不是可對外宣稱已完成的桌面版或多裝置同步功能：不建立連線、不保存訊息內容／私鑰，也不會在
+背景常駐。手機 UI 可透過可替換 adapter 掃描或貼入 QR 內容；Desktop Companion 可顯示 QR、接受
+加密 challenge 並輸出 response，但仍以使用者手動複製貼上交付，尚未完成實際相機、已安裝桌面
+App 的人工使用者驗收或 transport 驗收。
 
 已完成並以主機自動化測試驗證：
 
@@ -125,24 +125,27 @@ state；它沒有同步游標、訊息內容、transport retry 或任何新的�
 
 ## GitHub-hosted Windows runtime 證據
 
-[V1 CI run 31318234695](https://github.com/leezxt/p2p-chat/actions/runs/31318234695) 的 Windows
-runner 已通過兩個互補 integration test。`desktop_link_companion_runtime_test.dart` 以真實
+[V1 CI run 31319510492](https://github.com/leezxt/p2p-chat/actions/runs/31319510492) 的 Windows
+runner 已通過三個互補 integration test。`desktop_link_companion_runtime_test.dart` 以真實
 `SodiumMessageBox` 為獨立的主裝置與 desktop key 產生 `crypto_box` challenge-response，驅動
 `DesktopLinkCompanionPage` 輸入主裝置 ID、繪製 `QrImageView`、貼入 challenge 並輸出 response；CI
 另啟用 `VERIFY_CLIPBOARD=true` 驗證 copy 後可讀回測試 payload，並在 `finally` 清除。
 `desktop_link_module_route_runtime_test.dart` 則用 SQLite FFI、原生 sodium key material、實際
 `ModuleRegistry`、`RouteRegistry` 與 `Navigator` test shell，確認 `DesktopLinkModule.route` 在 Windows
 target 顯示 `DesktopLinkCompanionPage` 而不是手機的 `DesktopLinkPairingPage`。此 job 同時通過 Windows
-debug build、native crypto、Credential Manager 跨 process 與 WebRTC integration。
+debug build、native crypto、Credential Manager 跨 process 與 WebRTC integration。新增的
+`desktop_link_app_entry_runtime_test.dart` 以 SQLite FFI 與無後端設定跑過正式 `bootstrap`，掛載
+`P2pChatApp`，確認初始聊天室頁面後點選正式「應用工具」選單中的 Desktop Link，最後顯示
+`DesktopLinkCompanionPage` 而不是 `DesktopLinkPairingPage`。
 
-這是 GitHub-hosted Windows runner 的 native presentation／crypto／clipboard 與受限 route 證據，
-**不是**一支實體手機與一台桌面的跨裝置驗收：主端角色仍在同一 Windows process，route test 也不
-啟動完整 `bootstrap`／首頁，且測試不建立 Desktop Link transport 或寫入授權資料庫。
+這是 GitHub-hosted Windows runner 的 native presentation／crypto／clipboard 與單一 process App route
+證據，**不是**一支實體手機與一台桌面的跨裝置驗收：主端角色仍在同一 Windows process，且測試不
+建立 Desktop Link transport 或寫入手機端授權資料庫。
 
 ## 尚未實作／不可宣稱的能力
 
-- macOS／Linux 的**實際 runtime** presentation 驗收，以及本機 Windows 完整 `bootstrap`／首頁使用者流程、
-  目標主裝置發現與自動交付。現況沒有 Bluetooth／LAN／relay 或其他自動傳遞流程。QR 本身的
+- macOS／Linux 的**實際 runtime** presentation 驗收，以及本機 Windows 已安裝桌面 App 的人工使用者
+  驗收、目標主裝置發現與自動交付。現況沒有 Bluetooth／LAN／relay 或其他自動傳遞流程。QR 本身的
   fingerprint binding 不能單獨當成私鑰持有證明。
 - Android／iOS 真實相機權限允許／拒絕、相機掃碼與錯誤畫面的 runtime 驗收。
 - 實際 Windows／macOS／Linux Desktop transport、連線生命週期、離線重試與同步 UI。

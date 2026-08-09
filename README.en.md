@@ -75,17 +75,19 @@ user value, resource cost, and privacy boundary.
   pasted phone challenge. It has no network, background work, or token persistence.
 - QR content remains **untrusted input**. The private-key-possession protocol,
   mobile authorization gate, and Desktop Companion host UI are implemented.
-  [GitHub-hosted Windows CI run 31318234695](https://github.com/leezxt/p2p-chat/actions/runs/31318234695)
+  [GitHub-hosted Windows CI run 31319510492](https://github.com/leezxt/p2p-chat/actions/runs/31319510492)
   exercised QR rendering, manual challenge-response, and controlled clipboard
-  copy with a real `SodiumMessageBox`. Its new
+  copy with a real `SodiumMessageBox`. Its
   `desktop_link_module_route_runtime_test.dart` uses SQLite FFI, native sodium key
   material, `ModuleRegistry`, `RouteRegistry`, and a `Navigator` test shell to
   verify that `/desktop-link` selects Desktop Companion instead of the phone pairing
-  page. It still simulates the primary-device role inside one Windows runner and
-  does not start the full `bootstrap` or home-screen journey. It does not validate
-  automatic handoff, Desktop transport, per-device encryption, a real phone camera,
-  or deletion of a previously linked device's key material. This does not claim
-  working cross-device sync or full desktop-App identity acceptance.
+  page. The new `desktop_link_app_entry_runtime_test.dart` runs the real backendless
+  `bootstrap`, mounts `P2pChatApp`, and selects Desktop Link from the production Chat
+  tools menu. This is a single native Windows test-process App-route proof; it still
+  simulates the primary-device role and does not validate automatic handoff, Desktop
+  transport, per-device encryption, a real phone camera, or deletion of a previously
+  linked device's key material. It does not claim working cross-device sync or full
+  desktop-App identity acceptance.
 
 ## App screenshots
 
@@ -154,11 +156,13 @@ Each stage is expected to remain buildable, testable, and reversible.
   proof, explicit mobile approval, strict new-message cutoff, and fail-closed
   revocation. A QR cannot authorize a link without a valid proof. Desktop
   Companion can display the QR and manually answer a challenge. The 38 host
-  tests use a test-only fake, while [Windows CI run 31318234695](https://github.com/leezxt/p2p-chat/actions/runs/31318234695)
+  tests use a test-only fake, while [Windows CI run 31319510492](https://github.com/leezxt/p2p-chat/actions/runs/31319510492)
   separately verifies this bounded flow with real sodium, QR rendering, a
-  primary-role proof, controlled clipboard copy, and the module DI/route
-  registry/Navigator-to-Companion path. It is not a physical-phone, cross-device
-  sync, full `bootstrap`, or complete desktop-user-journey acceptance test.
+  primary-role proof, controlled clipboard copy, the module DI/route
+  registry/Navigator-to-Companion path, and the backendless `bootstrap` →
+  `P2pChatApp` → Chat-tools-menu entry route. It is not a physical-phone,
+  cross-device sync, installed desktop-App user-acceptance, or complete Desktop Link
+  authorization test.
 - Production backup, restore, monitoring, alerting, and off-host export fixtures.
 - GitHub Actions for Java, Flutter, PostgreSQL, and Windows Desktop.
 

@@ -92,8 +92,9 @@ preflight 通過後，才執行實際 native build 與 runtime 驗收：
 App process 驗證 Credential Manager key write／restart verify／full sodium + WebRTC。它還會
 以真實 sodium 及 `QrImageView` 驗證 Desktop Companion 的「輸入主裝置 ID → QR → challenge →
 response」流程，並以實際 `ModuleRegistry`、SQLite FFI、`RouteRegistry` 與 `Navigator` test shell
-驗證 Windows target 的 `/desktop-link` 會顯示 Companion；只有明確追加 `-VerifyClipboard` 時才會
-點擊 Copy 並讀回／清除測試 clipboard。
+驗證 Windows target 的 `/desktop-link` 會顯示 Companion；最後再以無後端設定執行正式 `bootstrap`、
+掛載 `P2pChatApp`，並從正式聊天首頁「應用工具」選單開啟 Companion。只有明確追加
+`-VerifyClipboard` 時才會點擊 Copy 並讀回／清除測試 clipboard。
 腳本會拒絕帶有 `NIX_SKIP_SODIUM_BUILD_HOOKS` 的 native 執行，因為該旗標只能用於 test-only
 crypto fake，不能作為 Windows runtime 證據。輸出位於忽略的
 `build/windows-desktop-runtime/`。
@@ -105,8 +106,9 @@ Pull request 與 `main` CI 會在 GitHub-hosted Windows 2022 runner 執行相同
 Credential Manager 持久化驗收；Build Gate 也不代表 Desktop Link、多裝置同步或桌面資源
 量測已完成。CI 會另以真實 Windows runner 執行 Desktop Companion 的 QR rendering、native
 `crypto_box` challenge-response 與選用 clipboard copy，並由 `desktop_link_module_route_runtime_test.dart`
-確認模組 DI／路由註冊／Navigator 最終選擇 Companion。這個 route test 是獨立的 test shell，不啟動
-完整 `bootstrap` 或首頁；它仍不會驗證真實手機相機、跨裝置 transport、per-device 同步或撤銷後金鑰銷毀。
+確認模組 DI／路由註冊／Navigator 最終選擇 Companion。`desktop_link_app_entry_runtime_test.dart` 再確認
+無後端 `bootstrap` → `P2pChatApp` → 聊天首頁工具選單 → Companion 的正式 App 路由；它仍不會驗證
+真實手機相機、跨裝置 transport、per-device 同步、已安裝桌面 App 的人工使用者驗收或撤銷後金鑰銷毀。
 
 Windows CI 另以 `-d windows` 啟動 native integration test，使用 production
 `FlutterSecureKeyValueStore` 驗證 Credential Manager 寫入／讀回與清除，並在同一 App
