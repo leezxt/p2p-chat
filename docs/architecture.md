@@ -97,6 +97,15 @@ SHA-256；圖片上限 10 MiB、語音上限 25 MiB。下載控制器支援手�
 失敗重試與狀態回報；只有使用者明確允許且非 Low Power 的圖片可自動下載，語音
 一律手動下載。實際 encrypted transfer／解密、檔案保存與裝置權限留待外部 Gate。
 
+Desktop Link Module 是無網路、無背景常駐的 V3 主機安全核心。SQLite v13
+`desktop_link_authorizations` 只保存副端 device ID、顯示名稱、公開金鑰 fingerprint、
+授權後同步切點與撤銷時間，不保存私鑰、訊息內容或待傳 payload。手機主裝置必須以明確
+操作授權；主裝置自身不得成為副端，同一 device ID 的 fingerprint 改變會 fail-closed。
+同步 adapter 必須只取 `MessageEnvelope.createdAt > authorized_after` 的資料，秒級
+timestamp 同秒訊息亦保守拒絕；撤銷後 service 立即拒絕新的同步選取並透過 Event Bus
+發出狀態變更。此資料層尚未包含 QR 配對、桌面 transport、每副端重新加密或副端金鑰
+銷毀，因此不能把它當作「已可同步」或「已證實撤銷後無法解密」的 runtime 證據。
+
 ## 運行模式
 
 正確：平常休眠 → 收推播或開聊天室 → 建立 P2P → 傳完短暫維持 → 閒置斷線 → 進背景關閉 P2P。
@@ -120,7 +129,7 @@ heartbeat 60s、同時 P2P 連線最多 3 條、閒置 2 分鐘斷線。Low Powe
 - **V1** 核心可用：1:1 文字、P2P DataChannel、離線密文信箱、推播、SQLite、Presence、E2EE、模組化、低功耗。
 - **V1.5** 安全 / 省資源：App Lock、Low Power、Safety Number、背景斷 P2P、閒置斷線、通知隱藏內容。
 - **V2** 體驗：Emoji、Reaction、貼圖、語音 / 圖片訊息、單則翻譯、Storage Manager、Smart Notification、Username。
-- **V3** 多裝置 / 進階：電腦副端、多裝置同步、裝置撤銷、檔案傳輸、語音通話、匯出匯入、Contact Discovery。
+- **V3** 多裝置 / 進階：Desktop Link 的主機安全核心已完成；電腦副端、實際多裝置同步、撤銷後 per-device 加密驗證、檔案傳輸、語音通話、匯出匯入、Contact Discovery 仍待實作。
 - **V4** 社群 / 視訊：視訊通話、小群組、廣播、共享筆記 / 待辦、訊息排程。
 - **V5** AI / 生態：即時字幕、寫作輔助、聊天摘要、離線翻譯語言包、貼圖開源生態。
 

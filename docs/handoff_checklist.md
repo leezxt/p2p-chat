@@ -6,7 +6,8 @@
 目前主要發布目標仍是 v1.2 藍圖的 V1；因剩餘 Gate 受真機與外部環境阻塞，
 使用者已授權先行實作 V1.5 Safety Number、App Lock 與 Low Power Mode 的電腦端
 工作，並於 2026-07-26 授權先行實作可由 Windows 主機／Android AVD 完整驗證的
-V2 工作。V1 真機與 production Gate 不因此降級；V3～V5 仍暫停於 backlog。
+V2 工作。V1 真機與 production Gate 不因此降級；使用者已接續授權 V3 Desktop Link
+的主機安全核心，但 V3 實際桌面／跨裝置 runtime 仍保留於 backlog。
 
 ## 接手摘要（2026-07-26）
 
@@ -45,6 +46,17 @@ Android application ID、iOS Bundle ID、Firebase project 與加密 domain strin
 - [ ] V2-03 外部 Gate：真實加密 transfer、相機、麥克風、權限、行動網路、AVD UI 與耗電驗收
 
 詳細主機驗收與外部 Gate 見 [`project_tasks.md`](project_tasks.md#v2-主機可先行範圍)。
+
+### V3 可由主機先行
+
+- [x] V3-01 Desktop Link／Device Sync／Revoke 主機安全核心：獨立 `desktop_link` 模組、
+  SQLite v13 `desktop_link_authorizations`、手機主裝置明確授權、主裝置 ID 拒絕、
+  fingerprint 變更 fail-closed、嚴格只選授權後新訊息，以及撤銷後拒絕新同步選取。
+  專項 module／service／v1→v13 migration tests 共 18 項與 `dart analyze` 已於 2026-08-09 通過。
+- [ ] V3-01 外部 Gate：QR 配對與使用者確認、實際桌面端 transport、每副端重新加密、
+  真實多裝置同步／網路故障，以及撤銷後副端無法取得或解密新訊息的 Windows／Android／iOS runtime 驗收。
+
+詳細安全邊界與未完成 protocol 見 [`desktop_link.md`](desktop_link.md)。
 
 ### 需要 Android API 24+ 真機
 

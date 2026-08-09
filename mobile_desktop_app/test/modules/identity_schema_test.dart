@@ -35,6 +35,10 @@ void main() {
             'app_settings',
             'safety_number_verifications',
             'message_reactions',
+            'storage_cache_entries',
+            'notification_preferences',
+            'message_translations',
+            'desktop_link_authorizations',
           ]));
       expect(await service.db.getVersion(), kCurrentDbVersion);
       final repository = IdentityRepository(service.db);

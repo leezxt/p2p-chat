@@ -61,7 +61,12 @@ user value, resource cost, and privacy boundary.
 
 - Flutter provides a mobile-first application with desktop support.
 - Modules implement `init / activate / sleep / dispose` lifecycles.
-- Planned work includes Desktop Link, device revocation, and new-message sync.
+- The Desktop Link host safety core persists an explicit mobile authorization,
+  device fingerprint, and sync cutoff. It selects only messages created after
+  that cutoff and rejects new selections immediately after revocation.
+- QR pairing, a desktop transport, per-device encryption, and real desktop
+  runtime validation are not implemented yet. This does not claim working
+  cross-device sync or deletion of a previously linked device's key material.
 
 ## App screenshots
 
@@ -113,6 +118,7 @@ recoverable without showing duplicate messages.
 | 2026-07-15–16 | Security and efficiency | Secure key storage, Presence, Push Outbox |
 | 2026-07-17–18 | V1.5 capabilities | Low Power Mode, App Lock, Safety Number |
 | 2026-07-19 | Release engineering | Backup/Restore, Monitor/Alert, RC documentation |
+| 2026-08-09 | V3 safety foundation | Desktop Link authorization, new-message cutoff, revoke gate |
 
 Each stage is expected to remain buildable, testable, and reversible.
 
@@ -123,6 +129,8 @@ Each stage is expected to remain buildable, testable, and reversible.
 - Authenticated encrypted P2P and mailbox acknowledgement loop on two Android AVDs.
 - Java tests, Flutter automated tests, and PostgreSQL smoke tests.
 - Core Low Power Mode, App Lock, and Safety Number capabilities.
+- Desktop Link host safety core: SQLite v13 authorization state, explicit
+  mobile approval, strict new-message cutoff, and fail-closed revocation.
 - Production backup, restore, monitoring, alerting, and off-host export fixtures.
 - GitHub Actions for Java, Flutter, PostgreSQL, and Windows Desktop.
 
@@ -134,6 +142,9 @@ Each stage is expected to remain buildable, testable, and reversible.
 - Production Android application ID, keystore, iOS Bundle ID, and signing.
 - Public HTTPS/WSS, registry digest, scheduled monitoring, external alerts,
   and an off-host restore drill.
+- Desktop QR pairing, a desktop transport, per-device re-encryption,
+  cross-device history/new-message sync, and validation that revocation removes
+  access to new messages on a companion device.
 
 The current build remains an **internal Android test build**. It is not presented
 as a public V1 release candidate until the remaining release gates are complete.
@@ -147,6 +158,9 @@ p2p-chat/
   ├─ cloudflare_worker/    Future low-cost edge implementation
   └─ docs/                 Architecture, protocol, security, and operations
 ```
+
+The current Desktop Link safety boundary and the remaining protocol/runtime work
+are described in [`docs/desktop_link.md`](docs/desktop_link.md).
 
 ## Quick start
 

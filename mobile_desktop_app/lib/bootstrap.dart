@@ -16,6 +16,7 @@ import 'modules/crypto/crypto_module.dart';
 import 'modules/identity/identity_module.dart';
 import 'modules/contacts/contacts_module.dart';
 import 'modules/devices/devices_module.dart';
+import 'modules/desktop_link/desktop_link_module.dart';
 import 'modules/p2p/p2p_module.dart';
 import 'modules/mailbox/mailbox_module.dart';
 import 'modules/low_power/low_power_module.dart';
@@ -85,6 +86,7 @@ Future<Bootstrap> bootstrap({
   registry.register(ContactsModule());
   registry.register(SafetyNumberModule());
   registry.register(DevicesModule());
+  registry.register(DesktopLinkModule());
   // 先載入持久化低功耗偏好，再初始化會讀取資源策略的模組。
   registry.register(LowPowerModule());
   registry.register(P2pModule());

@@ -79,6 +79,7 @@ void main() {
             'storage_cache_entries',
             'notification_preferences',
             'message_translations',
+            'desktop_link_authorizations',
           ]),
         );
       } finally {

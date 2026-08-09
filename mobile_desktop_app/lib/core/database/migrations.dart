@@ -9,7 +9,7 @@ class Migration {
 }
 
 /// 目前 schema 版本。每次新增 migration 時 +1。
-const int kCurrentDbVersion = 12;
+const int kCurrentDbVersion = 13;
 
 /// 依版本排序的 migration 清單。
 const List<Migration> kMigrations = [
@@ -226,5 +226,22 @@ const List<Migration> kMigrations = [
     )
     ''',
     'CREATE INDEX idx_message_translations_message ON message_translations (message_id)',
+  ]),
+  Migration(13, [
+    // Desktop Link 只記錄主裝置明確授權的副端與安全同步切點；不保存私鑰或訊息內容。
+    '''
+    CREATE TABLE desktop_link_authorizations (
+      device_id TEXT PRIMARY KEY,
+      display_name TEXT NOT NULL,
+      public_key_fingerprint TEXT NOT NULL,
+      authorized_after INTEGER NOT NULL CHECK (authorized_after >= 0),
+      revoked_at INTEGER,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      CHECK (revoked_at IS NULL OR revoked_at >= created_at)
+    )
+    ''',
+    'CREATE INDEX idx_desktop_link_authorizations_active '
+        'ON desktop_link_authorizations (revoked_at)',
   ]),
 ];

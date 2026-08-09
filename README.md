@@ -63,7 +63,10 @@ Simple Communication 不是要複製 LINE、WhatsApp 或 Discord，而是以四�
 
 - Flutter App 以手機為主要端點，Desktop 作為按需延伸。
 - 模組具有 `init / activate / sleep / dispose` 生命週期，避免高耗能能力常駐。
-- 後續規劃包含 Desktop Link、裝置撤銷與新訊息同步。
+- Desktop Link 主機安全核心已保存手機端明確授權、裝置 fingerprint 與同步切點；
+  只會選出授權後的新訊息，撤銷後立即拒絕新的同步選取。
+- 目前尚未實作 QR 配對、桌面端連線、per-device 加密傳輸或真實 Desktop runtime；
+  因此不宣稱已完成跨裝置訊息同步或既有副端金鑰清除。
 
 ## App 畫面
 
@@ -114,6 +117,7 @@ flowchart LR
 | 2026-07-15～16 | 安全與低功耗 | 加密儲存、Presence、Push Outbox |
 | 2026-07-17～18 | V1.5 能力 | Low Power Mode、App Lock、Safety Number |
 | 2026-07-19 | 發布工程 | Backup／Restore、Monitor／Alert、RC 文件 |
+| 2026-08-09 | V3 安全基礎 | Desktop Link 授權、只同步新訊息與撤銷閘門 |
 
 每個階段均以「可編譯、可測試、可回退」為完成原則，並同步更新測試與交接文件。
 
@@ -124,6 +128,7 @@ flowchart LR
 - Android 雙 AVD 的 authenticated encrypted P2P 與 Mailbox ACK 閉環。
 - Java 52 項測試、Flutter 自動化測試與 PostgreSQL smoke。
 - Low Power Mode、App Lock 與 Safety Number 核心功能。
+- Desktop Link 主機安全核心：SQLite v13 授權狀態、明確手機授權、嚴格新訊息切點與撤銷 fail-closed 規則。
 - Production Backup／Restore、Monitor／Alert 與 off-host export fixtures。
 - GitHub Actions 的 Java、Flutter、PostgreSQL 與 Windows Desktop 工作。
 
@@ -134,6 +139,7 @@ flowchart LR
 - 真實 FCM／APNs、Android 系統通知與 iPhone runtime。
 - 正式 Android application ID、keystore、iOS Bundle ID 與 distribution signing。
 - 公開 HTTPS/WSS、registry digest、正式排程、外部告警與 off-host restore drill。
+- Desktop QR 配對、桌面端 transport、每副端重新加密、跨裝置歷史／新訊息同步，以及撤銷後的副端金鑰銷毀驗證。
 
 目前定位仍是**內部 Android 測試版**；上述 Gate 完成前不對外宣稱正式 V1 RC。
 
@@ -164,6 +170,9 @@ p2p-chat/
 | 8+ | Push / Presence / V1.5 安全 / 低功耗 / 貼圖 / 多媒體 / 多裝置 / 通話 … | 🚧 低頻 Presence、FCM HTTP v1 worker 完成；V1.5 Low Power 的 SQLite 偏好、即時策略、Presence 降頻、P2P 連線／閒置限制、自動下載與設定 UI 已完成，Safety Number 核心/scanner adapter 與 App Lock PIN／Argon2id／生物辨識／通知隱私策略／背景自動鎖定亦完成；真實耗電、FCM、相機掃碼、生物辨識與雙實機待驗 |
 
 完整路線圖見 [`docs/architecture.md`](docs/architecture.md)。
+
+Desktop Link 主機安全核心與尚未實作的 protocol／runtime 邊界見
+[`docs/desktop_link.md`](docs/desktop_link.md)。
 
 Offline Mailbox v1 契約見 [`docs/mailbox_api.md`](docs/mailbox_api.md)。
 

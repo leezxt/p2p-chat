@@ -6,7 +6,8 @@
 > 主要受真機與外部環境阻塞，使用者已於 2026-07-18 授權先行實作 V1.5
 > `EPIC-12 Safety Number`、`EPIC-11 App Lock` 與 `EPIC-10 Low Power Mode`
 > 的電腦端工作，並於 2026-07-26 授權先行實作可由 Windows 主機／Android AVD
-> 完整驗證的 V2 工作。V1 真機與 production Gate 不因此降級；V3～V5 仍保留於 backlog。
+> 完整驗證的 V2 工作。V1 真機與 production Gate 不因此降級；V3 Desktop Link 的主機安全核心可先行，
+> 但 V3 實際桌面／跨裝置 runtime 仍保留於 backlog。
 
 ## 狀態定義
 
@@ -174,7 +175,7 @@
 | P2 | 語音與圖片訊息 | V2 | 按需取得資源、加密保存、行動網路不自動下載大檔 |
 | P2 | 單則翻譯 | V2 | 原文不改寫；本機快取；雲端須明確 opt-in |
 | P2 | Storage Manager、Smart Notification | V2 | 清理行為可預期且不刪私鑰；通知可按聊天室設定 |
-| P3 | Desktop Link、Device Sync、Revoke | V3 | 手機授權；只同步新訊息；撤銷後副端不能再解密新訊息 |
+| P3 | Desktop Link、Device Sync、Revoke | V3 | ✅ 主機安全核心：手機明確授權、SQLite v13 同步切點、只選授權後新訊息、撤銷 fail-closed；QR、桌面 transport、per-device 加密與副端撤銷 runtime 驗收仍待完成 |
 | P3 | File Transfer、Export/Import | V3 | P2P、進度/取消/重試、SHA-256；備份必須加密 |
 | P3 | 1 對 1語音通話 | V3 | 通話結束立即釋放音訊資源，不在背景常駐 |
 | P4 | 1 對 1 視訊通話 | V4 | 按需相機/麥克風、不錄影、低功耗畫質與資源釋放 |
@@ -201,6 +202,15 @@
 前四項主要沿用既有文字訊息、Mailbox、App Lock 與設定架構；圖片／語音的資源與
 權限風險最高，最後處理。每個項目必須維持模組生命週期、Event Bus 邊界、密文
 fallback 與 Low Power Mode 限制，且不得將 AVD 結果標示為真機驗收。
+
+## V3 可由主機先行範圍
+
+V3 的實際桌面端、QR 掃碼、跨裝置協定與每副端金鑰生命週期仍需多端 runtime 驗收；
+下列安全決策可先在 Windows host 建立並以純 Dart／SQLite 測試驗證。
+
+| ID | 主機可完成範圍 | 主機驗收條件 | 仍需外部驗證 |
+|---|---|---|---|
+| V3-01 | Desktop Link／Device Sync／Revoke 安全核心（✅） | 獨立模組、SQLite v13 授權資料、主裝置拒絕成為副端、fingerprint 變更 fail-closed、只選 `createdAt > authorized_after` 的新訊息、撤銷後拒絕新選取、Event Bus 事件、v1→v13 migration 與 service tests 通過 | QR 配對 UX／驗證、桌面端連線、per-device 加密與金鑰銷毀、真實同步／網路故障、Windows／Android／iOS runtime、已撤銷副端無法解密新訊息的端對端證明 |
 
 ## 建議執行順序
 
