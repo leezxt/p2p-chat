@@ -92,7 +92,10 @@ void main() {
           OutlinedButton,
           'Paste phone verification challenge',
         );
-        await tester.ensureVisible(pasteChallenge);
+        // Windows integration tests use a shorter default view than the page's
+        // desktop layout. Scroll explicitly so the tap is hit-tested on screen.
+        await tester.drag(find.byType(ListView), const Offset(0, -640));
+        await tester.pumpAndSettle();
         await tester.tap(pasteChallenge);
         await tester.pumpAndSettle();
 
@@ -121,7 +124,8 @@ void main() {
             OutlinedButton,
             'Copy desktop response',
           );
-          await tester.ensureVisible(copyResponse);
+          await tester.drag(find.byType(ListView), const Offset(0, -640));
+          await tester.pumpAndSettle();
           await tester.tap(copyResponse);
           await tester.pump(const Duration(milliseconds: 300));
           final copied = await Clipboard.getData('text/plain');
