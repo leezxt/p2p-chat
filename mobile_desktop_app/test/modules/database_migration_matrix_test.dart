@@ -78,6 +78,7 @@ void main() {
             'message_reactions',
             'storage_cache_entries',
             'notification_preferences',
+            'message_translations',
           ]),
         );
       } finally {

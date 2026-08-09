@@ -26,6 +26,7 @@ import 'modules/reaction/reaction_module.dart';
 import 'modules/sticker/sticker_module.dart';
 import 'modules/storage/storage_module.dart';
 import 'modules/smart_notification/smart_notification_module.dart';
+import 'modules/translation/translation_module.dart';
 import 'shared/utils/id_generator.dart';
 
 /// 啟動結果：交給 App 根 Widget 使用。
@@ -93,6 +94,7 @@ Future<Bootstrap> bootstrap({
   registry.register(StickerModule());
   registry.register(StorageModule());
   registry.register(SmartNotificationModule());
+  registry.register(TranslationModule());
   registry.register(ChatModule(
     currentUserId: currentUserId,
     currentDeviceId: currentDeviceId,

@@ -680,6 +680,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Even when enabled, previews stay hidden while App Lock is locked or notification privacy is enabled.'**
   String get notificationPrivacyNotice;
+
+  /// No description provided for @translateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate'**
+  String get translateMessage;
+
+  /// No description provided for @translationResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation'**
+  String get translationResult;
+
+  /// No description provided for @translationUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No translation provider is configured. Your message has stayed on this device.'**
+  String get translationUnavailable;
+
+  /// No description provided for @translationConsentDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation may send this message\'s text to the provider you choose in a future setup. The original message will not be changed, and the result is stored only on this device.'**
+  String get translationConsentDescription;
+
+  /// No description provided for @translationConsentApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow translation'**
+  String get translationConsentApprove;
+
+  /// No description provided for @clearTranslation.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear translation'**
+  String get clearTranslation;
 }
 
 class _AppLocalizationsDelegate

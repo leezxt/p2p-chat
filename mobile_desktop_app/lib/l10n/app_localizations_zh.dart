@@ -314,6 +314,25 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get notificationPrivacyNotice =>
       '即使已開啟預覽，App Lock 鎖定或已啟用通知隱私時，內容仍會隱藏。';
+
+  @override
+  String get translateMessage => '翻譯';
+
+  @override
+  String get translationResult => '翻譯結果';
+
+  @override
+  String get translationUnavailable => '尚未設定翻譯服務；訊息內容仍只保留在此裝置。';
+
+  @override
+  String get translationConsentDescription =>
+      '未來設定翻譯服務後，翻譯可能會將這則訊息文字傳給你選擇的 provider。原始訊息不會被修改，結果只會儲存在此裝置。';
+
+  @override
+  String get translationConsentApprove => '允許翻譯';
+
+  @override
+  String get clearTranslation => '清除翻譯';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -626,4 +645,23 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String get notificationPrivacyNotice =>
       '即使已開啟預覽，App Lock 鎖定或已啟用通知隱私時，內容仍會隱藏。';
+
+  @override
+  String get translateMessage => '翻譯';
+
+  @override
+  String get translationResult => '翻譯結果';
+
+  @override
+  String get translationUnavailable => '尚未設定翻譯服務；訊息內容仍只保留在此裝置。';
+
+  @override
+  String get translationConsentDescription =>
+      '未來設定翻譯服務後，翻譯可能會將這則訊息文字傳給你選擇的 provider。原始訊息不會被修改，結果只會儲存在此裝置。';
+
+  @override
+  String get translationConsentApprove => '允許翻譯';
+
+  @override
+  String get clearTranslation => '清除翻譯';
 }

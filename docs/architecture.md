@@ -86,6 +86,11 @@ Smart Notification 將每個聊天室的 `muted`／`allow_preview` 偏好保存�
 開啟通知隱私時，一律回傳不含寄件者與內容的通用文字。此層是 provider-neutral，
 不含 FCM/APNs SDK 或系統通知權限處理。
 
+Translation Module 預設沒有 provider，且使用者未設定明確同意前不能呼叫 provider。
+翻譯 cache 以 message ID、provider ID、目標語言與原文 SHA-256 組合判定；只保存在
+`message_translations`，不改寫 `chat_messages` 的原始 payload。使用者可清除單則
+翻譯結果；接入任何雲端 provider 前，必須在 UI 說明實際資料傳送對象與條款。
+
 ## 運行模式
 
 正確：平常休眠 → 收推播或開聊天室 → 建立 P2P → 傳完短暫維持 → 閒置斷線 → 進背景關閉 P2P。

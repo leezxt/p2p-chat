@@ -331,4 +331,24 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get notificationPrivacyNotice =>
       'Even when enabled, previews stay hidden while App Lock is locked or notification privacy is enabled.';
+
+  @override
+  String get translateMessage => 'Translate';
+
+  @override
+  String get translationResult => 'Translation';
+
+  @override
+  String get translationUnavailable =>
+      'No translation provider is configured. Your message has stayed on this device.';
+
+  @override
+  String get translationConsentDescription =>
+      'Translation may send this message\'s text to the provider you choose in a future setup. The original message will not be changed, and the result is stored only on this device.';
+
+  @override
+  String get translationConsentApprove => 'Allow translation';
+
+  @override
+  String get clearTranslation => 'Clear translation';
 }

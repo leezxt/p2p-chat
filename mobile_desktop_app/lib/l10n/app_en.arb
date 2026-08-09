@@ -114,5 +114,11 @@
   "notificationMuteDescription": "Do not create notifications for new messages in this chat",
   "notificationPreview": "Show notification preview",
   "notificationPreviewDescription": "Show local sender and message details only when App Lock allows it",
-  "notificationPrivacyNotice": "Even when enabled, previews stay hidden while App Lock is locked or notification privacy is enabled."
+  "notificationPrivacyNotice": "Even when enabled, previews stay hidden while App Lock is locked or notification privacy is enabled.",
+  "translateMessage": "Translate",
+  "translationResult": "Translation",
+  "translationUnavailable": "No translation provider is configured. Your message has stayed on this device.",
+  "translationConsentDescription": "Translation may send this message's text to the provider you choose in a future setup. The original message will not be changed, and the result is stored only on this device.",
+  "translationConsentApprove": "Allow translation",
+  "clearTranslation": "Clear translation"
 }

@@ -9,7 +9,7 @@ class Migration {
 }
 
 /// 目前 schema 版本。每次新增 migration 時 +1。
-const int kCurrentDbVersion = 11;
+const int kCurrentDbVersion = 12;
 
 /// 依版本排序的 migration 清單。
 const List<Migration> kMigrations = [
@@ -212,5 +212,19 @@ const List<Migration> kMigrations = [
       updated_at INTEGER NOT NULL
     )
     ''',
+  ]),
+  Migration(12, [
+    '''
+    CREATE TABLE message_translations (
+      message_id TEXT NOT NULL,
+      provider_id TEXT NOT NULL,
+      target_language TEXT NOT NULL,
+      source_hash TEXT NOT NULL,
+      translated_text TEXT NOT NULL,
+      updated_at INTEGER NOT NULL,
+      PRIMARY KEY (message_id, provider_id, target_language)
+    )
+    ''',
+    'CREATE INDEX idx_message_translations_message ON message_translations (message_id)',
   ]),
 ];

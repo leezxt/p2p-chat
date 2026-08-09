@@ -26,6 +26,7 @@ import '../reaction/data/reaction_repository.dart';
 import '../sticker/data/built_in_sticker_catalog.dart';
 import '../storage/domain/storage_manager_service.dart';
 import '../smart_notification/domain/smart_notification_service.dart';
+import '../translation/domain/translation_service.dart';
 
 /// 聊天模組（規格 §6 Foundation Module）。
 ///
@@ -127,6 +128,9 @@ class ChatModule implements AppModule {
                   _services.isRegistered<SmartNotificationService>()
                       ? _services.get<SmartNotificationService>()
                       : null,
+              translationService: _services.isRegistered<TranslationService>()
+                  ? _services.get<TranslationService>()
+                  : null,
             ));
   }
 

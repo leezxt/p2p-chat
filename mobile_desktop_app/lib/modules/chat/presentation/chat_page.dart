@@ -11,6 +11,8 @@ import '../../reaction/domain/reaction_event.dart';
 import '../../sticker/domain/sticker_pack_manifest.dart';
 import '../../smart_notification/domain/smart_notification_service.dart';
 import '../../smart_notification/presentation/smart_notification_settings_page.dart';
+import '../../translation/domain/translation_result.dart';
+import '../../translation/domain/translation_service.dart';
 
 /// 單一聊天室畫面。以 [ChatController] 驅動，支援送出文字與向上載入更舊訊息。
 class ChatPage extends StatefulWidget {
@@ -21,6 +23,7 @@ class ChatPage extends StatefulWidget {
     this.safetyNumberService,
     this.peerUserId,
     this.smartNotificationService,
+    this.translationService,
   });
 
   final ChatController controller;
@@ -28,6 +31,7 @@ class ChatPage extends StatefulWidget {
   final SafetyNumberService? safetyNumberService;
   final String? peerUserId;
   final SmartNotificationService? smartNotificationService;
+  final TranslationService? translationService;
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -61,6 +65,81 @@ class _ChatPageState extends State<ChatPage> {
     await widget.controller.sendText(text);
     if (_scrollController.hasClients) {
       _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    }
+  }
+
+  Future<void> _translate(MessageEnvelope message) async {
+    final service = widget.translationService;
+    final sourceText = message.text;
+    if (service == null || sourceText == null) return;
+    final l10n = AppLocalizations.of(context);
+    if (!service.isProviderConfigured) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.translationUnavailable)),
+      );
+      return;
+    }
+    if (!await service.hasConsent()) {
+      if (!mounted) return;
+      final approved = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(l10n.translateMessage),
+          content: Text(l10n.translationConsentDescription),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.translationConsentApprove),
+            ),
+          ],
+        ),
+      );
+      if (approved != true) return;
+      await service.setConsent(true);
+      if (!mounted) return;
+    }
+    if (!mounted) return;
+    try {
+      final target =
+          Localizations.localeOf(context).languageCode == 'en' ? 'zh-TW' : 'en';
+      final result = await service.translate(
+        messageId: message.messageId,
+        sourceText: sourceText,
+        targetLanguage: target,
+      );
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(l10n.translationResult),
+          content: SelectableText(result.text),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                await service.clearMessageCache(message.messageId);
+                if (context.mounted) Navigator.pop(context);
+              },
+              child: Text(l10n.clearTranslation),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.close),
+            ),
+          ],
+        ),
+      );
+    } on TranslationConsentRequired {
+      // Consent may be revoked by a future settings surface while dialog is open.
+    } on TranslationProviderUnavailable {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.translationUnavailable)),
+        );
+      }
     }
   }
 
@@ -126,6 +205,9 @@ class _ChatPageState extends State<ChatPage> {
                     sticker: widget.controller.stickerAsset(messages[i]),
                     onReaction: (emoji) =>
                         widget.controller.toggleReaction(messages[i], emoji),
+                    onTranslate: widget.translationService == null
+                        ? null
+                        : () => _translate(messages[i]),
                   ),
                 );
               },
@@ -149,12 +231,14 @@ class _MessageBubble extends StatelessWidget {
     required this.mine,
     required this.reactions,
     required this.onReaction,
+    this.onTranslate,
     this.sticker,
   });
   final MessageEnvelope message;
   final bool mine;
   final List<ReactionEvent> reactions;
   final Future<void> Function(String emoji) onReaction;
+  final Future<void> Function()? onTranslate;
   final StickerAsset? sticker;
 
   @override
@@ -210,6 +294,15 @@ class _MessageBubble extends StatelessWidget {
                       .toList(growable: false),
                 ),
               ],
+              if (onTranslate != null && message.text != null)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton.icon(
+                    onPressed: onTranslate,
+                    icon: const Icon(Icons.translate, size: 18),
+                    label: Text(l10n.translateMessage),
+                  ),
+                ),
               const SizedBox(height: 4),
               Text(
                 mine

@@ -39,7 +39,8 @@ Android application ID、iOS Bundle ID、Firebase project 與加密 domain strin
 - [ ] V2-05 外部 Gate：真機磁碟壓力、OS 清理、大量資料效能與真實附件驗收
 - [x] V2-06 Smart Notification 主機核心：SQLite v11 per-chat 靜音／預覽偏好、App Lock 雙重隱私判定、provider-neutral 通知決策與聊天室設定 UI
 - [ ] V2-06 外部 Gate：真實 FCM／APNs、系統權限、cold/warm provider routing 與 OEM 通知行為
-- [ ] V2-04 單則翻譯：原文不改寫、明確 opt-in、本機快取與 fake provider
+- [x] V2-04 單則翻譯主機核心：SQLite v12 cache、provider interface、明確 opt-in、原文不改寫、單則清除與 fake provider tests；預設未設定 provider、不傳送內容
+- [ ] V2-04 外部 Gate：選定本機／雲端 provider、費用、資料處理條款與實際網路失敗驗收
 - [ ] V2-03 圖片／語音基礎：加密附件、按需下載、取消／重試與 Low Power 政策
 
 詳細主機驗收與外部 Gate 見 [`project_tasks.md`](project_tasks.md#v2-主機可先行範圍)。
