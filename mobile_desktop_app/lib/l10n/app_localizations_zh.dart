@@ -65,6 +65,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get language => '語言';
 
   @override
+  String get appTools => '應用工具';
+
+  @override
   String get followSystem => '跟隨系統';
 
   @override
@@ -333,6 +336,81 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get clearTranslation => '清除翻譯';
+
+  @override
+  String get desktopLink => '桌面連結';
+
+  @override
+  String get desktopLinkPair => '配對桌面裝置';
+
+  @override
+  String get desktopLinkPairDescription =>
+      '掃描或貼上桌面端產生的短效配對請求。核對 fingerprint 後，再決定是否同意。';
+
+  @override
+  String get desktopLinkRequestData => '桌面配對 QR 內容';
+
+  @override
+  String get desktopLinkReviewRequest => '檢閱配對請求';
+
+  @override
+  String get desktopLinkScanQr => '掃描桌面配對 QR';
+
+  @override
+  String get desktopLinkCameraUnavailable => '無法使用相機，請檢查相機權限後再試一次。';
+
+  @override
+  String get desktopLinkRequestInvalid => '此配對請求無效、已過期、屬於其他手機，或已被處理。';
+
+  @override
+  String get desktopLinkRequestReady => '配對請求已準備好，可供檢閱';
+
+  @override
+  String get desktopLinkApproveTitle => '要同意此桌面連結嗎？';
+
+  @override
+  String get desktopLinkApproveDescription =>
+      '只同意由你控制的裝置。它只會取得這次同意後建立的新訊息；既有訊息不會被複製。';
+
+  @override
+  String get desktopLinkDeviceName => '裝置';
+
+  @override
+  String get desktopLinkFingerprint => '公開金鑰 fingerprint';
+
+  @override
+  String get desktopLinkApprove => '同意連結';
+
+  @override
+  String get desktopLinkApproved => '桌面連結已同意';
+
+  @override
+  String get desktopLinkReject => '拒絕請求';
+
+  @override
+  String get desktopLinkRejected => '已拒絕配對請求';
+
+  @override
+  String get desktopLinkCurrentLinks => '已連結的桌面裝置';
+
+  @override
+  String get desktopLinkNoLinks => '尚未連結任何桌面裝置';
+
+  @override
+  String get desktopLinkRevoke => '撤銷';
+
+  @override
+  String get desktopLinkRevokeTitle => '要撤銷此桌面裝置嗎？';
+
+  @override
+  String get desktopLinkRevokeDescription =>
+      '系統會立即拒絕同步新的訊息到此裝置；此本機動作無法刪除桌面端可能已持有的資料。';
+
+  @override
+  String get desktopLinkRevoked => '已撤銷';
+
+  @override
+  String get desktopLinkRevokedConfirmation => '桌面連結已撤銷';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -396,6 +474,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get language => '語言';
 
   @override
+  String get appTools => '應用工具';
+
+  @override
   String get followSystem => '跟隨系統';
 
   @override
@@ -664,4 +745,79 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get clearTranslation => '清除翻譯';
+
+  @override
+  String get desktopLink => '桌面連結';
+
+  @override
+  String get desktopLinkPair => '配對桌面裝置';
+
+  @override
+  String get desktopLinkPairDescription =>
+      '掃描或貼上桌面端產生的短效配對請求。核對 fingerprint 後，再決定是否同意。';
+
+  @override
+  String get desktopLinkRequestData => '桌面配對 QR 內容';
+
+  @override
+  String get desktopLinkReviewRequest => '檢閱配對請求';
+
+  @override
+  String get desktopLinkScanQr => '掃描桌面配對 QR';
+
+  @override
+  String get desktopLinkCameraUnavailable => '無法使用相機，請檢查相機權限後再試一次。';
+
+  @override
+  String get desktopLinkRequestInvalid => '此配對請求無效、已過期、屬於其他手機，或已被處理。';
+
+  @override
+  String get desktopLinkRequestReady => '配對請求已準備好，可供檢閱';
+
+  @override
+  String get desktopLinkApproveTitle => '要同意此桌面連結嗎？';
+
+  @override
+  String get desktopLinkApproveDescription =>
+      '只同意由你控制的裝置。它只會取得這次同意後建立的新訊息；既有訊息不會被複製。';
+
+  @override
+  String get desktopLinkDeviceName => '裝置';
+
+  @override
+  String get desktopLinkFingerprint => '公開金鑰 fingerprint';
+
+  @override
+  String get desktopLinkApprove => '同意連結';
+
+  @override
+  String get desktopLinkApproved => '桌面連結已同意';
+
+  @override
+  String get desktopLinkReject => '拒絕請求';
+
+  @override
+  String get desktopLinkRejected => '已拒絕配對請求';
+
+  @override
+  String get desktopLinkCurrentLinks => '已連結的桌面裝置';
+
+  @override
+  String get desktopLinkNoLinks => '尚未連結任何桌面裝置';
+
+  @override
+  String get desktopLinkRevoke => '撤銷';
+
+  @override
+  String get desktopLinkRevokeTitle => '要撤銷此桌面裝置嗎？';
+
+  @override
+  String get desktopLinkRevokeDescription =>
+      '系統會立即拒絕同步新的訊息到此裝置；此本機動作無法刪除桌面端可能已持有的資料。';
+
+  @override
+  String get desktopLinkRevoked => '已撤銷';
+
+  @override
+  String get desktopLinkRevokedConfirmation => '桌面連結已撤銷';
 }

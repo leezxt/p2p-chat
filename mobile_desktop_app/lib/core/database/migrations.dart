@@ -9,7 +9,7 @@ class Migration {
 }
 
 /// 目前 schema 版本。每次新增 migration 時 +1。
-const int kCurrentDbVersion = 13;
+const int kCurrentDbVersion = 14;
 
 /// 依版本排序的 migration 清單。
 const List<Migration> kMigrations = [
@@ -243,5 +243,25 @@ const List<Migration> kMigrations = [
     ''',
     'CREATE INDEX idx_desktop_link_authorizations_active '
         'ON desktop_link_authorizations (revoked_at)',
+  ]),
+  Migration(14, [
+    // 一次性 QR 配對請求只保存公開識別與處理狀態；不保存 QR 原文、私鑰或訊息。
+    '''
+    CREATE TABLE desktop_link_pairing_requests (
+      request_id TEXT PRIMARY KEY,
+      target_primary_device_id TEXT NOT NULL,
+      device_id TEXT NOT NULL,
+      display_name TEXT NOT NULL,
+      public_key_fingerprint TEXT NOT NULL,
+      issued_at INTEGER NOT NULL,
+      expires_at INTEGER NOT NULL,
+      state TEXT NOT NULL CHECK (state IN ('pending', 'confirming', 'confirmed', 'rejected')),
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      CHECK (expires_at > issued_at)
+    )
+    ''',
+    'CREATE INDEX idx_desktop_link_pairing_requests_state_expiry '
+        'ON desktop_link_pairing_requests (state, expires_at)',
   ]),
 ];

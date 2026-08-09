@@ -162,19 +162,25 @@ flutter test test/modules/p2p_session_lifecycle_test.dart
 flutter test test/core/app_lifecycle_coordinator_test.dart
 ```
 
-Desktop Link／Device Sync／Revoke 的純 Dart／SQLite 主機安全核心可用下列命令驗證：
+Desktop Link／Device Sync／Revoke 的主機安全核心與手機端一次性 QR 請求檢閱流程可用下列命令驗證：
 
 ```powershell
 $env:NIX_SKIP_SODIUM_BUILD_HOOKS='1'
-flutter test test/modules/desktop_link_service_test.dart `
+flutter test --concurrency=1 test/modules/desktop_link_service_test.dart `
+  test/modules/desktop_link_pairing_request_test.dart `
+  test/modules/desktop_link_pairing_service_test.dart `
+  test/modules/desktop_link_pairing_page_test.dart `
   test/modules/desktop_link_module_test.dart `
   test/modules/database_migration_matrix_test.dart `
   test/modules/identity_schema_test.dart
 dart analyze
 ```
 
-這組測試驗證 v1→v13 SQLite 升級、手機明確授權、嚴格新訊息切點與撤銷 fail-closed；
-它不包含 QR、桌面端、per-device 加密、真實傳輸或已撤銷副端的 runtime 金鑰銷毀驗收。
+這組目前共 26 項測試，驗證 v1→v14 SQLite 升級、手機明確授權、嚴格新訊息切點與撤銷
+fail-closed，以及 QR payload 的嚴格版本／欄位／效期驗證、一次性 request state、
+「先檢閱 fingerprint、後明確同意」的 UI 邊界。它不包含真實相機掃碼、桌面端 request
+產生或私鑰持有 signed challenge、桌面端、per-device 加密、真實傳輸或已撤銷副端的
+runtime 金鑰銷毀驗收。
 
 Localization 變更需重新產生程式碼，並驗證語言解析、SQLite 偏好保存與兩種語言 UI：
 

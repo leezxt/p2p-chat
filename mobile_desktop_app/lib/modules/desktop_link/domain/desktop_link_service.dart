@@ -4,12 +4,22 @@ import '../data/desktop_link_repository.dart';
 import '../events/desktop_link_changed.dart';
 import 'desktop_link.dart';
 
+/// UI 與後續 adapter 需要的 Desktop Link 管理能力。
+///
+/// 將頁面依賴限制在此介面，可讓 UI 測試不必啟動 SQLite 或桌面原生資產；
+/// 實際的授權與撤銷規則仍由 [DesktopLinkService] 強制執行。
+abstract interface class DesktopLinkManager {
+  Future<List<DesktopLink>> listLinks();
+
+  Future<DesktopLink> revoke(String deviceId);
+}
+
 /// Desktop Link 的主裝置授權與本機同步閘門。
 ///
 /// 這個 service 不會建立桌面連線、不會解密或傳送聊天內容。它只提供後續
 /// transport adapter 必須先遵守的安全決策：主裝置明確授權、只選出授權後
 /// 的新訊息，且撤銷後立即拒絕任何新的同步選取。
-class DesktopLinkService {
+class DesktopLinkService implements DesktopLinkManager {
   DesktopLinkService({
     required DesktopLinkRepository repository,
     required String primaryDeviceId,
@@ -25,6 +35,7 @@ class DesktopLinkService {
   final EventBus _eventBus;
   final DateTime Function() _clock;
 
+  @override
   Future<List<DesktopLink>> listLinks() => _repository.list();
 
   /// 由手機上的明確使用者操作完成授權。
@@ -80,6 +91,7 @@ class DesktopLinkService {
   }
 
   /// 將副端標為撤銷。重複撤銷保持 idempotent，確保呼叫端可安全重試。
+  @override
   Future<DesktopLink> revoke(String deviceId) async {
     final normalizedDeviceId = _requireValue(deviceId, field: 'deviceId');
     final existing = await _repository.findByDeviceId(normalizedDeviceId);

@@ -26,6 +26,9 @@ import '../../storage/domain/storage_manager_service.dart';
 import '../../storage/presentation/storage_manager_page.dart';
 import '../../smart_notification/domain/smart_notification_service.dart';
 import '../../translation/domain/translation_service.dart';
+import '../../desktop_link/desktop_link_module.dart';
+
+enum _ConversationUtilityAction { desktopLink, appLock, lowPower, storage }
 
 /// 聊天室列表畫面（App 首頁）。可建立本機測試聊天室並進入聊天。
 class ConversationListPage extends StatefulWidget {
@@ -225,6 +228,41 @@ class _ConversationListPageState extends State<ConversationListPage> {
     await _controller.load();
   }
 
+  Future<void> _openUtility(_ConversationUtilityAction action) async {
+    switch (action) {
+      case _ConversationUtilityAction.desktopLink:
+        await Navigator.of(context).pushNamed(DesktopLinkModule.route);
+        return;
+      case _ConversationUtilityAction.appLock:
+        final service = widget.appLockService;
+        if (service == null) return;
+        await Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => AppLockSettingsPage(service: service),
+          ),
+        );
+        return;
+      case _ConversationUtilityAction.lowPower:
+        final service = widget.lowPowerModeService;
+        if (service == null) return;
+        await Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => LowPowerSettingsPage(service: service),
+          ),
+        );
+        return;
+      case _ConversationUtilityAction.storage:
+        final service = widget.storageManagerService;
+        if (service == null) return;
+        await Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => StorageManagerPage(service: service),
+          ),
+        );
+        return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -253,43 +291,38 @@ class _ConversationListPageState extends State<ConversationListPage> {
             tooltip: l10n.addContact,
             icon: const Icon(Icons.person_add_alt_1),
           ),
-          if (widget.appLockService case final service?)
-            IconButton(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => AppLockSettingsPage(service: service),
-                ),
+          PopupMenuButton<_ConversationUtilityAction>(
+            tooltip: l10n.appTools,
+            icon: const Icon(Icons.tune_outlined),
+            onSelected: (action) => unawaited(_openUtility(action)),
+            itemBuilder: (context) => [
+              _utilityItem(
+                _ConversationUtilityAction.desktopLink,
+                Icons.devices_other_outlined,
+                l10n.desktopLink,
               ),
-              tooltip: l10n.appLock,
-              icon: const Icon(Icons.lock_outline),
-            ),
-          if (widget.lowPowerModeService case final service?)
-            AnimatedBuilder(
-              animation: service,
-              builder: (context, _) => IconButton(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => LowPowerSettingsPage(service: service),
-                  ),
+              if (widget.appLockService != null)
+                _utilityItem(
+                  _ConversationUtilityAction.appLock,
+                  Icons.lock_outline,
+                  l10n.appLock,
                 ),
-                tooltip: l10n.lowPowerMode,
-                icon: Icon(
+              if (widget.lowPowerModeService case final service?)
+                _utilityItem(
+                  _ConversationUtilityAction.lowPower,
                   service.enabled
                       ? Icons.battery_saver
                       : Icons.battery_saver_outlined,
+                  l10n.lowPowerMode,
                 ),
-              ),
-            ),
-          if (widget.storageManagerService case final service?)
-            IconButton(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => StorageManagerPage(service: service),
+              if (widget.storageManagerService != null)
+                _utilityItem(
+                  _ConversationUtilityAction.storage,
+                  Icons.storage_outlined,
+                  l10n.storageManager,
                 ),
-              ),
-              tooltip: l10n.storageManager,
-              icon: const Icon(Icons.storage_outlined),
-            ),
+            ],
+          ),
           if (widget.localeController case final controller?)
             PopupMenuButton<AppLanguage>(
               tooltip: l10n.language,
@@ -371,6 +404,23 @@ class _ConversationListPageState extends State<ConversationListPage> {
       value: language,
       checked: controller.language == language,
       child: Text(label),
+    );
+  }
+
+  PopupMenuItem<_ConversationUtilityAction> _utilityItem(
+    _ConversationUtilityAction action,
+    IconData icon,
+    String label,
+  ) {
+    return PopupMenuItem<_ConversationUtilityAction>(
+      value: action,
+      child: Row(
+        children: [
+          Icon(icon),
+          const SizedBox(width: 12),
+          Text(label),
+        ],
+      ),
     );
   }
 

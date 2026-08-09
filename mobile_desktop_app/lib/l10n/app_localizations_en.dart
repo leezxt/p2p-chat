@@ -68,6 +68,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get language => 'Language';
 
   @override
+  String get appTools => 'App tools';
+
+  @override
   String get followSystem => 'Follow system';
 
   @override
@@ -351,4 +354,81 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get clearTranslation => 'Clear translation';
+
+  @override
+  String get desktopLink => 'Desktop Link';
+
+  @override
+  String get desktopLinkPair => 'Pair a desktop';
+
+  @override
+  String get desktopLinkPairDescription =>
+      'Scan or paste a short-lived pairing request from your desktop. Review its fingerprint before approving.';
+
+  @override
+  String get desktopLinkRequestData => 'Desktop pairing QR content';
+
+  @override
+  String get desktopLinkReviewRequest => 'Review pairing request';
+
+  @override
+  String get desktopLinkScanQr => 'Scan desktop pairing QR';
+
+  @override
+  String get desktopLinkCameraUnavailable =>
+      'Camera access is unavailable. Check camera permission and try again.';
+
+  @override
+  String get desktopLinkRequestInvalid =>
+      'This pairing request is invalid, expired, for another phone, or already handled.';
+
+  @override
+  String get desktopLinkRequestReady => 'Pairing request ready for review';
+
+  @override
+  String get desktopLinkApproveTitle => 'Approve this desktop link?';
+
+  @override
+  String get desktopLinkApproveDescription =>
+      'Only approve a device you control. It will be eligible only for new messages created after this approval; existing messages are not copied.';
+
+  @override
+  String get desktopLinkDeviceName => 'Device';
+
+  @override
+  String get desktopLinkFingerprint => 'Public-key fingerprint';
+
+  @override
+  String get desktopLinkApprove => 'Approve link';
+
+  @override
+  String get desktopLinkApproved => 'Desktop link approved';
+
+  @override
+  String get desktopLinkReject => 'Reject request';
+
+  @override
+  String get desktopLinkRejected => 'Pairing request rejected';
+
+  @override
+  String get desktopLinkCurrentLinks => 'Linked desktop devices';
+
+  @override
+  String get desktopLinkNoLinks => 'No desktop devices are linked';
+
+  @override
+  String get desktopLinkRevoke => 'Revoke';
+
+  @override
+  String get desktopLinkRevokeTitle => 'Revoke this desktop?';
+
+  @override
+  String get desktopLinkRevokeDescription =>
+      'New message sync to this device will be rejected immediately. This local action cannot erase data the desktop may already hold.';
+
+  @override
+  String get desktopLinkRevoked => 'Revoked';
+
+  @override
+  String get desktopLinkRevokedConfirmation => 'Desktop link revoked';
 }

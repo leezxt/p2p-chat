@@ -65,8 +65,11 @@ Simple Communication 不是要複製 LINE、WhatsApp 或 Discord，而是以四�
 - 模組具有 `init / activate / sleep / dispose` 生命週期，避免高耗能能力常駐。
 - Desktop Link 主機安全核心已保存手機端明確授權、裝置 fingerprint 與同步切點；
   只會選出授權後的新訊息，撤銷後立即拒絕新的同步選取。
-- 目前尚未實作 QR 配對、桌面端連線、per-device 加密傳輸或真實 Desktop runtime；
-  因此不宣稱已完成跨裝置訊息同步或既有副端金鑰清除。
+- 手機端可檢閱短效、一次性的版本化 QR 配對請求；請求必須指向本機主裝置，且只有使用者
+  明確同意後才會建立授權。這個流程以 SQLite v14 保存一次性處理狀態，不保存 QR 原文。
+- QR 內容仍是**不可信輸入**：目前沒有桌面端私鑰持有的 signed challenge、桌面端連線、
+  per-device 加密傳輸或真實相機／Desktop runtime 驗收；因此不宣稱已完成跨裝置訊息同步、
+  已驗證桌面身份，或既有副端金鑰清除。
 
 ## App 畫面
 
@@ -117,7 +120,7 @@ flowchart LR
 | 2026-07-15～16 | 安全與低功耗 | 加密儲存、Presence、Push Outbox |
 | 2026-07-17～18 | V1.5 能力 | Low Power Mode、App Lock、Safety Number |
 | 2026-07-19 | 發布工程 | Backup／Restore、Monitor／Alert、RC 文件 |
-| 2026-08-09 | V3 安全基礎 | Desktop Link 授權、只同步新訊息與撤銷閘門 |
+| 2026-08-09 | V3 安全基礎 | Desktop Link 授權、只同步新訊息、撤銷閘門與一次性 QR 配對請求檢閱流程 |
 
 每個階段均以「可編譯、可測試、可回退」為完成原則，並同步更新測試與交接文件。
 
@@ -128,7 +131,8 @@ flowchart LR
 - Android 雙 AVD 的 authenticated encrypted P2P 與 Mailbox ACK 閉環。
 - Java 52 項測試、Flutter 自動化測試與 PostgreSQL smoke。
 - Low Power Mode、App Lock 與 Safety Number 核心功能。
-- Desktop Link 主機安全核心：SQLite v13 授權狀態、明確手機授權、嚴格新訊息切點與撤銷 fail-closed 規則。
+- Desktop Link 主機安全核心：SQLite v13 授權狀態、SQLite v14 一次性配對請求狀態、
+  明確手機授權、嚴格新訊息切點與撤銷 fail-closed 規則；QR 僅供檢閱，不會自動授權。
 - Production Backup／Restore、Monitor／Alert 與 off-host export fixtures。
 - GitHub Actions 的 Java、Flutter、PostgreSQL 與 Windows Desktop 工作。
 
@@ -139,7 +143,8 @@ flowchart LR
 - 真實 FCM／APNs、Android 系統通知與 iPhone runtime。
 - 正式 Android application ID、keystore、iOS Bundle ID 與 distribution signing。
 - 公開 HTTPS/WSS、registry digest、正式排程、外部告警與 off-host restore drill。
-- Desktop QR 配對、桌面端 transport、每副端重新加密、跨裝置歷史／新訊息同步，以及撤銷後的副端金鑰銷毀驗證。
+- 桌面端配對請求產生器、私鑰持有 signed challenge、真實相機掃碼驗收、桌面端 transport、
+  每副端重新加密、跨裝置歷史／新訊息同步，以及撤銷後的副端金鑰銷毀驗證。
 
 目前定位仍是**內部 Android 測試版**；上述 Gate 完成前不對外宣稱正式 V1 RC。
 

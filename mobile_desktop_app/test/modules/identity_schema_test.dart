@@ -39,6 +39,7 @@ void main() {
             'notification_preferences',
             'message_translations',
             'desktop_link_authorizations',
+            'desktop_link_pairing_requests',
           ]));
       expect(await service.db.getVersion(), kCurrentDbVersion);
       final repository = IdentityRepository(service.db);

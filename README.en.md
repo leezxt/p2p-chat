@@ -64,9 +64,15 @@ user value, resource cost, and privacy boundary.
 - The Desktop Link host safety core persists an explicit mobile authorization,
   device fingerprint, and sync cutoff. It selects only messages created after
   that cutoff and rejects new selections immediately after revocation.
-- QR pairing, a desktop transport, per-device encryption, and real desktop
-  runtime validation are not implemented yet. This does not claim working
-  cross-device sync or deletion of a previously linked device's key material.
+- The mobile side can review a short-lived, one-time, versioned QR pairing
+  request. It must target this primary device, and a link is created only after
+  an explicit user approval. SQLite v14 stores one-time handling state, never
+  the raw QR payload.
+- QR content remains **untrusted input**. There is no desktop private-key
+  possession signed challenge, desktop transport, per-device encryption, or
+  real camera/Desktop runtime validation yet. This does not claim working
+  cross-device sync, verified desktop identity, or deletion of a previously
+  linked device's key material.
 
 ## App screenshots
 
@@ -118,7 +124,7 @@ recoverable without showing duplicate messages.
 | 2026-07-15–16 | Security and efficiency | Secure key storage, Presence, Push Outbox |
 | 2026-07-17–18 | V1.5 capabilities | Low Power Mode, App Lock, Safety Number |
 | 2026-07-19 | Release engineering | Backup/Restore, Monitor/Alert, RC documentation |
-| 2026-08-09 | V3 safety foundation | Desktop Link authorization, new-message cutoff, revoke gate |
+| 2026-08-09 | V3 safety foundation | Desktop Link authorization, new-message cutoff, revoke gate, and one-time QR pairing-request review |
 
 Each stage is expected to remain buildable, testable, and reversible.
 
@@ -129,8 +135,10 @@ Each stage is expected to remain buildable, testable, and reversible.
 - Authenticated encrypted P2P and mailbox acknowledgement loop on two Android AVDs.
 - Java tests, Flutter automated tests, and PostgreSQL smoke tests.
 - Core Low Power Mode, App Lock, and Safety Number capabilities.
-- Desktop Link host safety core: SQLite v13 authorization state, explicit
-  mobile approval, strict new-message cutoff, and fail-closed revocation.
+- Desktop Link host safety core: SQLite v13 authorization state, SQLite v14
+  one-time pairing-request state, explicit mobile approval, strict
+  new-message cutoff, and fail-closed revocation. A reviewed QR request never
+  authorizes a link automatically.
 - Production backup, restore, monitoring, alerting, and off-host export fixtures.
 - GitHub Actions for Java, Flutter, PostgreSQL, and Windows Desktop.
 
@@ -142,7 +150,8 @@ Each stage is expected to remain buildable, testable, and reversible.
 - Production Android application ID, keystore, iOS Bundle ID, and signing.
 - Public HTTPS/WSS, registry digest, scheduled monitoring, external alerts,
   and an off-host restore drill.
-- Desktop QR pairing, a desktop transport, per-device re-encryption,
+- A desktop-side pairing requester, private-key-possession signed challenge,
+  real camera scan validation, desktop transport, per-device re-encryption,
   cross-device history/new-message sync, and validation that revocation removes
   access to new messages on a companion device.
 

@@ -207,6 +207,12 @@ abstract class AppLocalizations {
   /// **'Language'**
   String get language;
 
+  /// No description provided for @appTools.
+  ///
+  /// In en, this message translates to:
+  /// **'App tools'**
+  String get appTools;
+
   /// No description provided for @followSystem.
   ///
   /// In en, this message translates to:
@@ -716,6 +722,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear translation'**
   String get clearTranslation;
+
+  /// No description provided for @desktopLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop Link'**
+  String get desktopLink;
+
+  /// No description provided for @desktopLinkPair.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair a desktop'**
+  String get desktopLinkPair;
+
+  /// No description provided for @desktopLinkPairDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan or paste a short-lived pairing request from your desktop. Review its fingerprint before approving.'**
+  String get desktopLinkPairDescription;
+
+  /// No description provided for @desktopLinkRequestData.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop pairing QR content'**
+  String get desktopLinkRequestData;
+
+  /// No description provided for @desktopLinkReviewRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Review pairing request'**
+  String get desktopLinkReviewRequest;
+
+  /// No description provided for @desktopLinkScanQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan desktop pairing QR'**
+  String get desktopLinkScanQr;
+
+  /// No description provided for @desktopLinkCameraUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera access is unavailable. Check camera permission and try again.'**
+  String get desktopLinkCameraUnavailable;
+
+  /// No description provided for @desktopLinkRequestInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'This pairing request is invalid, expired, for another phone, or already handled.'**
+  String get desktopLinkRequestInvalid;
+
+  /// No description provided for @desktopLinkRequestReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing request ready for review'**
+  String get desktopLinkRequestReady;
+
+  /// No description provided for @desktopLinkApproveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve this desktop link?'**
+  String get desktopLinkApproveTitle;
+
+  /// No description provided for @desktopLinkApproveDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Only approve a device you control. It will be eligible only for new messages created after this approval; existing messages are not copied.'**
+  String get desktopLinkApproveDescription;
+
+  /// No description provided for @desktopLinkDeviceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Device'**
+  String get desktopLinkDeviceName;
+
+  /// No description provided for @desktopLinkFingerprint.
+  ///
+  /// In en, this message translates to:
+  /// **'Public-key fingerprint'**
+  String get desktopLinkFingerprint;
+
+  /// No description provided for @desktopLinkApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve link'**
+  String get desktopLinkApprove;
+
+  /// No description provided for @desktopLinkApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop link approved'**
+  String get desktopLinkApproved;
+
+  /// No description provided for @desktopLinkReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject request'**
+  String get desktopLinkReject;
+
+  /// No description provided for @desktopLinkRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing request rejected'**
+  String get desktopLinkRejected;
+
+  /// No description provided for @desktopLinkCurrentLinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked desktop devices'**
+  String get desktopLinkCurrentLinks;
+
+  /// No description provided for @desktopLinkNoLinks.
+  ///
+  /// In en, this message translates to:
+  /// **'No desktop devices are linked'**
+  String get desktopLinkNoLinks;
+
+  /// No description provided for @desktopLinkRevoke.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke'**
+  String get desktopLinkRevoke;
+
+  /// No description provided for @desktopLinkRevokeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke this desktop?'**
+  String get desktopLinkRevokeTitle;
+
+  /// No description provided for @desktopLinkRevokeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'New message sync to this device will be rejected immediately. This local action cannot erase data the desktop may already hold.'**
+  String get desktopLinkRevokeDescription;
+
+  /// No description provided for @desktopLinkRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoked'**
+  String get desktopLinkRevoked;
+
+  /// No description provided for @desktopLinkRevokedConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop link revoked'**
+  String get desktopLinkRevokedConfirmation;
 }
 
 class _AppLocalizationsDelegate

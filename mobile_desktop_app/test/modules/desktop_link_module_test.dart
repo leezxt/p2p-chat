@@ -8,8 +8,11 @@ import 'package:p2p_chat_app/core/events/event_bus.dart';
 import 'package:p2p_chat_app/core/logging/logging_service.dart';
 import 'package:p2p_chat_app/core/module/module_context.dart';
 import 'package:p2p_chat_app/core/resource_policy/resource_policy_service.dart';
+import 'package:p2p_chat_app/core/routing/route_registry.dart';
+import 'package:p2p_chat_app/modules/desktop_link/data/desktop_link_pairing_repository.dart';
 import 'package:p2p_chat_app/modules/desktop_link/data/desktop_link_repository.dart';
 import 'package:p2p_chat_app/modules/desktop_link/desktop_link_module.dart';
+import 'package:p2p_chat_app/modules/desktop_link/domain/desktop_link_pairing_service.dart';
 import 'package:p2p_chat_app/modules/desktop_link/domain/desktop_link_service.dart';
 import 'package:p2p_chat_app/modules/identity/domain/identity_session.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -39,11 +42,16 @@ void main() {
         services: services,
       );
       final module = DesktopLinkModule();
+      final routes = RouteRegistry();
 
       await module.init(context);
+      module.registerRoutes(routes);
 
       expect(services.isRegistered<DesktopLinkRepository>(), isTrue);
       expect(services.isRegistered<DesktopLinkService>(), isTrue);
+      expect(services.isRegistered<DesktopLinkPairingRepository>(), isTrue);
+      expect(services.isRegistered<DesktopLinkPairingService>(), isTrue);
+      expect(routes.contains(DesktopLinkModule.route), isTrue);
       await expectLater(
         services.get<DesktopLinkService>().authorize(
               deviceId: 'primary-phone',

@@ -80,6 +80,7 @@ void main() {
             'notification_preferences',
             'message_translations',
             'desktop_link_authorizations',
+            'desktop_link_pairing_requests',
           ]),
         );
       } finally {
