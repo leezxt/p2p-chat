@@ -79,17 +79,31 @@ Runner 產生 JSON/Markdown 報告並依冷啟動中位數 3 秒、閒置 PSS 15
 Studio 2022 的 Desktop development with C++ workload、CMake tools 與 Windows SDK：
 
 ```powershell
-flutter config --enable-windows-desktop
-flutter pub get --enforce-lockfile
-flutter build windows --debug --no-pub
+.\tool\verify_windows_desktop.ps1
 ```
+
+preflight 通過後，才執行實際 native build 與 runtime 驗收：
+
+```powershell
+.\tool\verify_windows_desktop.ps1 -Build -Runtime
+```
+
+此入口以 Flutter `doctor` 驗證完整 C++ toolchain，建立 Windows debug bundle，並以獨立
+App process 驗證 Credential Manager key write／restart verify／full sodium + WebRTC。它還會
+以真實 sodium 及 `QrImageView` 驗證 Desktop Companion 的「輸入主裝置 ID → QR → challenge →
+response」流程；只有明確追加 `-VerifyClipboard` 時才會點擊 Copy 並讀回／清除測試 clipboard。
+腳本會拒絕帶有 `NIX_SKIP_SODIUM_BUILD_HOOKS` 的 native 執行，因為該旗標只能用於 test-only
+crypto fake，不能作為 Windows runtime 證據。輸出位於忽略的
+`build/windows-desktop-runtime/`。
 
 Pull request 與 `main` CI 會在 GitHub-hosted Windows 2022 runner 執行相同 debug build，
 驗證 runner、SQLite FFI、secure storage、libsodium native asset 與 WebRTC plugins 可共同
 編譯，並執行 `device_key_service_test.dart` 驗證 Windows libsodium runtime、裝置金鑰穩定
 載入、損壞資料拒絕與 storage failure paths。測試使用記憶體 secure store，不取代 Windows
 Credential Manager 持久化驗收；Build Gate 也不代表 Desktop Link、多裝置同步或桌面資源
-量測已完成。
+量測已完成。CI 會另以真實 Windows runner 執行 Desktop Companion 的 QR rendering、native
+`crypto_box` challenge-response 與選用 clipboard copy；它仍不會驗證真實手機相機、跨裝置
+transport、per-device 同步或撤銷後金鑰銷毀。
 
 Windows CI 另以 `-d windows` 啟動 native integration test，使用 production
 `FlutterSecureKeyValueStore` 驗證 Credential Manager 寫入／讀回與清除，並在同一 App

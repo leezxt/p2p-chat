@@ -13,7 +13,7 @@ Android/iOS integration test 或真機 Gate。
 |---|---|---|---|
 | Java backend | `mvn test` | `scripts/smoke.ps1` | REST/WebSocket、JWT、ACL、mailbox、presence、push、PostgreSQL migration |
 | Flutter/Dart | `dart analyze`、相關 `flutter test <file>` | `flutter test` | Core lifecycle、SQLite、localization、crypto schema、P2P、mailbox、presence、push |
-| Windows Desktop | `flutter test --no-pub test/modules/device_key_service_test.dart` | `flutter build windows --debug --no-pub`；`flutter test --no-pub -d windows --dart-define=RUNTIME_PLATFORM=Windows integration_test/android_crypto_runtime_test.dart` | libsodium native runtime、Credential Manager、crypto failure paths、WebRTC DataChannel、Runner 與 plugins 編譯 |
+| Windows Desktop | `flutter test --no-pub test/modules/device_key_service_test.dart` | `tool/verify_windows_desktop.ps1 -Build -Runtime`；CI 再加跑 Desktop Companion runtime integration | libsodium native runtime、Credential Manager、crypto failure paths、WebRTC DataChannel、Desktop Companion QR／challenge flow、Runner 與 plugins 編譯 |
 | Android native | 相關 Dart 單元測試 | crypto／App Lock runtime tests、雙 AVD E2E | libsodium、secure storage、Argon2id、App lifecycle、WebRTC DataChannel、完整訊息流程 |
 | Android cloud device | `bash tool/build_firebase_test_lab.sh` | `Firebase Test Lab Android` 手動 workflow | instrumentation APK、遠端實體機 secure storage、libsodium、replay、WebRTC |
 | iOS native | `bash tool/verify_ios.sh` | 設定 `IOS_DEVICE_ID` 後執行同一腳本 | build、Keychain、libsodium、WebRTC |
@@ -211,6 +211,25 @@ Windows 若未安裝 Visual Studio Desktop development with C++，完整 `flutte
 無法建立 sodium native asset 而停在 `device_key_service_test.dart`。可先執行其他 host
 tests，但必須保留該 native Gate 為未驗證，不能以 `NIX_SKIP_SODIUM_BUILD_HOOKS=1`
 取代 Android/iOS runtime 驗收。
+
+Windows Desktop native Gate 的單一入口是：
+
+```powershell
+cd mobile_desktop_app
+.\tool\verify_windows_desktop.ps1
+.\tool\verify_windows_desktop.ps1 -Build -Runtime
+```
+
+第一個命令只做 Flutter `doctor`／Windows device preflight；第二個命令執行 locked `pub get`、
+debug build、三個獨立 App process 的 secure-storage `write`／`verify`／`full` phases，最後以
+真實 `SodiumMessageBox` 驗證 Desktop Companion QR rendering、手動 challenge-response 與同一
+runner 內的主裝置角色 proof 驗證。若要在本機額外測 copy，需明確加上 `-VerifyClipboard`，因為它會寫入並清除測試
+clipboard。CI 在 GitHub-hosted Windows runner 會加上這個旗標。腳本會拒絕設定
+`NIX_SKIP_SODIUM_BUILD_HOOKS` 的 native run，避免 fake crypto 成為 runtime evidence。
+
+這些測試證明 Windows runner 可載入相關 plugin，並驗證本機 desktop pairing flow；它們不啟動
+真實手機相機、也不建立 Desktop transport、per-device re-encryption、跨裝置訊息同步或撤銷後
+資料不可解密的端對端情境。
 
 Windows CI 會額外以兩個獨立 App process 執行 secure storage phase。`write` phase 清除
 專用測試 key、建立裝置金鑰並保存非秘密 fingerprint marker；`verify` phase 由新的 App

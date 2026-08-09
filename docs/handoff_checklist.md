@@ -81,6 +81,11 @@ Android application ID、iOS Bundle ID、Firebase project 與加密 domain strin
   目標主裝置 discovery／自動交付，Android／iOS 真實相機權限與掃碼、原生 libsodium challenge
   proof runtime、實際桌面端 transport、每副端重新加密、真實多裝置同步／網路故障，以及撤銷後
   副端無法取得或解密新訊息的 Windows／Android／iOS runtime 驗收。
+  `mobile_desktop_app/tool/verify_windows_desktop.ps1` 現在統一 Windows preflight、debug build、
+  secure-storage process restart 與 Desktop Companion native integration；native run 一律拒絕
+  `NIX_SKIP_SODIUM_BUILD_HOOKS`。本機 2026-08-09 的 preflight 仍顯示未安裝 Visual Studio Desktop
+  development with C++／MSVC／CMake／Windows SDK，故待 GitHub Windows CI 或安裝後的本機 runner
+  執行此入口取得 runtime 證據；未通過前不可勾選外部 Gate。
 
 詳細安全邊界與未完成 protocol 見 [`desktop_link.md`](desktop_link.md)。
 
