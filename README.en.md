@@ -150,6 +150,11 @@ Each stage is expected to remain buildable, testable, and reversible.
 - Authenticated encrypted P2P and mailbox acknowledgement loop on two Android AVDs.
 - Java tests, Flutter automated tests, and PostgreSQL smoke tests.
 - Core Low Power Mode, App Lock, and Safety Number capabilities.
+- A single-AVD Android gate for V2 built-in stickers: the production `P2pChatApp`
+  selects the bundled `flutter` sticker from the chat picker, renders its PNG,
+  and stores an ID-only SQLite envelope. This is local UI, asset, and database
+  evidence only; it is not two-device P2P/Mailbox sync, offline retry, or
+  physical-device resource validation.
 - Desktop Link host safety core: SQLite v13 authorization state, SQLite v14
   one-time pairing-request state, SQLite v15 public-key/fingerprint binding,
   short-lived RAM challenge state, two-way `crypto_box` private-key-possession
@@ -174,9 +179,9 @@ Each stage is expected to remain buildable, testable, and reversible.
 - Production Android application ID, keystore, iOS Bundle ID, and signing.
 - Public HTTPS/WSS, registry digest, scheduled monitoring, external alerts,
   and an off-host restore drill.
-- A local Windows C++-toolchain run and macOS/Linux native runtime; a complete
-  `bootstrap`/home-screen journey to Desktop Companion; primary-device discovery
-  and automatic handoff; real camera scan validation; desktop transport; per-device
+- A local Windows C++-toolchain run and macOS/Linux native runtime; installed
+  Windows desktop-App user acceptance; primary-device discovery and automatic
+  handoff; real camera scan validation; desktop transport; per-device
   re-encryption; cross-device history/new-message sync; and validation that
   revocation removes access to new messages on a companion device.
 

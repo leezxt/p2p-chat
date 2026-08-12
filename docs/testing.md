@@ -14,7 +14,7 @@ Android/iOS integration test 或真機 Gate。
 | Java backend | `mvn test` | `scripts/smoke.ps1` | REST/WebSocket、JWT、ACL、mailbox、presence、push、PostgreSQL migration |
 | Flutter/Dart | `dart analyze`、相關 `flutter test <file>` | `flutter test` | Core lifecycle、SQLite、localization、crypto schema、P2P、mailbox、presence、push |
 | Windows Desktop | `flutter test --no-pub test/modules/device_key_service_test.dart` | `tool/verify_windows_desktop.ps1 -Build -Runtime`；CI 再加跑 Desktop Companion、module-route 與 App-entry runtime integrations | libsodium native runtime、Credential Manager、crypto failure paths、WebRTC DataChannel、Desktop Companion QR／challenge flow、ModuleRegistry／RouteRegistry／Navigator route selection、正式 bootstrap／P2pChatApp／聊天室工具選單 App-entry、Runner 與 plugins 編譯 |
-| Android native | 相關 Dart 單元測試 | crypto／App Lock runtime tests、雙 AVD E2E | libsodium、secure storage、Argon2id、App lifecycle、WebRTC DataChannel、完整訊息流程 |
+| Android native | 相關 Dart 單元測試 | crypto／App Lock／內建貼圖 runtime tests、雙 AVD E2E | libsodium、secure storage、Argon2id、App lifecycle、內建貼圖 picker／資產／SQLite ID-only message、WebRTC DataChannel、完整訊息流程 |
 | Android cloud device | `bash tool/build_firebase_test_lab.sh` | `Firebase Test Lab Android` 手動 workflow | instrumentation APK、遠端實體機 secure storage、libsodium、replay、WebRTC |
 | iOS native | `bash tool/verify_ios.sh` | 設定 `IOS_DEVICE_ID` 後執行同一腳本 | build、Keychain、libsodium、WebRTC |
 | Backend + App | `scripts/app-integration.ps1` | Android 雙裝置流程 | 真實 HTTP、JWT、邀請碼與裝置註冊 |
@@ -278,6 +278,25 @@ Runner 只允許 emulator 使用自動 biometric assertion；成功路徑會在 
 `local_auth` 對話框出現後送入 finger ID `1`，取消路徑送出 Android 返回鍵。每次執行也會
 驗證真實 SodiumSumo Argon2id、Android encrypted storage 與 lifecycle coordinator。
 AVD 結果不取代真機 enrollment change、真實感測器差異、跨 OS restart 與系統政策驗收。
+
+Android 內建貼圖 runtime（PowerShell）：
+
+```powershell
+cd mobile_desktop_app
+.\tool\verify_android_stickers.ps1 -Device <android-device-id>
+```
+
+Runner 只接受 `adb devices` 顯示為 `device` 的 Android target，並主動移除
+`NIX_SKIP_SODIUM_BUILD_HOOKS`，確保 Android 以正式 sodium native runtime 建置。測試不注入
+backend 設定，仍以正式 `bootstrap`／`P2pChatApp`、production SQLite、secure storage 與內建
+asset 執行：建立本機聊天室、開啟 picker、選取 `flutter`，確認氣泡實際渲染 PNG，最後回讀
+SQLite 確認 envelope 只保存 `packId` 和 `stickerId`。2026-08-13 已在 API 35
+`emulator-5930` 通過。
+
+此 Gate 是單一 AVD 的本機 UI／資產／SQLite 證據，不啟動 backend，也不取代兩個獨立裝置的
+P2P／Mailbox 離線同步、重送、真機儲存與大量貼圖包資源驗收。若 Windows 將預設
+`5554/5555` 保留，請用可綁定的偶數／奇數 pair 啟動 AVD（例如
+`-ports 5930,5931`），再把 `emulator-5930` 傳給 runner；不應把埠號改動誤列為 App 功能驗收。
 
 沒有本機手機時，可先建立 Firebase Test Lab app/test APK：
 

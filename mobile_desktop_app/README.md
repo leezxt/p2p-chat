@@ -25,6 +25,19 @@ flutter build apk --debug
 
 APK 產物位於 `build/app/outputs/flutter-apk/app-debug.apk`。目前已驗證 Android debug 編譯、真實 libsodium/secure storage、production WebRTC adapter，以及兩個 Android AVD/App process 的 authenticated encrypted E2E；真機資源量測仍待補。
 
+### V2 內建貼圖 Android runtime
+
+可用下列 runner 驗證正式 App 的單機貼圖流程：
+
+```powershell
+.\tool\verify_android_stickers.ps1 -Device <android-device-id>
+```
+
+它以正式 `bootstrap`／`P2pChatApp`、Android SQLite、secure storage 與 bundled sticker asset
+建立本機聊天室，操作 picker 選取 `flutter`，驗證 PNG 實際渲染，並確認 SQLite 訊息只有
+`packId`／`stickerId`。2026-08-13 已在 API 35 AVD 通過。此結果不包含 backend，也不代表
+兩裝置 P2P／Mailbox 同步、離線重送、真機儲存或大量貼圖包資源驗收。
+
 本機 Android Emulator x86_64 alpha 位於 `../dist/android-alpha/p2p-messenger-android-alpha-debug.apk`。它固定連線 `10.0.2.2:18080`，需搭配 `java_backend/scripts/alpha-up.ps1`，不可用於公開發布、ARM 真機或外部網路環境。雙 AVD 已驗證邀請、聯絡人同步、encrypted mailbox fallback、DELIVERED/READ ACK、sender 已讀顯示、前景 Presence／背景停止 heartbeat，以及不含敏感資料的 notification outbox。
 
 可用同一個 PowerShell runner 驗證兩台 Emulator 或兩台以 USB 連接的 Android 裝置：
