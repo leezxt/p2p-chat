@@ -144,7 +144,9 @@ flowchart LR
 - Low Power Mode、App Lock 與 Safety Number 核心功能。
 - V2 內建貼圖的單機 Android AVD Gate：正式 `P2pChatApp` 可由聊天室 picker 選取內建
   `flutter` 貼圖、渲染 PNG，並保存 ID-only SQLite envelope。這是本機 UI／資產／資料庫證據，
-  不代表兩裝置 P2P／Mailbox 同步、離線重送或真機資源驗收。
+  不代表兩裝置 P2P／Mailbox 同步、離線重送或真機資源驗收。另有兩台 Android AVD 以真實
+  sodium 加密、隔離 H2 Mailbox 完成貼圖 ACK-loss／force-stop／restart recovery；它直接驗證
+  Mailbox service，仍不代表完整 P2P fallback 編排或真機資源驗收。
 - Desktop Link 主機安全核心：SQLite v13 授權狀態、SQLite v14 一次性配對請求狀態、
   SQLite v15 公開金鑰／fingerprint binding、短效 RAM challenge、雙向 `crypto_box`
   私鑰持有 proof、明確手機授權、嚴格新訊息切點與撤銷 fail-closed 規則；沒有有效 proof

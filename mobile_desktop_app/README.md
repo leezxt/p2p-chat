@@ -38,6 +38,11 @@ APK 產物位於 `build/app/outputs/flutter-apk/app-debug.apk`。目前已驗證
 `packId`／`stickerId`。2026-08-13 已在 API 35 AVD 通過。此結果不包含 backend，也不代表
 兩裝置 P2P／Mailbox 同步、離線重送、真機儲存或大量貼圖包資源驗收。
 
+同日已以兩個 API 35 AVD 執行 `verify_android_mailbox_recovery.ps1 -MessageKind sticker`：
+真實 sodium 加密的貼圖 ID-only envelope 經隔離 H2 Mailbox，在 ACK 遺失、receiver
+force-stop、重啟與冪等重拉後仍保存正確 payload，且 sender 收到 READ。這是直接
+Mailbox service 的雙 AVD 證據；完整 P2P→Mailbox fallback 編排與 Android 真機仍待驗。
+
 本機 Android Emulator x86_64 alpha 位於 `../dist/android-alpha/p2p-messenger-android-alpha-debug.apk`。它固定連線 `10.0.2.2:18080`，需搭配 `java_backend/scripts/alpha-up.ps1`，不可用於公開發布、ARM 真機或外部網路環境。雙 AVD 已驗證邀請、聯絡人同步、encrypted mailbox fallback、DELIVERED/READ ACK、sender 已讀顯示、前景 Presence／背景停止 heartbeat，以及不含敏感資料的 notification outbox。
 
 可用同一個 PowerShell runner 驗證兩台 Emulator 或兩台以 USB 連接的 Android 裝置：

@@ -38,7 +38,8 @@ Android application ID、iOS Bundle ID、Firebase project 與加密 domain strin
 - [ ] V2-02 內建貼圖／貼圖包：🚧 只傳 ID、嚴格 manifest、hash／格式／容量／授權、zip-slip 防護、內建資產與雙語 Widget tests，以及單機 Android AVD UI Gate 已完成；離線雙端與真機資源驗收待完成
   - [x] 完整 sodium Android debug APK 建置成功；APK 內含三個 ABI 的 `libsodium.so`、貼圖 manifest 與 PNG。大小 `243287062` bytes，SHA-256 `20BA98AAFE855DF6E988439E9C60085E3AE2C0E37230FF0B701F4F97173A0C76`
   - [x] Android AVD UI Gate（2026-08-13）：新增 `integration_test/android_sticker_runtime_test.dart` 與 `tool/verify_android_stickers.ps1`；在 API 35 `emulator-5930` 以正式 `bootstrap`／`P2pChatApp` 建立聊天室、開啟貼圖選擇器、選取 `flutter`、渲染內建 PNG，並回讀 SQLite 確認訊息僅保存 `packId`／`stickerId`。此為單一 AVD 的本機 UI／資產／SQLite 證據，未設定 backend，不能替代離線雙端同步、Mailbox／P2P 傳輸或真機資源驗收。
-  - [ ] 外部 Gate：兩個獨立裝置的離線貼圖同步／重送、真機資源占用與大量貼圖包操作驗收
+  - [x] 雙 Android AVD Mailbox restart Gate（2026-08-13）：`verify_android_mailbox_recovery.ps1 -MessageKind sticker` 在 `emulator-5930`／`emulator-5932` 以隔離 H2 backend 傳遞真實 sodium 加密的貼圖 ID-only envelope；receiver 寫入 SQLite 後模擬 DELIVERED ACK 遺失、`am force-stop`、重啟、冪等重拉與 READ 回傳，sender 與 receiver 均驗證 `sticker`、`packId`、`stickerId`。
+  - [ ] 外部 Gate：完整 `MessageTransportCoordinator` 的 P2P→Mailbox fallback 編排、兩台 Android 真機的離線貼圖同步／重送、真機資源占用與大量貼圖包操作驗收
 - [x] V2-05 Storage Manager 主機核心：SQLite v10 快取索引、資料庫／快取／附件分類、preview-first 清理與關鍵資料保護；目前只清可重建快取，不刪聊天、身份、金鑰或未送 mailbox
 - [ ] V2-05 外部 Gate：真機磁碟壓力、OS 清理、大量資料效能與真實附件驗收
 - [x] V2-06 Smart Notification 主機核心：SQLite v11 per-chat 靜音／預覽偏好、App Lock 雙重隱私判定、provider-neutral 通知決策與聊天室設定 UI

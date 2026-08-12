@@ -336,6 +336,23 @@ cd mobile_desktop_app
 
 此 runner 會上傳真實 sodium 密文，在接收端完成 SQLite message/replay/receipt 寫入後模擬 DELIVERED ACK 遺失，使用 `am force-stop` abrupt kill App，再重啟同一 DB 驗證重投冪等、DELIVERED/READ 與 sender 本機 READ 狀態。2026-07-14 已在兩台 Android 15 AVD 完整通過；AVD 不取代真機實際斷網、OS kill、USB `adb reverse` 與耗電/記憶體驗收。
 
+預設仍傳送文字訊息；加上 `-MessageKind sticker` 可驗證 V2 內建貼圖的 ID-only
+Mailbox recovery：
+
+```powershell
+.\tool\verify_android_mailbox_recovery.ps1 `
+  -SenderDevice emulator-5930 `
+  -ReceiverDevice emulator-5932 `
+  -MessageKind sticker
+```
+
+此模式把 `E2E_MAILBOX_MESSAGE_KIND=sticker` 傳入兩個 Android app process。sender 與
+receiver 皆嚴格確認 `MessageType.sticker`、`packId=simple_communication`、
+`stickerId=flutter`，並沿用真實 sodium、隔離 H2 backend、ACK 遺失、force-stop、SQLite
+replay/receipt 與 READ status 流程。2026-08-13 已在 API 35 `emulator-5930`／`emulator-5932`
+通過。它直接驗證 Mailbox upload/sync service，不會取代聊天室 UI 的另一個 AVD Gate、完整
+`MessageTransportCoordinator` P2P→Mailbox fallback 編排，或兩台 Android 真機驗收。
+
 Android V1 資源基線（PowerShell）：
 
 ```powershell

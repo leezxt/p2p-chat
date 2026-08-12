@@ -37,6 +37,10 @@ const _backendUrl = String.fromEnvironment(
   'E2E_BACKEND_URL',
   defaultValue: 'http://10.0.2.2:8081',
 );
+const _messageKind = String.fromEnvironment(
+  'E2E_MAILBOX_MESSAGE_KIND',
+  defaultValue: 'text',
+);
 const _userA = '11111111-1111-4111-8111-111111111111';
 const _deviceA = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const _userB = '22222222-2222-4222-8222-222222222222';
@@ -58,6 +62,8 @@ void main() {
         'receiver_restart',
       ),
     );
+    // 新訊息類型要明確選擇；不能在 Android runtime 將未知值靜默降級為文字。
+    expect(_messageKind, anyOf('text', 'sticker'));
 
     const isSender = _phase == 'register_sender' || _phase == 'sender_upload';
     final crypto = await _createCrypto(isSender: isSender);
@@ -130,6 +136,8 @@ Future<void> _senderUpload(_CryptoContext crypto, String token) async {
       limit: 10,
     );
     expect(stored, hasLength(1));
+    expect(stored.single.type, _message.type);
+    expect(stored.single.payload, _message.payload);
     expect(stored.single.status, MessageStatus.stored);
     debugPrint('E2E_MAILBOX_UPLOAD_READY');
 
@@ -200,7 +208,9 @@ Future<void> _receiverRestart(_CryptoContext crypto, String token) async {
       limit: 10,
     );
     expect(messages, hasLength(1));
-    expect(messages.single.text, 'survives Android process restart');
+    // 驗證的是重啟前 SQLite 寫入的完整 schema，不把貼圖 ID 誤當文字 payload。
+    expect(messages.single.type, _message.type);
+    expect(messages.single.payload, _message.payload);
   } finally {
     await database.close();
   }
@@ -291,15 +301,30 @@ String _keyId(Uint8List publicKey) => base64UrlEncode(
       sha256.convert(publicKey).bytes,
     ).replaceAll('=', '').substring(0, 22);
 
-const _message = MessageEnvelope(
-  messageId: 'android-mailbox-restart-message',
-  conversationId: 'android-mailbox-conversation',
-  senderUserId: _userA,
-  senderDeviceId: _deviceA,
-  type: MessageType.text,
-  payload: {'text': 'survives Android process restart'},
-  createdAt: 1,
-);
+MessageEnvelope get _message => switch (_messageKind) {
+      'text' => const MessageEnvelope(
+          messageId: 'android-mailbox-restart-message',
+          conversationId: 'android-mailbox-conversation',
+          senderUserId: _userA,
+          senderDeviceId: _deviceA,
+          type: MessageType.text,
+          payload: {'text': 'survives Android process restart'},
+          createdAt: 1,
+        ),
+      'sticker' => const MessageEnvelope(
+          messageId: 'android-mailbox-restart-sticker',
+          conversationId: 'android-mailbox-conversation',
+          senderUserId: _userA,
+          senderDeviceId: _deviceA,
+          type: MessageType.sticker,
+          payload: {
+            'packId': 'simple_communication',
+            'stickerId': 'flutter',
+          },
+          createdAt: 1,
+        ),
+      _ => throw StateError('Unsupported mailbox message kind: $_messageKind'),
+    };
 
 class _CryptoContext {
   _CryptoContext(this.sodium, this.localKey, this.resolver, this.localDeviceId);

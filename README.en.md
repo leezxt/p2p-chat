@@ -154,7 +154,11 @@ Each stage is expected to remain buildable, testable, and reversible.
   selects the bundled `flutter` sticker from the chat picker, renders its PNG,
   and stores an ID-only SQLite envelope. This is local UI, asset, and database
   evidence only; it is not two-device P2P/Mailbox sync, offline retry, or
-  physical-device resource validation.
+  physical-device resource validation. A separate two-AVD gate sends the
+  real-sodium-encrypted sticker envelope through an isolated H2 Mailbox and
+  passes ACK-loss, force-stop, and restart recovery. It directly covers the
+  Mailbox service, not complete P2P fallback orchestration or physical-device
+  resource validation.
 - Desktop Link host safety core: SQLite v13 authorization state, SQLite v14
   one-time pairing-request state, SQLite v15 public-key/fingerprint binding,
   short-lived RAM challenge state, two-way `crypto_box` private-key-possession
