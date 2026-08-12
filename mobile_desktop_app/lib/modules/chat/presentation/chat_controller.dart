@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../../../shared/models/message_envelope.dart';
@@ -5,6 +7,11 @@ import '../../../shared/models/message_type.dart';
 import '../../../shared/utils/id_generator.dart';
 import '../data/chat_repository.dart';
 import '../../mailbox/domain/message_transport_coordinator.dart';
+import '../../reaction/data/reaction_repository.dart';
+import '../../reaction/domain/reaction_event.dart';
+import '../../sticker/data/built_in_sticker_catalog.dart';
+import '../../sticker/domain/sticker_message.dart';
+import '../../sticker/domain/sticker_pack_manifest.dart';
 
 /// 單一聊天室的 UI 狀態控制器。
 ///
@@ -21,8 +28,16 @@ class ChatController extends ChangeNotifier {
     this.targetDeviceId,
     this.transport,
     this.markRead,
+    this.reactionRepository,
+    this.stickerCatalog,
   })  : _repository = repository,
-        _ids = ids;
+        _ids = ids {
+    _reactionSubscription = reactionRepository?.changes.listen((messageId) {
+      if (_messages.any((message) => message.messageId == messageId)) {
+        unawaited(_refreshReaction(messageId));
+      }
+    });
+  }
 
   final String conversationId;
   final ChatRepository _repository;
@@ -33,8 +48,12 @@ class ChatController extends ChangeNotifier {
   final String? targetDeviceId;
   final MessageTransportCoordinator? transport;
   final Future<void> Function(String messageId)? markRead;
+  final ReactionRepository? reactionRepository;
+  final BuiltInStickerCatalog? stickerCatalog;
 
   final List<MessageEnvelope> _messages = [];
+  final Map<String, List<ReactionEvent>> _reactions = {};
+  StreamSubscription<String>? _reactionSubscription;
   List<MessageEnvelope> get messages => List.unmodifiable(_messages);
 
   bool _loading = false;
@@ -54,6 +73,7 @@ class ChatController extends ChangeNotifier {
     _messages
       ..clear()
       ..addAll(page);
+    await _loadReactions(page);
     final acknowledgeRead = markRead;
     if (acknowledgeRead != null) {
       for (final message in page.where((message) => !isMine(message))) {
@@ -77,6 +97,7 @@ class ChatController extends ChangeNotifier {
       beforeCreatedAt: oldest,
     );
     _messages.insertAll(0, page);
+    await _loadReactions(page);
     _hasMore = page.length == pageSize;
     _loading = false;
     notifyListeners();
@@ -105,5 +126,103 @@ class ChatController extends ChangeNotifier {
     notifyListeners();
   }
 
+  List<StickerPackManifest> get stickerPacks =>
+      stickerCatalog?.packs ?? const [];
+
+  StickerAsset? stickerAsset(MessageEnvelope message) {
+    final catalog = stickerCatalog;
+    if (catalog == null || message.type != MessageType.sticker) return null;
+    try {
+      final sticker = StickerMessage.fromEnvelope(message);
+      return catalog.resolve(sticker.packId, sticker.stickerId);
+    } on FormatException {
+      return null;
+    }
+  }
+
+  Future<void> sendSticker(String packId, String stickerId) async {
+    if (stickerCatalog?.resolve(packId, stickerId) == null) return;
+    final message =
+        StickerMessage(packId: packId, stickerId: stickerId).toEnvelope(
+      messageId: _ids.message(),
+      conversationId: conversationId,
+      senderUserId: currentUserId,
+      senderDeviceId: currentDeviceId,
+      createdAt: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+    );
+    await _repository.saveOutgoingMessage(message);
+    final target = targetDeviceId;
+    final coordinator = transport;
+    if (target != null && coordinator != null) {
+      await coordinator.send(target, message);
+    }
+    _messages.add(message);
+    notifyListeners();
+  }
+
+  List<ReactionEvent> reactionsFor(String messageId) =>
+      List.unmodifiable(_reactions[messageId] ?? const []);
+
+  Future<void> toggleReaction(MessageEnvelope target, String emoji) async {
+    final repository = reactionRepository;
+    if (repository == null ||
+        !ReactionEvent.supportedEmoji.contains(emoji) ||
+        !_messages.any((message) => message.messageId == target.messageId)) {
+      return;
+    }
+    final current = reactionsFor(target.messageId);
+    final existing = current.where(
+      (reaction) =>
+          reaction.reactorUserId == currentUserId && reaction.emoji == emoji,
+    );
+    final active = existing.isEmpty;
+    final clock = DateTime.now().millisecondsSinceEpoch;
+    final previousAt = existing.isEmpty ? -1 : existing.first.updatedAt;
+    final now = clock > previousAt ? clock : previousAt + 1;
+    final event = ReactionEvent(
+      eventId: _ids.message(),
+      targetMessageId: target.messageId,
+      reactorUserId: currentUserId,
+      emoji: emoji,
+      active: active,
+      updatedAt: now,
+    );
+    final envelope = event.toEnvelope(
+      conversationId: conversationId,
+      senderDeviceId: currentDeviceId,
+    );
+    await repository.apply(event);
+    await _repository.saveOutgoingMessage(envelope);
+    final targetDevice = targetDeviceId;
+    final coordinator = transport;
+    if (targetDevice != null && coordinator != null) {
+      await coordinator.send(targetDevice, envelope);
+    }
+    await _loadReactions([target]);
+    notifyListeners();
+  }
+
+  Future<void> _loadReactions(Iterable<MessageEnvelope> messages) async {
+    final repository = reactionRepository;
+    if (repository == null) return;
+    for (final message in messages) {
+      _reactions[message.messageId] =
+          await repository.listActiveForMessage(message.messageId);
+    }
+  }
+
+  Future<void> _refreshReaction(String messageId) async {
+    final repository = reactionRepository;
+    if (repository == null) return;
+    _reactions[messageId] = await repository.listActiveForMessage(messageId);
+    notifyListeners();
+  }
+
   bool isMine(MessageEnvelope message) => message.senderUserId == currentUserId;
+
+  @override
+  void dispose() {
+    _reactionSubscription?.cancel();
+    super.dispose();
+  }
 }

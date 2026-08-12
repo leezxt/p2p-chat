@@ -80,8 +80,26 @@ readiness、security header 或 WSS upgrade 問題都回 `FAIL`/非零 exit code
 .\scripts\monitor-production.ps1 -EnvFile .\production.env
 ```
 
-將此命令接至既有監控排程與告警通道。輸出的 endpoint 與 check 狀態不含 DB/JWT/push
-secret；WebSocket probe 只驗證 `101` transport upgrade，不送 `AUTH` frame。
+交給 systemd timer、Task Scheduler 或其他 one-shot 排程時，使用具互斥鎖、狀態持久化
+與 webhook transition 告警的 runner：
+
+```powershell
+.\scripts\run-production-monitor.ps1 `
+  -EnvFile .\production.env `
+  -StateFile C:\ProgramData\p2p-chat\production-monitor-state.json
+```
+
+在 `production.env` 設定 `PRODUCTION_ALERT_WEBHOOK_URL`，可選擇設定
+`PRODUCTION_ALERT_BEARER_TOKEN`；正式模式只接受 HTTPS，token 只放在 Authorization header，
+不寫入 state、payload 或輸出。第一次健康檢查只建立 baseline；首次失敗／健康轉失敗送
+`PRODUCTION_HEALTH_FAILED`，失敗轉健康送 `PRODUCTION_HEALTH_RECOVERED`，相同狀態不重複
+告警。Webhook 未送達時不前進 state，下一次排程會重試；runner exit code 仍反映 monitor
+健康狀態。排程週期建議 1～5 分鐘，且使用固定 service account、限制 env/state ACL；同一
+state file 的重疊執行會直接失敗。
+
+輸出的 endpoint 與 check 狀態不含 DB/JWT/push secret；告警 payload 不包含 monitor error、
+webhook URL 或 token。WebSocket probe 只驗證 `101` transport upgrade，不送 `AUTH` frame。
+`-AllowLocalVerification` 只允許 loopback HTTP/HTTPS webhook，不得用於正式排程。
 
 ### PostgreSQL 備份與還原
 
@@ -95,11 +113,28 @@ secret；WebSocket probe 只驗證 `101` transport upgrade，不送 `AUTH` frame
 備份預設位於被 Git 忽略的 `target/production-backups/`。Dump 含應用資料，即使訊息
 內容主要是密文，仍必須移至限制存取的加密儲存並設定 retention。
 
-Local staging retention 預設只規劃、不刪除。每份 dump 必須先由 off-host upload/verify
+將加密 off-host storage 掛載為獨立既有目錄後，使用 export 工具複製 dump／manifest、
+重新讀取 SHA-256，並在全部驗證通過後建立 receipt：
+
+```powershell
+.\scripts\export-production-backup.ps1 `
+  -BackupPath .\target\production-backups\<backup>.dump `
+  -DestinationDirectory E:\mounted-backup-vault\p2p-chat `
+  -StorageReferencePrefix s3://backup-vault/p2p-chat
+```
+
+目的地不能位於 local staging 內，且必須預先存在；同名內容可安全重跑，不同內容會
+fail-closed。`StorageReferencePrefix` 不得包含 credentials、query 或 fragment。工具只能
+驗證掛載目錄的寫入與重新讀取，不能自行證明該目錄確實位於另一台主機、已啟用 server-side
+encryption 或符合保留政策，這些仍由部署者與 storage provider 驗收。
+
+Local staging retention 預設只規劃、不刪除。每份 dump 必須先由上述 off-host export/verify
 流程在 `target/production-backup-receipts/` 建立同名
-`<dump>.offhost-receipt.json`，包含 schema 1、dump SHA-256、UTC `verifiedAt` 與非空的
-`storageReference`。Receipt 是外部儲存已核對 hash 的證明；不可只因本機複製命令 exit 0
-就建立。先執行 dry-run：
+`<dump>.offhost-receipt.json`。Prune 仍接受包含 dump SHA-256、UTC `verifiedAt` 與
+`storageReference` 的既有 schema 1 receipt；新 export 工具產生 schema 2，額外綁定
+manifest SHA-256 與 dump size。Receipt 只有在目的地 dump 與 manifest 重新計算 hash 後
+才會原子建立。
+先執行 dry-run：
 
 ```powershell
 .\scripts\prune-production-backups.ps1 `
@@ -119,7 +154,7 @@ Local staging retention 預設只規劃、不刪除。每份 dump 必須先由 o
 ```
 
 無 receipt、hash/size/schema 錯誤、orphan 或 reparse point 一律保留並列為 protected。
-本工具只管理本機 staging，不上傳或刪除 off-host object，也不代表排程已部署。
+Prune 工具只管理本機 staging，不刪除 off-host object，也不代表排程已部署。
 
 還原演練預設只建立明確指定的新資料庫：
 

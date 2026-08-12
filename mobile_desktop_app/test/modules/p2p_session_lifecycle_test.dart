@@ -126,6 +126,54 @@ void main() {
     expect(harness.signaling.connected, isTrue);
     await manager.dispose();
   });
+
+  test('session limit rejects extra outbound connections', () async {
+    final harness = _Harness();
+    final manager = harness.manager(maxConcurrentSessions: 1);
+    await manager.connect('device-b');
+
+    await expectLater(manager.connect('device-c'), throwsStateError);
+    expect(manager.activeSessionCount, 1);
+    expect(harness.peers, hasLength(1));
+    await manager.dispose();
+  });
+
+  test('connected session is released after idle timeout', () async {
+    final harness = _Harness();
+    final manager = harness.manager(
+      idleDisconnectAfter: const Duration(milliseconds: 15),
+    );
+    final sessionId = await manager.connect('device-b');
+    harness.signaling.emit({
+      'type': 'ANSWER',
+      'sessionId': sessionId,
+      'senderDeviceId': 'device-b',
+      'payload': {'sdp': 'answer', 'type': 'answer'},
+    });
+    await Future<void>.delayed(const Duration(milliseconds: 35));
+
+    expect(manager.statusFor(sessionId), P2pSessionStatus.closed);
+    expect(manager.activeSessionCount, 0);
+    expect(harness.peers.single.closed, isTrue);
+    await manager.dispose();
+  });
+
+  test('policy update closes sessions above the new limit', () async {
+    final harness = _Harness();
+    final manager = harness.manager();
+    await manager.connect('device-b');
+    await manager.connect('device-c');
+
+    await manager.updateResourcePolicy(
+      maxSessions: 1,
+      idleAfter: const Duration(minutes: 1),
+    );
+
+    expect(manager.maxConcurrentSessions, 1);
+    expect(manager.activeSessionCount, 1);
+    expect(harness.peers.where((peer) => peer.closed), hasLength(1));
+    await manager.dispose();
+  });
 }
 
 const _message = MessageEnvelope(
@@ -145,6 +193,8 @@ class _Harness {
   P2pSessionManager manager({
     Duration connectionTimeout = const Duration(seconds: 1),
     int maxOfferAttempts = 3,
+    int maxConcurrentSessions = 3,
+    Duration idleDisconnectAfter = const Duration(minutes: 2),
   }) {
     return P2pSessionManager(
       signaling: signaling,
@@ -159,6 +209,8 @@ class _Harness {
       messageCipher: _TestCipher('device-a'),
       connectionTimeout: connectionTimeout,
       maxOfferAttempts: maxOfferAttempts,
+      maxConcurrentSessions: maxConcurrentSessions,
+      idleDisconnectAfter: idleDisconnectAfter,
     )..start();
   }
 }

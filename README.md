@@ -13,6 +13,7 @@
   <img alt="Java" src="https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white">
   <img alt="Spring Boot" src="https://img.shields.io/badge/Spring_Boot-3-6DB33F?logo=springboot&logoColor=white">
   <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white">
+  <a href="https://github.com/leezxt/p2p-chat/actions/workflows/v1-ci.yml"><img alt="V1 CI" src="https://github.com/leezxt/p2p-chat/actions/workflows/v1-ci.yml/badge.svg?branch=main"></a>
   <img alt="Status" src="https://img.shields.io/badge/status-internal_Android_test-8764FF">
 </p>
 
@@ -51,14 +52,46 @@ Simple Communication 不是要複製 LINE、WhatsApp 或 Discord，而是以四�
 ### 低成本社群通訊
 
 - 即時訊息優先採 P2P 傳輸，降低中央伺服器流量。
-- Presence 採低頻更新，離線 Mailbox 僅在直連失敗時使用。
+- Presence 採低頻更新；Mailbox 在前景啟動／返回時立即同步，之後一般模式每 60 秒、Low Power 每 5 分鐘同步一次，進背景即停止（背景以 Push 與手動同步保底）。
 - 適合沒有大型平台基礎設施預算的小型團體與社群。
+- Storage Manager 提供本機資料庫／快取／附件分類與預覽式快取清理；身份、金鑰、聊天與未送訊息不會被清除。
+- Smart Notification 讓每個聊天室可獨立靜音；通知預覽需由聊天室與 App Lock 隱私設定雙重允許，預設只顯示通用文字。
+- 單則翻譯採 opt-in 與本機快取；原文永遠不被改寫，尚未設定 provider 時不會傳送任何聊天內容。
+- 圖片／語音附件已定義版本化加密 metadata、大小與 MIME 限制、按需下載／取消／重試策略；真實相機、麥克風與檔案傳輸尚未啟用。
 
 ### 跨裝置個人通訊
 
 - Flutter App 以手機為主要端點，Desktop 作為按需延伸。
 - 模組具有 `init / activate / sleep / dispose` 生命週期，避免高耗能能力常駐。
-- 後續規劃包含 Desktop Link、裝置撤銷與新訊息同步。
+- Desktop Link 主機安全核心已保存手機端明確授權、裝置 fingerprint 與同步切點；
+  只會選出授權後的新訊息，撤銷後立即拒絕新的同步選取。
+- 手機端可檢閱短效、一次性的版本化 QR 配對請求；請求必須指向本機主裝置，且只有使用者
+  明確同意且完成雙向 authenticated X25519 `crypto_box` challenge-response 後才會建立授權。
+  challenge 的一次性 token 只存在手機 RAM；SQLite v14 保存一次性處理狀態，SQLite v15 再把
+  QR 的公開金鑰與 fingerprint 綁定，兩者都不保存 QR 原文或 token。
+- Desktop target 的同一入口會呈現 Desktop Companion：手動輸入手機 device ID 後顯示短效 QR，
+  貼入手機 challenge 後輸出 encrypted response；流程沒有網路、背景工作或 token persistence。
+- QR 內容仍是**不可信輸入**：私鑰持有 proof、手機端授權閘門與 Desktop Companion host UI 已實作。
+  [GitHub-hosted Windows CI run 31319510492](https://github.com/leezxt/p2p-chat/actions/runs/31319510492)
+  已以真實 `SodiumMessageBox` 驗證 QR rendering、手動 challenge-response 與受控 clipboard copy；
+  `desktop_link_module_route_runtime_test.dart` 以 SQLite FFI、原生 sodium key material、
+  `ModuleRegistry`、`RouteRegistry` 與 `Navigator` test shell 驗證 `/desktop-link` 會選擇 Desktop
+  Companion。新增的 `desktop_link_app_entry_runtime_test.dart` 會以無後端設定執行正式 `bootstrap`、
+  掛載 `P2pChatApp`，從正式聊天室首頁的「應用工具」選單點選 Desktop Link，確認最終顯示
+  Companion 而非手機 pairing 頁。這是單一 Windows native test process 的 App 路由鏈證據；主裝置角色
+  仍在同一 runner，未驗收自動交付、Desktop transport、per-device 加密傳輸、真實手機相機或既有副端
+  金鑰清除。因此不宣稱已完成跨裝置訊息同步或完整桌面 App 身份驗收。
+
+## App 畫面
+
+以下畫面來自 Android API 35 模擬器上的完整 debug APK，包含真實 sodium native
+asset；這是模擬器執行證據，不取代兩台 Android 真機驗收。
+
+| 深色首頁 | Low Power Mode | App Lock |
+|---|---|---|
+| <img src="docs/images/app-dark-home.png" alt="Simple Communication 深色首頁" width="240"> | <img src="docs/images/app-low-power-mode.png" alt="Low Power Mode 設定" width="240"> | <img src="docs/images/app-lock-settings.png" alt="App Lock 設定" width="240"> |
+
+[▶ 查看 34 秒 Android 操作 Demo](docs/media/simple-communication-android-demo.mp4)
 
 ## 系統架構
 
@@ -98,6 +131,7 @@ flowchart LR
 | 2026-07-15～16 | 安全與低功耗 | 加密儲存、Presence、Push Outbox |
 | 2026-07-17～18 | V1.5 能力 | Low Power Mode、App Lock、Safety Number |
 | 2026-07-19 | 發布工程 | Backup／Restore、Monitor／Alert、RC 文件 |
+| 2026-08-09 | V3 安全基礎 | Desktop Link 授權、只同步新訊息、撤銷閘門、一次性 QR 檢閱、公開金鑰 binding、私鑰持有 challenge-response 閘門、Desktop Companion host UI 與 GitHub-hosted Windows native runtime Gate |
 
 每個階段均以「可編譯、可測試、可回退」為完成原則，並同步更新測試與交接文件。
 
@@ -108,6 +142,20 @@ flowchart LR
 - Android 雙 AVD 的 authenticated encrypted P2P 與 Mailbox ACK 閉環。
 - Java 52 項測試、Flutter 自動化測試與 PostgreSQL smoke。
 - Low Power Mode、App Lock 與 Safety Number 核心功能。
+- V2 內建貼圖的單機 Android AVD Gate：正式 `P2pChatApp` 可由聊天室 picker 選取內建
+  `flutter` 貼圖、渲染 PNG，並保存 ID-only SQLite envelope。這是本機 UI／資產／資料庫證據，
+  不代表兩裝置 P2P／Mailbox 同步、離線重送或真機資源驗收。另有兩台 Android AVD 以真實
+  sodium 加密、隔離 H2 Mailbox 完成貼圖 ACK-loss／force-stop／restart recovery；它直接驗證
+  Mailbox service，仍不代表完整 P2P fallback 編排或真機資源驗收。
+- Desktop Link 主機安全核心：SQLite v13 授權狀態、SQLite v14 一次性配對請求狀態、
+  SQLite v15 公開金鑰／fingerprint binding、短效 RAM challenge、雙向 `crypto_box`
+  私鑰持有 proof、明確手機授權、嚴格新訊息切點與撤銷 fail-closed 規則；沒有有效 proof
+  時 QR 不會取得授權。Desktop Companion 可顯示 QR 並手動回覆 challenge；38 項 host tests
+  使用 test-only fake，但 [Windows CI run 31319510492](https://github.com/leezxt/p2p-chat/actions/runs/31319510492)
+  另外以 real sodium、QR rendering、主端角色 proof、受控 clipboard copy、模組 DI／route
+  registry／Navigator 到 Companion，以及正式 `bootstrap` → `P2pChatApp` → 聊天首頁工具選單的
+  Windows native App-entry 路由流程驗證此限定範圍。這不是實體手機／桌面跨裝置同步、已安裝桌面
+  App 的人工使用者驗收或完整 Desktop Link 授權／同步驗收。
 - Production Backup／Restore、Monitor／Alert 與 off-host export fixtures。
 - GitHub Actions 的 Java、Flutter、PostgreSQL 與 Windows Desktop 工作。
 
@@ -118,6 +166,9 @@ flowchart LR
 - 真實 FCM／APNs、Android 系統通知與 iPhone runtime。
 - 正式 Android application ID、keystore、iOS Bundle ID 與 distribution signing。
 - 公開 HTTPS/WSS、registry digest、正式排程、外部告警與 off-host restore drill。
+- 本機 Windows C++ toolchain 與 macOS／Linux 原生 runtime、已安裝 Windows 桌面 App 的人工使用者
+  驗收、目標主裝置發現與自動交付、真實相機掃碼驗收、桌面端 transport、
+  每副端重新加密、跨裝置歷史／新訊息同步，以及撤銷後的副端金鑰銷毀驗證。
 
 目前定位仍是**內部 Android 測試版**；上述 Gate 完成前不對外宣稱正式 V1 RC。
 
@@ -148,6 +199,9 @@ p2p-chat/
 | 8+ | Push / Presence / V1.5 安全 / 低功耗 / 貼圖 / 多媒體 / 多裝置 / 通話 … | 🚧 低頻 Presence、FCM HTTP v1 worker 完成；V1.5 Low Power 的 SQLite 偏好、即時策略、Presence 降頻、P2P 連線／閒置限制、自動下載與設定 UI 已完成，Safety Number 核心/scanner adapter 與 App Lock PIN／Argon2id／生物辨識／通知隱私策略／背景自動鎖定亦完成；真實耗電、FCM、相機掃碼、生物辨識與雙實機待驗 |
 
 完整路線圖見 [`docs/architecture.md`](docs/architecture.md)。
+
+Desktop Link 主機安全核心與尚未實作的 protocol／runtime 邊界見
+[`docs/desktop_link.md`](docs/desktop_link.md)。
 
 Offline Mailbox v1 契約見 [`docs/mailbox_api.md`](docs/mailbox_api.md)。
 
@@ -213,4 +267,3 @@ cd java_backend
 8. 每個 Sprint 保持可編譯、可測試、可回退。
 
 詳見 [`AGENTS.md`](AGENTS.md)。
-

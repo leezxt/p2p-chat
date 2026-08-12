@@ -15,6 +15,20 @@ import 'conversation_list_controller.dart';
 import '../../mailbox/domain/message_transport_coordinator.dart';
 import '../../contacts/domain/contact_service.dart';
 import '../../presence/domain/presence_service.dart';
+import '../../safety_number/domain/safety_number_service.dart';
+import '../../app_lock/domain/app_lock_service.dart';
+import '../../app_lock/presentation/app_lock_settings_page.dart';
+import '../../low_power/domain/low_power_mode_service.dart';
+import '../../low_power/presentation/low_power_settings_page.dart';
+import '../../reaction/data/reaction_repository.dart';
+import '../../sticker/data/built_in_sticker_catalog.dart';
+import '../../storage/domain/storage_manager_service.dart';
+import '../../storage/presentation/storage_manager_page.dart';
+import '../../smart_notification/domain/smart_notification_service.dart';
+import '../../translation/domain/translation_service.dart';
+import '../../desktop_link/desktop_link_module.dart';
+
+enum _ConversationUtilityAction { desktopLink, appLock, lowPower, storage }
 
 /// 聊天室列表畫面（App 首頁）。可建立本機測試聊天室並進入聊天。
 class ConversationListPage extends StatefulWidget {
@@ -30,7 +44,15 @@ class ConversationListPage extends StatefulWidget {
     this.syncMailbox,
     this.contactService,
     this.presenceService,
+    this.safetyNumberService,
+    this.appLockService,
+    this.lowPowerModeService,
     this.localeController,
+    this.reactionRepository,
+    this.stickerCatalog,
+    this.storageManagerService,
+    this.smartNotificationService,
+    this.translationService,
   });
 
   final ChatRepository repository;
@@ -43,7 +65,15 @@ class ConversationListPage extends StatefulWidget {
   final Future<void> Function()? syncMailbox;
   final ContactService? contactService;
   final PresenceService? presenceService;
+  final SafetyNumberService? safetyNumberService;
+  final AppLockService? appLockService;
+  final LowPowerModeService? lowPowerModeService;
   final LocaleController? localeController;
+  final ReactionRepository? reactionRepository;
+  final BuiltInStickerCatalog? stickerCatalog;
+  final StorageManagerService? storageManagerService;
+  final SmartNotificationService? smartNotificationService;
+  final TranslationService? translationService;
 
   @override
   State<ConversationListPage> createState() => _ConversationListPageState();
@@ -181,11 +211,56 @@ class _ConversationListPageState extends State<ConversationListPage> {
       targetDeviceId: targetDeviceId,
       transport: widget.transport,
       markRead: widget.markRead,
+      reactionRepository: widget.reactionRepository,
+      stickerCatalog: widget.stickerCatalog,
     );
     await Navigator.of(context).push(MaterialPageRoute<void>(
-      builder: (_) => ChatPage(controller: chatController, title: conv.title),
+      builder: (_) => ChatPage(
+        controller: chatController,
+        title: conv.title,
+        safetyNumberService:
+            peerUserId == null ? null : widget.safetyNumberService,
+        peerUserId: peerUserId,
+        smartNotificationService: widget.smartNotificationService,
+        translationService: widget.translationService,
+      ),
     ));
     await _controller.load();
+  }
+
+  Future<void> _openUtility(_ConversationUtilityAction action) async {
+    switch (action) {
+      case _ConversationUtilityAction.desktopLink:
+        await Navigator.of(context).pushNamed(DesktopLinkModule.route);
+        return;
+      case _ConversationUtilityAction.appLock:
+        final service = widget.appLockService;
+        if (service == null) return;
+        await Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => AppLockSettingsPage(service: service),
+          ),
+        );
+        return;
+      case _ConversationUtilityAction.lowPower:
+        final service = widget.lowPowerModeService;
+        if (service == null) return;
+        await Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => LowPowerSettingsPage(service: service),
+          ),
+        );
+        return;
+      case _ConversationUtilityAction.storage:
+        final service = widget.storageManagerService;
+        if (service == null) return;
+        await Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => StorageManagerPage(service: service),
+          ),
+        );
+        return;
+    }
   }
 
   @override
@@ -215,6 +290,38 @@ class _ConversationListPageState extends State<ConversationListPage> {
             onPressed: widget.contactService == null ? null : _redeemInvite,
             tooltip: l10n.addContact,
             icon: const Icon(Icons.person_add_alt_1),
+          ),
+          PopupMenuButton<_ConversationUtilityAction>(
+            tooltip: l10n.appTools,
+            icon: const Icon(Icons.tune_outlined),
+            onSelected: (action) => unawaited(_openUtility(action)),
+            itemBuilder: (context) => [
+              _utilityItem(
+                _ConversationUtilityAction.desktopLink,
+                Icons.devices_other_outlined,
+                l10n.desktopLink,
+              ),
+              if (widget.appLockService != null)
+                _utilityItem(
+                  _ConversationUtilityAction.appLock,
+                  Icons.lock_outline,
+                  l10n.appLock,
+                ),
+              if (widget.lowPowerModeService case final service?)
+                _utilityItem(
+                  _ConversationUtilityAction.lowPower,
+                  service.enabled
+                      ? Icons.battery_saver
+                      : Icons.battery_saver_outlined,
+                  l10n.lowPowerMode,
+                ),
+              if (widget.storageManagerService != null)
+                _utilityItem(
+                  _ConversationUtilityAction.storage,
+                  Icons.storage_outlined,
+                  l10n.storageManager,
+                ),
+            ],
           ),
           if (widget.localeController case final controller?)
             PopupMenuButton<AppLanguage>(
@@ -297,6 +404,23 @@ class _ConversationListPageState extends State<ConversationListPage> {
       value: language,
       checked: controller.language == language,
       child: Text(label),
+    );
+  }
+
+  PopupMenuItem<_ConversationUtilityAction> _utilityItem(
+    _ConversationUtilityAction action,
+    IconData icon,
+    String label,
+  ) {
+    return PopupMenuItem<_ConversationUtilityAction>(
+      value: action,
+      child: Row(
+        children: [
+          Icon(icon),
+          const SizedBox(width: 12),
+          Text(label),
+        ],
+      ),
     );
   }
 

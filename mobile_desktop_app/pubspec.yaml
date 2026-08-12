@@ -24,6 +24,14 @@ dependencies:
   sodium: 4.0.3
   flutter_secure_storage: 10.3.1
   crypto: 3.0.7
+  qr_flutter: 4.1.0
+  mobile_scanner: 7.3.0 # Effective minimum: Dart 3.7 / Flutter 3.29.
+  local_auth: 3.0.2
+  # 3.x Android implementation uses AGP 9 built-in Kotlin (Flutter >=3.44).
+  local_auth_android: 2.0.9
+  local_auth_darwin: 2.0.3
+  local_auth_platform_interface: 1.1.0
+  flutter_plugin_android_lifecycle: 2.0.29
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -34,3 +42,5 @@ dev_dependencies:
 flutter:
   generate: true
   uses-material-design: true
+  assets:
+    - assets/stickers/simple_communication/

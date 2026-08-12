@@ -19,6 +19,14 @@ import '../mailbox/domain/mailbox_sync_service.dart';
 import '../mailbox/domain/mailbox_refresh_service.dart';
 import '../../core/di/service_locator.dart';
 import '../presence/domain/presence_service.dart';
+import '../safety_number/domain/safety_number_service.dart';
+import '../app_lock/domain/app_lock_service.dart';
+import '../low_power/domain/low_power_mode_service.dart';
+import '../reaction/data/reaction_repository.dart';
+import '../sticker/data/built_in_sticker_catalog.dart';
+import '../storage/domain/storage_manager_service.dart';
+import '../smart_notification/domain/smart_notification_service.dart';
+import '../translation/domain/translation_service.dart';
 
 /// 聊天模組（規格 §6 Foundation Module）。
 ///
@@ -96,7 +104,33 @@ class ChatModule implements AppModule {
               presenceService: _services.isRegistered<PresenceService>()
                   ? _services.get<PresenceService>()
                   : null,
+              safetyNumberService: _services.isRegistered<SafetyNumberService>()
+                  ? _services.get<SafetyNumberService>()
+                  : null,
+              appLockService: _services.isRegistered<AppLockService>()
+                  ? _services.get<AppLockService>()
+                  : null,
+              lowPowerModeService: _services.isRegistered<LowPowerModeService>()
+                  ? _services.get<LowPowerModeService>()
+                  : null,
               localeController: _services.get<LocaleController>(),
+              reactionRepository: _services.isRegistered<ReactionRepository>()
+                  ? _services.get<ReactionRepository>()
+                  : null,
+              stickerCatalog: _services.isRegistered<BuiltInStickerCatalog>()
+                  ? _services.get<BuiltInStickerCatalog>()
+                  : null,
+              storageManagerService:
+                  _services.isRegistered<StorageManagerService>()
+                      ? _services.get<StorageManagerService>()
+                      : null,
+              smartNotificationService:
+                  _services.isRegistered<SmartNotificationService>()
+                      ? _services.get<SmartNotificationService>()
+                      : null,
+              translationService: _services.isRegistered<TranslationService>()
+                  ? _services.get<TranslationService>()
+                  : null,
             ));
   }
 

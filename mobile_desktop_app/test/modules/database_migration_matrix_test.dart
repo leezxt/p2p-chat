@@ -74,6 +74,13 @@ void main() {
             'mailbox_pending_queue',
             'mailbox_receipts',
             'app_settings',
+            'safety_number_verifications',
+            'message_reactions',
+            'storage_cache_entries',
+            'notification_preferences',
+            'message_translations',
+            'desktop_link_authorizations',
+            'desktop_link_pairing_requests',
           ]),
         );
       } finally {
@@ -82,6 +89,52 @@ void main() {
       }
     });
   }
+
+  test('v14 未綁定公開金鑰的短效 pairing request 在 v15 會被安全作廢', () async {
+    final directory =
+        await Directory.systemTemp.createTemp('p2p_migration_v14_');
+    DatabaseService? upgraded;
+    try {
+      await _createFixture(directory.path, 14);
+      final path = '${directory.path}${Platform.pathSeparator}fixture.db';
+      final legacy = await databaseFactoryFfi.openDatabase(path);
+      try {
+        await legacy.insert('desktop_link_pairing_requests', const {
+          'request_id': 'request-0000000001',
+          'target_primary_device_id': 'primary-phone',
+          'device_id': 'desktop-windows',
+          'display_name': 'Windows',
+          'public_key_fingerprint': 'unbound-v14-fingerprint',
+          'issued_at': 100,
+          'expires_at': 400,
+          'state': 'pending',
+          'created_at': 100,
+          'updated_at': 100,
+        });
+      } finally {
+        await legacy.close();
+      }
+
+      upgraded = DatabaseService(
+        databaseFactory: databaseFactoryFfi,
+        logger: LoggingService(),
+        fileName: 'fixture.db',
+      );
+      await upgraded.open(directoryPath: directory.path);
+
+      expect(
+        await upgraded.db.query('desktop_link_pairing_requests'),
+        isEmpty,
+      );
+      final columns = await upgraded.db.rawQuery(
+        'PRAGMA table_info(desktop_link_pairing_requests)',
+      );
+      expect(columns.map((column) => column['name']), contains('public_key'));
+    } finally {
+      await upgraded?.close();
+      await directory.delete(recursive: true);
+    }
+  });
 }
 
 Future<void> _createFixture(String directory, int version) async {

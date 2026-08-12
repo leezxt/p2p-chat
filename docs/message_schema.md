@@ -33,8 +33,8 @@
 - **text**：`{ "text": "你好" }`
 - **sticker**：`{ "packId": "cute_cat", "stickerId": "happy" }`（只傳 ID，資源本機載入）
 - **reaction**：`{ "targetMessageId": "msg_001", "reaction": "❤️", "operation": "add" }`
-- **image**：`{ "fileId", "fileName", "size", "mimeType", "width", "height" }`
-- **voice_message**：`{ "fileId", "durationMs", "codec", "size" }`
+- **image**：Attachment v1 `{ "schemaVersion": 1, "attachmentId", "mimeType": "image/jpeg" | "image/png", "byteSize", "ciphertextSha256" }`；上限 10 MiB，只描述密文，不內嵌檔案 bytes。
+- **voice_message**：Attachment v1 `{ "schemaVersion": 1, "attachmentId", "mimeType": "audio/ogg" | "audio/m4a", "byteSize", "ciphertextSha256" }`；上限 25 MiB，必須手動下載。
 - **file**：`{ "fileId", "fileName", "size", "mimeType", "sha256" }`
 - **system**：`{ "event": "contact_added" }`
 - **call_event**：`{ "callType": "video", "event": "missed", "durationSeconds": 0 }`（不存影音，只存事件）

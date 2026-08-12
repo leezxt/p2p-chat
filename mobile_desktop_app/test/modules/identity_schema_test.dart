@@ -10,7 +10,8 @@ import 'package:p2p_chat_app/shared/utils/id_generator.dart';
 
 void main() {
   sqfliteFfiInit();
-  test('目前 schema 建立 identity、device、contact、crypto、mailbox 與設定資料表', () async {
+  test('目前 schema 建立 identity、device、contact、crypto、mailbox、安全碼與設定資料表',
+      () async {
     final directory =
         await Directory.systemTemp.createTemp('p2p_identity_schema_');
     final service = DatabaseService(
@@ -32,6 +33,13 @@ void main() {
             'mailbox_pending_queue',
             'mailbox_receipts',
             'app_settings',
+            'safety_number_verifications',
+            'message_reactions',
+            'storage_cache_entries',
+            'notification_preferences',
+            'message_translations',
+            'desktop_link_authorizations',
+            'desktop_link_pairing_requests',
           ]));
       expect(await service.db.getVersion(), kCurrentDbVersion);
       final repository = IdentityRepository(service.db);

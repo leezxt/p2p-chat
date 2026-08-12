@@ -81,6 +81,23 @@ void main() {
     expect(client.heartbeats, 1);
     service.dispose();
   });
+
+  test('active 時更新 interval 會立即重排 heartbeat timer', () async {
+    final client = _FakePresenceClient();
+    final service = PresenceService(
+      client: client,
+      localDeviceId: 'local-device',
+      interval: const Duration(seconds: 1),
+    );
+
+    await service.start();
+    service.updateInterval(const Duration(milliseconds: 10));
+    await Future<void>.delayed(const Duration(milliseconds: 35));
+
+    expect(service.interval, const Duration(milliseconds: 10));
+    expect(client.heartbeats, greaterThanOrEqualTo(3));
+    service.dispose();
+  });
 }
 
 class _FakePresenceClient implements PresenceClient {

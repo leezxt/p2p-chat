@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "packId": "simple_communication",
+  "names": {
+    "en": "Simple Communication",
+    "zh_TW": "Simple Communication"
+  },
+  "license": {
+    "spdx": "Apache-2.0",
+    "copyright": "2026 leezxt"
+  },
+  "stickers": [
+    {
+      "id": "flutter",
+      "path": "assets/stickers/simple_communication/logo.png",
+      "sha256": "3c34e1f298d0c9ea3455d46db6b7759c8211a49e9ec6e44b635fc5c87dfb4180",
+      "bytes": 1443,
+      "width": 192,
+      "height": 192
+    }
+  ]
+}

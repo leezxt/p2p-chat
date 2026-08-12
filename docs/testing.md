@@ -13,8 +13,8 @@ Android/iOS integration test 或真機 Gate。
 |---|---|---|---|
 | Java backend | `mvn test` | `scripts/smoke.ps1` | REST/WebSocket、JWT、ACL、mailbox、presence、push、PostgreSQL migration |
 | Flutter/Dart | `dart analyze`、相關 `flutter test <file>` | `flutter test` | Core lifecycle、SQLite、localization、crypto schema、P2P、mailbox、presence、push |
-| Windows Desktop | `flutter test --no-pub test/modules/device_key_service_test.dart` | `flutter build windows --debug --no-pub`；`flutter test --no-pub -d windows --dart-define=RUNTIME_PLATFORM=Windows integration_test/android_crypto_runtime_test.dart` | libsodium native runtime、Credential Manager、crypto failure paths、WebRTC DataChannel、Runner 與 plugins 編譯 |
-| Android native | 相關 Dart 單元測試 | `integration_test/android_crypto_runtime_test.dart`、雙 AVD E2E | libsodium、secure storage、WebRTC DataChannel、完整訊息流程 |
+| Windows Desktop | `flutter test --no-pub test/modules/device_key_service_test.dart` | `tool/verify_windows_desktop.ps1 -Build -Runtime`；CI 再加跑 Desktop Companion、module-route 與 App-entry runtime integrations | libsodium native runtime、Credential Manager、crypto failure paths、WebRTC DataChannel、Desktop Companion QR／challenge flow、ModuleRegistry／RouteRegistry／Navigator route selection、正式 bootstrap／P2pChatApp／聊天室工具選單 App-entry、Runner 與 plugins 編譯 |
+| Android native | 相關 Dart 單元測試 | crypto／App Lock／內建貼圖 runtime tests、雙 AVD E2E | libsodium、secure storage、Argon2id、App lifecycle、內建貼圖 picker／資產／SQLite ID-only message、WebRTC DataChannel、完整訊息流程 |
 | Android cloud device | `bash tool/build_firebase_test_lab.sh` | `Firebase Test Lab Android` 手動 workflow | instrumentation APK、遠端實體機 secure storage、libsodium、replay、WebRTC |
 | iOS native | `bash tool/verify_ios.sh` | 設定 `IOS_DEVICE_ID` 後執行同一腳本 | build、Keychain、libsodium、WebRTC |
 | Backend + App | `scripts/app-integration.ps1` | Android 雙裝置流程 | 真實 HTTP、JWT、邀請碼與裝置註冊 |
@@ -22,7 +22,7 @@ Android/iOS integration test 或真機 Gate。
 ## 必要工具
 
 - Java backend：Java 21、Maven 3.6.3 以上。
-- Flutter app：Flutter 3.27.0 以上、Dart 3.6.0 以上。
+- Flutter app：Flutter 3.44.0 以上、Dart 3.12.0 以上；CI 鎖定 Flutter 3.44.6／Dart 3.12.2。
 - PostgreSQL smoke test：Docker 與 Docker Compose。
 - Android native：Android SDK 36、Build Tools 36.0.0、NDK 28.2.13676358。
 - Windows Desktop：Visual Studio 2022 Desktop development with C++、CMake tools、Windows SDK。
@@ -96,6 +96,17 @@ Production topology 啟動後的 one-shot monitor：
 WSS 101 均通過；`FAIL`/非零 exit code 可直接供排程器或外部監控觸發告警。正式驗收
 必須從 deployment host 外部執行，且不得使用 `-AllowLocalVerification`。
 
+不需要 production endpoint 的 scheduled runner／webhook transition fixture：
+
+```powershell
+.\scripts\test-production-monitor-alerting.ps1
+```
+
+Fixture 使用 loopback receiver 驗證 failure／recovery POST、Bearer header、payload 去敏、
+相同狀態抑制、HTTP 500 後 state 不前進與下次重試、正式模式 HTTPS 限制，以及同一 state
+file 的重疊執行互斥。此測試會在 V1 CI Ubuntu runner 執行；正式 scheduler 與 alert
+receiver 仍需在 deployment environment 驗收。
+
 PostgreSQL backup/restore drill：
 
 ```powershell
@@ -115,11 +126,14 @@ Backup 需通過 `pg_restore --list`、SHA-256 與 manifest 敏感欄位檢查�
 不需要 Docker 的 backup retention safety fixtures：
 
 ```powershell
+.\scripts\test-backup-offhost-export.ps1
 .\scripts\test-backup-retention.ps1
 ```
 
-Fixtures 驗證 dry-run、精確 Apply confirmation、最少保留數、off-host receipt/hash、
-corrupt/orphan protection、刪除範圍與重跑冪等；同一測試也會在 V1 CI 執行。
+Off-host export fixture 驗證 dump／manifest 重新計算 hash、schema 2 原子 receipt、重跑冪等、
+retention 相容、匯出後 manifest binding、來源竄改、目的地衝突與 credential-like
+reference 拒絕。Retention fixture 驗證 dry-run、精確 Apply confirmation、最少保留數、
+receipt/hash、corrupt/orphan protection、刪除範圍與重跑冪等；兩項測試都會在 V1 CI 執行。
 
 只需要驗證 Flutter client 與 Spring backend 契約、且不使用 Docker 時：
 
@@ -148,6 +162,42 @@ flutter test test/modules/p2p_session_lifecycle_test.dart
 flutter test test/core/app_lifecycle_coordinator_test.dart
 ```
 
+Desktop Link／Device Sync／Revoke 的主機安全核心、手機端一次性 QR 請求檢閱、公開金鑰
+binding 與私鑰持有 challenge-response gate 可用下列命令驗證：
+
+```powershell
+$env:NIX_SKIP_SODIUM_BUILD_HOOKS='1'
+flutter test --concurrency=1 test/modules/desktop_link_service_test.dart `
+  test/modules/desktop_link_pairing_request_test.dart `
+  test/modules/desktop_link_pairing_request_issuer_test.dart `
+  test/modules/desktop_link_key_possession_test.dart `
+  test/modules/desktop_link_companion_service_test.dart `
+  test/modules/desktop_link_companion_page_test.dart `
+  test/modules/desktop_link_pairing_service_test.dart `
+  test/modules/desktop_link_pairing_page_test.dart `
+  test/modules/desktop_link_module_test.dart `
+  test/modules/database_migration_matrix_test.dart `
+  test/modules/identity_schema_test.dart
+dart analyze
+```
+
+這組目前共 38 項測試，驗證 v1→v15 SQLite 升級（含安全作廢沒有公開金鑰 binding 的
+v14 暫存 request）、手機明確授權、嚴格新訊息切點與撤銷 fail-closed，以及 QR payload
+的嚴格版本／欄位／效期驗證、32-byte X25519 公開金鑰與重算 fingerprint binding、canonical
+request issuer、一次性 request state，以及用短效 RAM token 建立的雙向 authenticated
+challenge-response。後者涵蓋正常 proof、竄改 response、錯誤桌面 key、重放、過期與變更
+公開金鑰後不能沿用 proof，也確認沒有有效 proof 時 `confirm` 會 fail-closed。
+
+V3-05 另驗證 desktop companion 以本機公開金鑰建立短效 request、只為本機 desktop key 回覆
+手機 challenge，並以 Widget test 檢查「輸入手機 device ID → QR 顯示 → 貼入 challenge → 輸出
+encrypted response」的手動交付流程。它不啟動 Windows runner 或任何網路 transport。
+
+`NIX_SKIP_SODIUM_BUILD_HOOKS=1` 會略過這台 Windows 主機缺少 C++ native toolchain 的 sodium
+build hook；私鑰持有 protocol 測試因此注入 test-only `MessageBox` fake，僅驗證協定狀態與
+binding，不是原生 libsodium／secure storage 的 runtime 驗收。這組也不包含真實相機掃碼、
+原生 desktop runner 的 QR／clipboard runtime、目標主裝置自動交付、真實傳輸、per-device 加密，
+或已撤銷副端的 runtime 金鑰銷毀驗收。
+
 Localization 變更需重新產生程式碼，並驗證語言解析、SQLite 偏好保存與兩種語言 UI：
 
 ```bash
@@ -161,6 +211,30 @@ Windows 若未安裝 Visual Studio Desktop development with C++，完整 `flutte
 無法建立 sodium native asset 而停在 `device_key_service_test.dart`。可先執行其他 host
 tests，但必須保留該 native Gate 為未驗證，不能以 `NIX_SKIP_SODIUM_BUILD_HOOKS=1`
 取代 Android/iOS runtime 驗收。
+
+Windows Desktop native Gate 的單一入口是：
+
+```powershell
+cd mobile_desktop_app
+.\tool\verify_windows_desktop.ps1
+.\tool\verify_windows_desktop.ps1 -Build -Runtime
+```
+
+第一個命令只做 Flutter `doctor`／Windows device preflight；第二個命令執行 locked `pub get`、
+debug build、三個獨立 App process 的 secure-storage `write`／`verify`／`full` phases，接著以
+真實 `SodiumMessageBox` 驗證 Desktop Companion QR rendering、手動 challenge-response 與同一
+runner 內的主裝置角色 proof，再以實際 `ModuleRegistry`、SQLite FFI、`RouteRegistry` 與
+`Navigator` test shell 驗證 Windows target 的 `/desktop-link` 會選擇 Companion。最後以無後端設定
+執行正式 `bootstrap`、掛載 `P2pChatApp`，並在正式聊天室「應用工具」選單點選 Desktop Link。
+若要在本機額外測 copy，需明確加上 `-VerifyClipboard`，因為它會寫入並清除測試 clipboard。CI 在
+GitHub-hosted Windows runner 會加上這個旗標。腳本會拒絕設定 `NIX_SKIP_SODIUM_BUILD_HOOKS` 的
+native run，避免 fake crypto 成為 runtime evidence。
+
+這些測試證明 Windows runner 可載入相關 plugin，並驗證 desktop pairing flow、受限模組路由與 App
+入口；[PR #54 V1 CI run 31319510492](https://github.com/leezxt/p2p-chat/actions/runs/31319510492) 已在
+`331f88d` 對應版本通過 Companion、module-route 與 App-entry integrations。App-entry test 確實啟動
+無後端設定的 `bootstrap`／`P2pChatApp`／聊天室首頁並操作工具選單，但仍不啟動真實手機相機、不建立
+Desktop transport、per-device re-encryption、跨裝置訊息同步或撤銷後資料不可解密的端對端情境。
 
 Windows CI 會額外以兩個獨立 App process 執行 secure storage phase。`write` phase 清除
 專用測試 key、建立裝置金鑰並保存非秘密 fingerprint marker；`verify` phase 由新的 App
@@ -179,6 +253,51 @@ cd mobile_desktop_app
 flutter test integration_test/android_crypto_runtime_test.dart -d <android-device-id>
 ```
 
+Android App Lock production runtime（PowerShell）：
+
+```powershell
+cd mobile_desktop_app
+.\tool\verify_android_app_lock.ps1 -Device <android-device-id>
+```
+
+乾淨且具 fingerprint HAL、尚未註冊指紋的 AVD 可追加
+`-ExpectUnenrolledBiometrics`，驗證 production `local_auth` adapter 回傳 `notEnrolled` 且不解鎖。
+已設定鎖屏並以 finger ID `1` 完成 enrollment 的受控 AVD，可驗證系統 biometric
+成功與取消路徑：
+
+```powershell
+.\tool\verify_android_app_lock.ps1 `
+  -Device emulator-5554 `
+  -BiometricExpectation success
+.\tool\verify_android_app_lock.ps1 `
+  -Device emulator-5554 `
+  -BiometricExpectation cancel
+```
+
+Runner 只允許 emulator 使用自動 biometric assertion；成功路徑會在 production
+`local_auth` 對話框出現後送入 finger ID `1`，取消路徑送出 Android 返回鍵。每次執行也會
+驗證真實 SodiumSumo Argon2id、Android encrypted storage 與 lifecycle coordinator。
+AVD 結果不取代真機 enrollment change、真實感測器差異、跨 OS restart 與系統政策驗收。
+
+Android 內建貼圖 runtime（PowerShell）：
+
+```powershell
+cd mobile_desktop_app
+.\tool\verify_android_stickers.ps1 -Device <android-device-id>
+```
+
+Runner 只接受 `adb devices` 顯示為 `device` 的 Android target，並主動移除
+`NIX_SKIP_SODIUM_BUILD_HOOKS`，確保 Android 以正式 sodium native runtime 建置。測試不注入
+backend 設定，仍以正式 `bootstrap`／`P2pChatApp`、production SQLite、secure storage 與內建
+asset 執行：建立本機聊天室、開啟 picker、選取 `flutter`，確認氣泡實際渲染 PNG，最後回讀
+SQLite 確認 envelope 只保存 `packId` 和 `stickerId`。2026-08-13 已在 API 35
+`emulator-5930` 通過。
+
+此 Gate 是單一 AVD 的本機 UI／資產／SQLite 證據，不啟動 backend，也不取代兩個獨立裝置的
+P2P／Mailbox 離線同步、重送、真機儲存與大量貼圖包資源驗收。若 Windows 將預設
+`5554/5555` 保留，請用可綁定的偶數／奇數 pair 啟動 AVD（例如
+`-ports 5930,5931`），再把 `emulator-5930` 傳給 runner；不應把埠號改動誤列為 App 功能驗收。
+
 沒有本機手機時，可先建立 Firebase Test Lab app/test APK：
 
 ```bash
@@ -186,9 +305,12 @@ cd mobile_desktop_app
 bash tool/build_firebase_test_lab.sh
 ```
 
-GitHub 手動 workflow 只接受 `main`，使用 OIDC 而非 service-account JSON key，且會拒絕
-非實體 Test Lab model。預設 `submit_test=false` 只驗證 APK、OIDC、catalog 與 results
-bucket，不建立付費 matrix；確認費用後才可改為 `true`。設定、IAM、裝置選擇與 artifact 證據見
+GitHub 手動 workflow 的付費 submission 只接受 `main`；免費 dry-run 可從 WIF 明確授權的
+分支執行。Workflow 使用 OIDC 而非 service-account JSON key，且會拒絕非實體 Test Lab
+model。預設 `submit_test=false` 只驗證 APK、OIDC、catalog 與 results bucket，不建立付費
+matrix；確認費用後才可改為 `true`。付費 submission 預設拒絕低容量裝置，採非同步建立並
+保存 matrix ID；排隊／監控逾時或 runner 中止時會取消未完成 matrix。
+設定、IAM、裝置選擇與 artifact 證據見
 [`firebase_test_lab.md`](firebase_test_lab.md)。首次真正送測前維持「已實作未驗證」；單一
 雲端實體機也不取代雙裝置 E2E、真實斷網、OS kill、行動網路與耗電量測。
 
@@ -213,6 +335,23 @@ cd mobile_desktop_app
 ```
 
 此 runner 會上傳真實 sodium 密文，在接收端完成 SQLite message/replay/receipt 寫入後模擬 DELIVERED ACK 遺失，使用 `am force-stop` abrupt kill App，再重啟同一 DB 驗證重投冪等、DELIVERED/READ 與 sender 本機 READ 狀態。2026-07-14 已在兩台 Android 15 AVD 完整通過；AVD 不取代真機實際斷網、OS kill、USB `adb reverse` 與耗電/記憶體驗收。
+
+預設仍傳送文字訊息；加上 `-MessageKind sticker` 可驗證 V2 內建貼圖的 ID-only
+Mailbox recovery：
+
+```powershell
+.\tool\verify_android_mailbox_recovery.ps1 `
+  -SenderDevice emulator-5930 `
+  -ReceiverDevice emulator-5932 `
+  -MessageKind sticker
+```
+
+此模式把 `E2E_MAILBOX_MESSAGE_KIND=sticker` 傳入兩個 Android app process。sender 與
+receiver 皆嚴格確認 `MessageType.sticker`、`packId=simple_communication`、
+`stickerId=flutter`，並沿用真實 sodium、隔離 H2 backend、ACK 遺失、force-stop、SQLite
+replay/receipt 與 READ status 流程。2026-08-13 已在 API 35 `emulator-5930`／`emulator-5932`
+通過。它直接驗證 Mailbox upload/sync service，不會取代聊天室 UI 的另一個 AVD Gate、完整
+`MessageTransportCoordinator` P2P→Mailbox fallback 編排，或兩台 Android 真機驗收。
 
 Android V1 資源基線（PowerShell）：
 

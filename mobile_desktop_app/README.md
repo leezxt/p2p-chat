@@ -25,6 +25,24 @@ flutter build apk --debug
 
 APK 產物位於 `build/app/outputs/flutter-apk/app-debug.apk`。目前已驗證 Android debug 編譯、真實 libsodium/secure storage、production WebRTC adapter，以及兩個 Android AVD/App process 的 authenticated encrypted E2E；真機資源量測仍待補。
 
+### V2 內建貼圖 Android runtime
+
+可用下列 runner 驗證正式 App 的單機貼圖流程：
+
+```powershell
+.\tool\verify_android_stickers.ps1 -Device <android-device-id>
+```
+
+它以正式 `bootstrap`／`P2pChatApp`、Android SQLite、secure storage 與 bundled sticker asset
+建立本機聊天室，操作 picker 選取 `flutter`，驗證 PNG 實際渲染，並確認 SQLite 訊息只有
+`packId`／`stickerId`。2026-08-13 已在 API 35 AVD 通過。此結果不包含 backend，也不代表
+兩裝置 P2P／Mailbox 同步、離線重送、真機儲存或大量貼圖包資源驗收。
+
+同日已以兩個 API 35 AVD 執行 `verify_android_mailbox_recovery.ps1 -MessageKind sticker`：
+真實 sodium 加密的貼圖 ID-only envelope 經隔離 H2 Mailbox，在 ACK 遺失、receiver
+force-stop、重啟與冪等重拉後仍保存正確 payload，且 sender 收到 READ。這是直接
+Mailbox service 的雙 AVD 證據；完整 P2P→Mailbox fallback 編排與 Android 真機仍待驗。
+
 本機 Android Emulator x86_64 alpha 位於 `../dist/android-alpha/p2p-messenger-android-alpha-debug.apk`。它固定連線 `10.0.2.2:18080`，需搭配 `java_backend/scripts/alpha-up.ps1`，不可用於公開發布、ARM 真機或外部網路環境。雙 AVD 已驗證邀請、聯絡人同步、encrypted mailbox fallback、DELIVERED/READ ACK、sender 已讀顯示、前景 Presence／背景停止 heartbeat，以及不含敏感資料的 notification outbox。
 
 可用同一個 PowerShell runner 驗證兩台 Emulator 或兩台以 USB 連接的 Android 裝置：
@@ -79,17 +97,36 @@ Runner 產生 JSON/Markdown 報告並依冷啟動中位數 3 秒、閒置 PSS 15
 Studio 2022 的 Desktop development with C++ workload、CMake tools 與 Windows SDK：
 
 ```powershell
-flutter config --enable-windows-desktop
-flutter pub get --enforce-lockfile
-flutter build windows --debug --no-pub
+.\tool\verify_windows_desktop.ps1
 ```
+
+preflight 通過後，才執行實際 native build 與 runtime 驗收：
+
+```powershell
+.\tool\verify_windows_desktop.ps1 -Build -Runtime
+```
+
+此入口以 Flutter `doctor` 驗證完整 C++ toolchain，建立 Windows debug bundle，並以獨立
+App process 驗證 Credential Manager key write／restart verify／full sodium + WebRTC。它還會
+以真實 sodium 及 `QrImageView` 驗證 Desktop Companion 的「輸入主裝置 ID → QR → challenge →
+response」流程，並以實際 `ModuleRegistry`、SQLite FFI、`RouteRegistry` 與 `Navigator` test shell
+驗證 Windows target 的 `/desktop-link` 會顯示 Companion；最後再以無後端設定執行正式 `bootstrap`、
+掛載 `P2pChatApp`，並從正式聊天首頁「應用工具」選單開啟 Companion。只有明確追加
+`-VerifyClipboard` 時才會點擊 Copy 並讀回／清除測試 clipboard。
+腳本會拒絕帶有 `NIX_SKIP_SODIUM_BUILD_HOOKS` 的 native 執行，因為該旗標只能用於 test-only
+crypto fake，不能作為 Windows runtime 證據。輸出位於忽略的
+`build/windows-desktop-runtime/`。
 
 Pull request 與 `main` CI 會在 GitHub-hosted Windows 2022 runner 執行相同 debug build，
 驗證 runner、SQLite FFI、secure storage、libsodium native asset 與 WebRTC plugins 可共同
 編譯，並執行 `device_key_service_test.dart` 驗證 Windows libsodium runtime、裝置金鑰穩定
 載入、損壞資料拒絕與 storage failure paths。測試使用記憶體 secure store，不取代 Windows
 Credential Manager 持久化驗收；Build Gate 也不代表 Desktop Link、多裝置同步或桌面資源
-量測已完成。
+量測已完成。CI 會另以真實 Windows runner 執行 Desktop Companion 的 QR rendering、native
+`crypto_box` challenge-response 與選用 clipboard copy，並由 `desktop_link_module_route_runtime_test.dart`
+確認模組 DI／路由註冊／Navigator 最終選擇 Companion。`desktop_link_app_entry_runtime_test.dart` 再確認
+無後端 `bootstrap` → `P2pChatApp` → 聊天首頁工具選單 → Companion 的正式 App 路由；它仍不會驗證
+真實手機相機、跨裝置 transport、per-device 同步、已安裝桌面 App 的人工使用者驗收或撤銷後金鑰銷毀。
 
 Windows CI 另以 `-d windows` 啟動 native integration test，使用 production
 `FlutterSecureKeyValueStore` 驗證 Credential Manager 寫入／讀回與清除，並在同一 App

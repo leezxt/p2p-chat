@@ -2,6 +2,7 @@ import 'package:p2p_chat_app/modules/chat/data/chat_dao.dart';
 import 'package:p2p_chat_app/modules/chat/domain/conversation.dart';
 import 'package:p2p_chat_app/shared/models/message_envelope.dart';
 import 'package:p2p_chat_app/shared/models/message_status.dart';
+import 'package:p2p_chat_app/shared/models/message_type.dart';
 
 /// 純記憶體 [ChatDao]，供 Repository / Controller 單元測試使用，
 /// 不需 Flutter binding 或 sqflite。
@@ -39,6 +40,7 @@ class FakeChatDao implements ChatDao {
   }) async {
     final filtered = messages
         .where((m) => m.conversationId == conversationId)
+        .where((m) => m.type != MessageType.reaction)
         .where((m) => beforeCreatedAt == null || m.createdAt < beforeCreatedAt)
         .toList()
       ..sort((a, b) => a.createdAt.compareTo(b.createdAt));

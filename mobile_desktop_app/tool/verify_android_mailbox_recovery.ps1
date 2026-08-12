@@ -8,6 +8,9 @@ param(
     [ValidatePattern('^[A-Za-z0-9._:-]+$')]
     [string]$ReceiverDevice,
 
+    [ValidateSet('text', 'sticker')]
+    [string]$MessageKind = 'text',
+
     [ValidateRange(1024, 65535)]
     [int]$BackendPort = 8081
 )
@@ -23,7 +26,11 @@ $maven = (Get-Command mvn.cmd -ErrorAction Stop).Source
 $gitBash = Join-Path $env:ProgramFiles 'Git\bin\bash.exe'
 $make = (Get-Command make.exe -ErrorAction Stop).Source
 $nativeBuildPath = "$(Split-Path -Parent $gitBash);$(Split-Path -Parent $make);$env:PATH"
-$artifactRoot = Join-Path $appRoot 'build\v1-android-mailbox-recovery'
+$artifactRoot = if ($MessageKind -eq 'text') {
+    Join-Path $appRoot 'build\v1-android-mailbox-recovery'
+} else {
+    Join-Path $appRoot 'build\v2-android-sticker-mailbox-recovery'
+}
 $backendOut = Join-Path $artifactRoot 'backend.stdout.log'
 $backendErr = Join-Path $artifactRoot 'backend.stderr.log'
 
@@ -130,7 +137,8 @@ function Start-DevicePhase {
         'integration_test/android_mailbox_restart_e2e_test.dart',
         '-d', $Device,
         "--dart-define=E2E_MAILBOX_PHASE=$Phase",
-        "--dart-define=E2E_BACKEND_URL=$Endpoint"
+        "--dart-define=E2E_BACKEND_URL=$Endpoint",
+        "--dart-define=E2E_MAILBOX_MESSAGE_KIND=$MessageKind"
     )
     $process = Start-Process `
         -FilePath $flutter `
@@ -327,7 +335,7 @@ try {
         throw "Sender upload/status phase failed (exit $($senderUploadRun.Process.ExitCode))."
     }
 
-    Write-Host "Android mailbox restart recovery passed on $SenderDevice and $ReceiverDevice."
+    Write-Host "Android $MessageKind mailbox restart recovery passed on $SenderDevice and $ReceiverDevice."
 } catch {
     Write-LogTail $backendOut
     Write-LogTail $backendErr

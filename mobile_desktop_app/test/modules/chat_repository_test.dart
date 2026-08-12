@@ -30,6 +30,22 @@ MessageEnvelope _incomingText(String conv, String text, int at) =>
       createdAt: at,
     );
 
+MessageEnvelope _reaction(String conv, int at) => MessageEnvelope(
+      messageId: 'reaction_$at',
+      conversationId: conv,
+      senderUserId: 'me',
+      senderDeviceId: 'dev',
+      type: MessageType.reaction,
+      payload: {
+        'reactionVersion': 1,
+        'targetMessageId': 'msg_100',
+        'emoji': '👍',
+        'active': true,
+        'updatedAt': at,
+      },
+      createdAt: at,
+    );
+
 void main() {
   late FakeChatDao dao;
   late EventBus bus;
@@ -63,6 +79,20 @@ void main() {
     final conv = await repo.getConversation('c1');
     expect(conv!.lastMessagePreview, '最後一句');
     expect(conv.lastMessageAt, 200);
+  });
+
+  test('reaction 不覆蓋文字訊息預覽，也不出現在聊天訊息串', () async {
+    await repo.createConversation(
+        const Conversation(id: 'c1', title: '測試', createdAt: 0, updatedAt: 0));
+    await repo.saveOutgoingMessage(_text('c1', '保留這段預覽', 100));
+
+    await repo.saveOutgoingMessage(_reaction('c1', 200));
+
+    final conv = await repo.getConversation('c1');
+    final messages = await repo.loadRecentMessages('c1', limit: 20);
+    expect(conv!.lastMessagePreview, '保留這段預覽');
+    expect(conv.lastMessageAt, 100);
+    expect(messages.map((message) => message.type), [MessageType.text]);
   });
 
   test('loadRecentMessages 回傳最近 N 則、由舊到新', () async {

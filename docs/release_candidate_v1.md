@@ -89,16 +89,23 @@ Production topology 已提供 `compose.production.yml`、Caddy TLS/WSS proxy、i
 network 與 `preflight-production.ps1`。本機隔離驗證已通過 HTTPS readiness、HSTS、HTTP
 308、WebSocket 101、Flyway 1～9、prod API docs 404 與 non-root backend；bounded Docker
 logs 與 one-shot HTTPS/WSS monitor 亦已在 localhost 通過。公開 DNS/ACME、registry
-digest、firewall、外部告警接收器與真實 HTTPS endpoint 仍是發布 Gate。
+digest、firewall、正式排程／外部告警接收器與真實 HTTPS endpoint 仍是發布 Gate。
 WebSocket 101 只驗證 transport upgrade；連線後仍須以第一個 `AUTH` frame 完成
 JWT/device ownership 認證。
 
+`run-production-monitor.ps1` 已提供 scheduler-ready one-shot runner：同一 state file 互斥、
+狀態原子保存、failure／recovery transition webhook、重複告警抑制、送達失敗重試、正式
+HTTPS 限制與 privacy-minimized payload 已由 loopback fixture 驗證。正式環境仍需建立
+systemd timer／Task Scheduler、限制 env/state ACL，並驗證實際告警接收器與 on-call 路由。
+
 `backup-production.ps1` 與 `restore-production.ps1` 已在隔離 PostgreSQL 完成 custom dump、
 SHA-256、完整性檢查、新 DB restore、既有 test DB replacement、Flyway 1～9、10 tables
-與 probe data 比對。`prune-production-backups.ps1` 已以 Windows fixture 與 GitHub-hosted
-Ubuntu runner 驗證本機 staging retention：預設 dry-run，只有具有效 off-host receipt、
-通過 manifest/hash/custom-format 驗證、超過期限且不在最新保留數內的 backup 才能在
-精確確認後刪除。正式環境仍需加密 off-host storage、外部 receipt 簽發、排程與定期演練。
+與 probe data 比對。`export-production-backup.ps1` 會將 dump／manifest 複製至部署者提供的
+獨立掛載目錄，重新計算兩者 hash 後才原子建立不含 credentials 的 off-host receipt；正向、
+冪等、來源竄改、目的地衝突、reference 洩密拒絕及 retention 相容 fixtures 已通過。
+`prune-production-backups.ps1` 預設 dry-run，只有具有效 receipt、通過
+manifest/hash/custom-format 驗證、超過期限且不在最新保留數內的 backup 才能在精確確認後
+刪除。正式環境仍需驗證掛載目錄確實為加密 off-host storage，並完成排程與定期演練。
 
 Backend candidate 使用統一腳本執行 Maven tests、建立 executable JAR 與 Docker image，
 並輸出 JAR SHA-256、local image ID/size、OCI revision/version labels 與本機
@@ -162,7 +169,7 @@ cd mobile_desktop_app
 - [x] V1-02 安全與隱私稽核、自動化測試通過。
 - [x] GitHub Actions Java/Flutter host CI、Windows libsodium/Credential Manager/WebRTC integration、Credential Manager 跨獨立 App process 持久化、Desktop build 與 PostgreSQL container smoke 通過；不取代 production、Windows OS 重開機／使用者工作站政策與手機真機 Gate。
 - [ ] V1-01 兩台 Android 真機 encrypted P2P 與 mailbox recovery runner 通過。
-- [ ] Firebase Test Lab 單一實體機 crypto runtime 通過；OIDC workflow 與 instrumentation APK 已建立，待 Google Cloud 專案設定及首次 matrix。
+- [ ] Firebase Test Lab 單一實體機 crypto runtime 通過；專用 project／billing／OIDC、instrumentation APK 與 async matrix cleanup workflow 已建立，首次 matrix 因低容量排隊取消，待新 workflow dry-run 與成功 runtime。
 - [ ] V1-03 真機冷啟動、記憶體、背景連線、網路與長時間耗電達標。
 - [ ] V1-04 真機 OS kill、實際斷網/恢復、重複訊息與 ACK 遺失復原通過。
 - [ ] 真實 Firebase credentials、FCM/APNs、通知權限拒絕與 cold/warm start 通過。
@@ -170,7 +177,7 @@ cd mobile_desktop_app
 - [x] 繁體中文與英文介面、系統語言偵測、App 內切換／跨重啟保存、fallback 與兩種語言 widget tests 通過。
 - [ ] 提供正式 Android application ID、version 與 release keystore；安全簽章設定骨架已完成。
 - [ ] 設定正式 iOS Bundle ID、version 與 distribution signing。
-- [ ] 以 production HTTPS/WSS + PostgreSQL 環境完成最後 smoke test；本機 TLS/WSS、candidate manifest、backup/restore、staging retention、log rotation 與 monitor 已通過，公開 DNS/ACME、registry、真實 off-host object/receipt、排程與外部告警待驗。
+- [ ] 以 production HTTPS/WSS + PostgreSQL 環境完成最後 smoke test；本機 TLS/WSS、candidate manifest、backup/restore、mounted off-host export/receipt、staging retention、log rotation、monitor 與 alert transition fixture 已通過，公開 DNS/ACME、registry、真實加密 off-host storage、正式排程與外部告警接收器待驗。
 - [ ] 產生 Android/iOS 候選版 artifact，記錄 SHA-256、建置時間與來源 commit；Android 產物/manifest 腳本已完成，正式憑證待執行。
 - [ ] README、架構、安全、成本、操作說明與已知限制完成最終同步。
 

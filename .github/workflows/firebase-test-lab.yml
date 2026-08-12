@@ -21,6 +21,16 @@ on:
         required: true
         default: false
         type: boolean
+      allow_low_capacity:
+        description: Explicitly allow a physical model currently reported as Low capacity
+        required: true
+        default: false
+        type: boolean
+      queue_timeout_minutes:
+        description: Cancel the matrix if it does not start within this many minutes (15-120)
+        required: true
+        default: "90"
+        type: string
 
 permissions:
   contents: read
@@ -34,7 +44,7 @@ jobs:
   android-physical-device:
     name: Android physical device crypto runtime
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 180
     env:
       GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
       GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
@@ -44,6 +54,8 @@ jobs:
       ANDROID_VERSION: ${{ inputs.android_version }}
       TEST_LOCALE: ${{ inputs.locale }}
       SUBMIT_TEST: ${{ inputs.submit_test }}
+      ALLOW_LOW_CAPACITY: ${{ inputs.allow_low_capacity }}
+      QUEUE_TIMEOUT_MINUTES: ${{ inputs.queue_timeout_minutes }}
     steps:
       - name: Check out source
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -52,8 +64,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
-            echo "Firebase Test Lab must run from main." >&2
+          if [[ "$SUBMIT_TEST" == "true" && "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "Paid Firebase Test Lab submission must run from main." >&2
             exit 1
           fi
           for name in GCP_PROJECT_ID GCP_WORKLOAD_IDENTITY_PROVIDER GCP_SERVICE_ACCOUNT FTL_RESULTS_BUCKET; do
@@ -78,6 +90,15 @@ jobs:
           fi
           if [[ "$SUBMIT_TEST" != "true" && "$SUBMIT_TEST" != "false" ]]; then
             echo "submit_test must be true or false." >&2
+            exit 1
+          fi
+          if [[ "$ALLOW_LOW_CAPACITY" != "true" && "$ALLOW_LOW_CAPACITY" != "false" ]]; then
+            echo "allow_low_capacity must be true or false." >&2
+            exit 1
+          fi
+          if [[ ! "$QUEUE_TIMEOUT_MINUTES" =~ ^[0-9]+$ ]] ||
+             (( 10#$QUEUE_TIMEOUT_MINUTES < 15 || 10#$QUEUE_TIMEOUT_MINUTES > 120 )); then
+            echo "queue_timeout_minutes must be between 15 and 120." >&2
             exit 1
           fi
 
@@ -123,6 +144,33 @@ jobs:
               exit 1
             }
 
+      - name: Check physical device capacity
+        working-directory: mobile_desktop_app
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud firebase test android list-device-capacities \
+            --filter="$DEVICE_MODEL" \
+            --format=json > build/firebase-test-lab/device-capacity.json
+          capacity="$(jq -r --arg model "$DEVICE_MODEL" --arg version "$ANDROID_VERSION" \
+            '.[] | select(.model == $model and .version == $version) | .capacity' \
+            build/firebase-test-lab/device-capacity.json | head -n 1)"
+          if [[ -z "$capacity" ]]; then
+            capacity="Unknown"
+            echo "No published capacity was found for the selected physical device." >&2
+          fi
+          echo "Selected Test Lab capacity: $capacity"
+          if [[ "$SUBMIT_TEST" == "true" ]]; then
+            if [[ "$capacity" == "None" || "$capacity" == "Unknown" ]]; then
+              echo "Paid submission requires published device capacity above None." >&2
+              exit 1
+            fi
+            if [[ "$capacity" == "Low" && "$ALLOW_LOW_CAPACITY" != "true" ]]; then
+              echo "Low-capacity devices require allow_low_capacity=true." >&2
+              exit 1
+            fi
+          fi
+
       - name: Validate results bucket access
         working-directory: mobile_desktop_app
         shell: bash
@@ -138,12 +186,13 @@ jobs:
           gcloud storage rm "$object_uri" 2>&1 \
             | tee -a build/firebase-test-lab/bucket-preflight.log
 
-      - name: Run Android crypto suite on Firebase Test Lab
+      - name: Submit Android crypto suite to Firebase Test Lab
+        id: submit
         if: ${{ inputs.submit_test }}
         working-directory: mobile_desktop_app
         shell: bash
         run: |
-          set -o pipefail
+          set -euo pipefail
           results_dir="p2p-chat/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           matrix_label="p2p-chat-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           gcloud firebase test android run \
@@ -155,11 +204,33 @@ jobs:
             --results-bucket="$FTL_RESULTS_BUCKET" \
             --results-dir="$results_dir" \
             --client-details="matrixLabel=${matrix_label}" \
-            --quiet 2>&1 | tee build/firebase-test-lab/test-lab.log
+            --async \
+            --format=json \
+            --quiet \
+            > build/firebase-test-lab/matrix-submit.json \
+            2> >(tee build/firebase-test-lab/matrix-submit.log >&2)
+          matrix_id="$(python3 tool/extract_firebase_test_lab_matrix_id.py \
+            build/firebase-test-lab/matrix-submit.json)"
+          printf '%s\n' "$matrix_id" > build/firebase-test-lab/matrix-id.txt
+          printf 'matrix_id=%s\n' "$matrix_id" >> "$GITHUB_OUTPUT"
+          echo "Submitted Test Lab matrix: $matrix_id"
+
+      - name: Monitor and clean up Test Lab matrix
+        if: ${{ inputs.submit_test }}
+        working-directory: mobile_desktop_app
+        shell: bash
+        env:
+          FTL_RUN_TIMEOUT_SECONDS: "1800"
+        run: |
+          set -euo pipefail
+          export FTL_QUEUE_TIMEOUT_SECONDS=$((10#$QUEUE_TIMEOUT_MINUTES * 60))
+          bash tool/monitor_firebase_test_lab.sh \
+            "${{ steps.submit.outputs.matrix_id }}" \
+            build/firebase-test-lab
 
       - name: Preserve workflow evidence
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: firebase-test-lab-${{ github.run_id }}-${{ github.run_attempt }}
           path: mobile_desktop_app/build/firebase-test-lab/

@@ -31,6 +31,7 @@
 | 明文訊息 | App 記憶體與本機聊天 DB | 不可送到 server 或寫入 log |
 | 密文 envelope | P2P、mailbox、本機 pending queue | Server 可保存但不可解密 |
 | Access token | 平台 secure storage / 短期記憶體 | 不進 log；失效後重新認證 |
+| App Lock verifier | 平台 secure storage | 只保存 libsodium Argon2id encoded verifier 與防暴力嘗試狀態，不保存 PIN |
 | Replay state | 本機 SQLite | 必須跨 crash/restart 保存 |
 
 不信任的元件：backend 管理員、被入侵的 signaling/mailbox、TURN、中間網路、惡意聯絡人、重放舊封包者。
@@ -48,6 +49,17 @@
 | 裝置遺失 | Backend revoke device；聯絡人收到 key/device change 事件 | 舊裝置離線期間已取得的密文無法遠端抹除 |
 | Key rotation 降級 | `cryptoVersion`、`suite`、key id 嚴格比對；未知/舊版依政策拒絕 | 舊客戶端可能無法互通 |
 | 大型/惡意 payload | 解密前檢查 envelope/schema/ciphertext 大小，解密後再驗證 inner schema | 合法但大量請求仍可能 DoS |
+
+## App Lock 安全邊界
+
+- 6 位 PIN 由 libsodium `crypto_pwhash_str` 使用 Argon2id interactive profile 產生 encoded verifier；salt、演算法與成本參數由 libsodium 管理，不自行實作 KDF。
+- PIN 明文不寫入 SQLite、secure storage、log 或 analytics。驗證使用 `crypto_pwhash_str_verify`，App code 不自行比較 hash。
+- 連續五次錯誤會冷卻 30 秒；錯誤次數與冷卻期限保存於 secure storage，重新啟動不能清除冷卻。
+- App 進入 background 後立即鎖定，根層 gate 遮蔽 Navigator 內容；設定損壞時 fail-closed。
+- 生物辨識只委派 Android/iOS 系統 `biometricOnly` 驗證，App 不讀取或保存生物特徵；啟用前先完成一次驗證，失敗、取消、未註冊或系統鎖定均不解鎖，PIN 永遠保留為備援。
+- 通知內容預設隱藏；App Lock 狀態未知或已鎖定時一律只使用通用文字。偏好關閉也只能在 App 已解鎖時顯示本機解密後的 sender／preview，遠端 push payload 仍不得包含內容。
+- App Lock 是遺失裝置時的本機 UI 防護，不加密聊天 SQLite、不提高 E2EE 強度，也不取代作業系統鎖定、Android Keystore、iOS Keychain 或裝置私鑰保護。
+- 生物辨識與通知呈現策略已實作；真機 enrollment change、background/resume、Android Keystore／iOS Keychain runtime 與 FCM/APNs 系統通知仍須實機驗收。
 
 ## 協定與函式庫選型
 

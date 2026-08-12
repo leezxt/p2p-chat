@@ -67,6 +67,7 @@ class ChatRepository {
 
   /// 更新會話的最後訊息預覽與時間，讓聊天室列表能正確排序。
   Future<void> _touchConversation(MessageEnvelope message) async {
+    if (message.type == MessageType.reaction) return;
     final conv = await _dao.getConversation(message.conversationId);
     if (conv == null) return;
     await _dao.upsertConversation(conv.copyWith(

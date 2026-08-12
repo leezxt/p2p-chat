@@ -68,6 +68,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get language => 'Language';
 
   @override
+  String get appTools => 'App tools';
+
+  @override
   String get followSystem => 'Follow system';
 
   @override
@@ -87,6 +90,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sendMessage => 'Send message';
+
+  @override
+  String get addReaction => 'Add reaction';
+
+  @override
+  String get chooseSticker => 'Choose sticker';
+
+  @override
+  String get stickerMessage => 'Sticker message';
+
+  @override
+  String toggleReaction(String emoji) {
+    return 'Toggle $emoji reaction';
+  }
 
   @override
   String get statusPending => 'Waiting to send';
@@ -122,4 +139,419 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get join => 'Add';
+
+  @override
+  String get safetyNumber => 'Safety number';
+
+  @override
+  String get safetyNumberUnavailable =>
+      'The safety number is currently unavailable';
+
+  @override
+  String get safetyNumberVerified => 'Verified';
+
+  @override
+  String get safetyNumberNotVerified => 'Not verified';
+
+  @override
+  String get safetyNumberQrCode => 'Contact safety number QR code';
+
+  @override
+  String get safetyNumberQrData => 'Safety number QR data';
+
+  @override
+  String get verifySafetyNumber => 'Verify safety number';
+
+  @override
+  String get scanSafetyNumberQr => 'Scan safety number QR';
+
+  @override
+  String get safetyNumberCameraUnavailable =>
+      'Camera access is unavailable. Check camera permission and try again.';
+
+  @override
+  String get compareQrData => 'Compare QR data';
+
+  @override
+  String get qrDataMismatch =>
+      'Safety numbers do not match. Trust was not changed.';
+
+  @override
+  String get verificationSaved => 'Safety number verification saved';
+
+  @override
+  String get appLock => 'App lock';
+
+  @override
+  String get appLockEnabled => 'App lock is enabled';
+
+  @override
+  String get appLockDisabled => 'App lock is disabled';
+
+  @override
+  String get appLockSetPin => 'Set a 6-digit PIN';
+
+  @override
+  String get appLockEnterPin => '6-digit PIN';
+
+  @override
+  String get appLockConfirmPin => 'Confirm PIN';
+
+  @override
+  String get appLockPinFormat => 'Enter exactly 6 digits';
+
+  @override
+  String get appLockPinMismatch => 'PINs do not match';
+
+  @override
+  String get appLockIncorrectPin => 'Incorrect PIN';
+
+  @override
+  String get appLockTryAgainLater => 'Too many attempts. Try again later.';
+
+  @override
+  String get appLockConfigurationError =>
+      'App lock data is unavailable. Reset the app data to recover.';
+
+  @override
+  String get appLockUnlock => 'Unlock';
+
+  @override
+  String get appLockEnable => 'Enable';
+
+  @override
+  String get appLockDisable => 'Disable app lock';
+
+  @override
+  String get appLockLockNow => 'Lock now';
+
+  @override
+  String get appLockBiometricUnlock => 'Use biometrics';
+
+  @override
+  String get appLockBiometricDescription =>
+      'Use fingerprint or Face ID to unlock';
+
+  @override
+  String get appLockBiometricUnavailable =>
+      'No supported biometric method is enrolled';
+
+  @override
+  String get appLockBiometricEnableReason =>
+      'Confirm your identity to enable biometric unlock';
+
+  @override
+  String get appLockBiometricUnlockReason =>
+      'Authenticate to unlock Simple Communication';
+
+  @override
+  String get appLockBiometricFailed =>
+      'Biometric authentication was not completed. Use your PIN.';
+
+  @override
+  String get appLockBiometricLockedOut =>
+      'Biometrics are locked. Use your PIN.';
+
+  @override
+  String get appLockHideNotificationContent => 'Hide notification content';
+
+  @override
+  String get appLockHideNotificationDescription =>
+      'Use generic text for message notifications';
+
+  @override
+  String get lowPowerMode => 'Low power mode';
+
+  @override
+  String get lowPowerModeEnabled => 'Low power mode is on';
+
+  @override
+  String get lowPowerModeDisabled => 'Low power mode is off';
+
+  @override
+  String get lowPowerModeDescription =>
+      'Reduces presence updates, P2P connections, idle time, and automatic downloads';
+
+  @override
+  String get storageManager => 'Storage manager';
+
+  @override
+  String storageTotal(String size) {
+    return 'Total local storage: $size';
+  }
+
+  @override
+  String get storageDatabase => 'Local database';
+
+  @override
+  String get storageCache => 'Rebuildable cache';
+
+  @override
+  String get storageAttachments => 'Attachments';
+
+  @override
+  String get storageProtected => 'Protected data';
+
+  @override
+  String storageProtectedDescription(String size) {
+    return 'Identity, keys, chats, and unsent mailbox messages ($size) are never included in cleanup.';
+  }
+
+  @override
+  String get storageClearCache => 'Clear cache';
+
+  @override
+  String get storageClearCacheDescription =>
+      'Only rebuildable cache is removed. Chats and security data stay on this device.';
+
+  @override
+  String storageClearCacheConfirmation(String size) {
+    return 'Remove $size of rebuildable cache? This does not delete chats, identity, keys, or unsent messages.';
+  }
+
+  @override
+  String storageCacheCleared(Object size) {
+    return 'Cleared $size of cache';
+  }
+
+  @override
+  String get smartNotification => 'Chat notifications';
+
+  @override
+  String get notificationMute => 'Mute this chat';
+
+  @override
+  String get notificationMuteDescription =>
+      'Do not create notifications for new messages in this chat';
+
+  @override
+  String get notificationPreview => 'Show notification preview';
+
+  @override
+  String get notificationPreviewDescription =>
+      'Show local sender and message details only when App Lock allows it';
+
+  @override
+  String get notificationPrivacyNotice =>
+      'Even when enabled, previews stay hidden while App Lock is locked or notification privacy is enabled.';
+
+  @override
+  String get translateMessage => 'Translate';
+
+  @override
+  String get translationResult => 'Translation';
+
+  @override
+  String get translationUnavailable =>
+      'No translation provider is configured. Your message has stayed on this device.';
+
+  @override
+  String get translationConsentDescription =>
+      'Translation may send this message\'s text to the provider you choose in a future setup. The original message will not be changed, and the result is stored only on this device.';
+
+  @override
+  String get translationConsentApprove => 'Allow translation';
+
+  @override
+  String get clearTranslation => 'Clear translation';
+
+  @override
+  String get desktopLink => 'Desktop Link';
+
+  @override
+  String get desktopLinkPair => 'Pair a desktop';
+
+  @override
+  String get desktopLinkPairDescription =>
+      'Scan or paste a short-lived pairing request from your desktop. Review its fingerprint before approving.';
+
+  @override
+  String get desktopLinkPrimaryDeviceId => 'Primary phone device ID';
+
+  @override
+  String get desktopLinkPrimaryDeviceIdDescription =>
+      'Enter this identifier in the desktop pairing helper. It is an identifier, not a secret.';
+
+  @override
+  String get desktopLinkCompanionTitle => 'Set up this desktop';
+
+  @override
+  String get desktopLinkCompanionDescription =>
+      'Create a short-lived pairing QR for your primary phone. This step does not transfer messages or create a network connection.';
+
+  @override
+  String get desktopLinkCompanionPrimaryDeviceId => 'Primary phone device ID';
+
+  @override
+  String get desktopLinkCompanionPrimaryDeviceIdHelp =>
+      'Copy it from the primary phone\'s Desktop Link page.';
+
+  @override
+  String get desktopLinkCompanionDisplayName => 'Desktop name';
+
+  @override
+  String get desktopLinkCompanionGenerate => 'Create pairing QR';
+
+  @override
+  String get desktopLinkCompanionRequestReady => 'Pairing QR ready';
+
+  @override
+  String get desktopLinkCompanionPairingQr => 'Desktop pairing QR code';
+
+  @override
+  String get desktopLinkCompanionRequestNotice =>
+      'Scan this QR from the primary phone, then paste its encrypted verification challenge below. The QR alone does not grant access.';
+
+  @override
+  String get desktopLinkCompanionRequestPayload => 'Pairing request data';
+
+  @override
+  String get desktopLinkCompanionPasteChallenge =>
+      'Paste phone verification challenge';
+
+  @override
+  String get desktopLinkCompanionChallengeData =>
+      'Phone verification challenge data';
+
+  @override
+  String get desktopLinkCompanionCreateResponse => 'Create desktop response';
+
+  @override
+  String get desktopLinkCompanionResponseReady =>
+      'Encrypted desktop response ready';
+
+  @override
+  String get desktopLinkCompanionResponseNotice =>
+      'Return this encrypted response to the primary phone, then complete private-key verification and explicit approval there.';
+
+  @override
+  String get desktopLinkCompanionResponsePayload =>
+      'Desktop verification response data';
+
+  @override
+  String get desktopLinkCompanionCopyResponse => 'Copy desktop response';
+
+  @override
+  String get desktopLinkCompanionResponseCopied => 'Desktop response copied';
+
+  @override
+  String get desktopLinkCompanionResponseCopyFailed =>
+      'Unable to copy the desktop response';
+
+  @override
+  String get desktopLinkCompanionInvalidInput =>
+      'Enter a valid primary phone device ID and desktop name.';
+
+  @override
+  String get desktopLinkCompanionChallengeInvalid =>
+      'The phone challenge is invalid, expired, or not intended for this desktop.';
+
+  @override
+  String get desktopLinkCompanionNoTransport =>
+      'This is a local pairing presentation and manual handoff only. Desktop transport, message sync, and per-device encryption are not implemented.';
+
+  @override
+  String get desktopLinkRequestData => 'Desktop pairing QR content';
+
+  @override
+  String get desktopLinkReviewRequest => 'Review pairing request';
+
+  @override
+  String get desktopLinkScanQr => 'Scan desktop pairing QR';
+
+  @override
+  String get desktopLinkCameraUnavailable =>
+      'Camera access is unavailable. Check camera permission and try again.';
+
+  @override
+  String get desktopLinkRequestInvalid =>
+      'This pairing request is invalid, expired, for another phone, or already handled.';
+
+  @override
+  String get desktopLinkRequestReady => 'Pairing request ready for review';
+
+  @override
+  String get desktopLinkApproveTitle => 'Approve this desktop link?';
+
+  @override
+  String get desktopLinkApproveDescription =>
+      'Only approve a device you control. It will be eligible only for new messages created after this approval; existing messages are not copied.';
+
+  @override
+  String get desktopLinkDeviceName => 'Device';
+
+  @override
+  String get desktopLinkFingerprint => 'Public-key fingerprint';
+
+  @override
+  String get desktopLinkKeyBindingNotice =>
+      'The QR public key matches this fingerprint, but private-key possession has not been verified yet.';
+
+  @override
+  String get desktopLinkKeyProofStart => 'Verify desktop private key';
+
+  @override
+  String get desktopLinkKeyProofDescription =>
+      'Create an encrypted challenge and send it to the desktop. Do not approve the link until its response is verified.';
+
+  @override
+  String get desktopLinkKeyProofChallengeReady => 'Encrypted challenge ready';
+
+  @override
+  String get desktopLinkKeyProofChallengeData =>
+      'Desktop verification challenge data';
+
+  @override
+  String get desktopLinkKeyProofPasteResponse =>
+      'Paste desktop verification response';
+
+  @override
+  String get desktopLinkKeyProofResponseData =>
+      'Desktop verification response data';
+
+  @override
+  String get desktopLinkKeyProofVerified =>
+      'The desktop proved possession of the matching private key. Your explicit approval is still required.';
+
+  @override
+  String get desktopLinkKeyProofRequired =>
+      'Verify the desktop private key before approving this link.';
+
+  @override
+  String get desktopLinkKeyProofInvalid =>
+      'The desktop proof is invalid, expired, or does not match. Create a new challenge.';
+
+  @override
+  String get desktopLinkApprove => 'Approve link';
+
+  @override
+  String get desktopLinkApproved => 'Desktop link approved';
+
+  @override
+  String get desktopLinkReject => 'Reject request';
+
+  @override
+  String get desktopLinkRejected => 'Pairing request rejected';
+
+  @override
+  String get desktopLinkCurrentLinks => 'Linked desktop devices';
+
+  @override
+  String get desktopLinkNoLinks => 'No desktop devices are linked';
+
+  @override
+  String get desktopLinkRevoke => 'Revoke';
+
+  @override
+  String get desktopLinkRevokeTitle => 'Revoke this desktop?';
+
+  @override
+  String get desktopLinkRevokeDescription =>
+      'New message sync to this device will be rejected immediately. This local action cannot erase data the desktop may already hold.';
+
+  @override
+  String get desktopLinkRevoked => 'Revoked';
+
+  @override
+  String get desktopLinkRevokedConfirmation => 'Desktop link revoked';
 }

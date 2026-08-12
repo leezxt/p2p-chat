@@ -14,15 +14,23 @@ import 'domain/mailbox_uploader.dart';
 import 'domain/message_transport_coordinator.dart';
 import '../identity/domain/identity_session.dart';
 import '../contacts/domain/contact_service.dart';
+import '../low_power/domain/low_power_mode_changed.dart';
+import '../../core/events/event_bus.dart';
+import '../../core/resource_policy/resource_policy_service.dart';
+import 'domain/foreground_mailbox_sync_scheduler.dart';
 import 'domain/mailbox_refresh_service.dart';
 
 class MailboxModule extends AppModule {
   MailboxSyncService? _sync;
+  ForegroundMailboxSyncScheduler? _foregroundScheduler;
+  EventSubscription? _lowPowerSubscription;
+  ResourcePolicyService? _resourcePolicy;
   @override
   String get name => 'mailbox';
 
   @override
   Future<void> init(ModuleContext context) async {
+    _resourcePolicy = context.resourcePolicy;
     if (!context.services.isRegistered<AccessSession>() ||
         !context.services.isRegistered<MessageCipher>() ||
         !context.services.isRegistered<P2pSessionManager>() ||
@@ -66,14 +74,37 @@ class MailboxModule extends AppModule {
     );
     context.services.registerSingleton<SqliteMailboxReceipts>(receipts);
     context.services.registerSingleton<MailboxSyncService>(_sync!);
-    context.services.registerSingleton<MailboxRefreshService>(
-      MailboxRefreshService(
-        mailbox: _sync!,
-        contacts: context.services.isRegistered<ContactService>()
-            ? context.services.get<ContactService>()
-            : null,
+    final refresh = MailboxRefreshService(
+      mailbox: _sync!,
+      contacts: context.services.isRegistered<ContactService>()
+          ? context.services.get<ContactService>()
+          : null,
+    );
+    context.services.registerSingleton<MailboxRefreshService>(refresh);
+    final scheduler = ForegroundMailboxSyncScheduler(
+      mailbox: refresh,
+      interval: context.resourcePolicy.foregroundMailboxSyncInterval,
+      onError: (error, stackTrace) => context.logger.warn(
+        'mailbox',
+        '前景自動同步失敗：${error.runtimeType}',
       ),
     );
+    context.services.registerSingleton<ForegroundMailboxSyncScheduler>(
+      scheduler,
+    );
+    _foregroundScheduler = scheduler;
+  }
+
+  @override
+  void registerEvents(EventBus eventBus) {
+    _lowPowerSubscription = eventBus.on<LowPowerModeChanged>((_) {
+      final policy = _resourcePolicy;
+      if (policy != null) {
+        _foregroundScheduler?.updateInterval(
+          policy.foregroundMailboxSyncInterval,
+        );
+      }
+    });
   }
 
   @override
@@ -83,8 +114,16 @@ class MailboxModule extends AppModule {
   }
 
   @override
-  Future<void> sleep() async {}
+  Future<void> sleep() async {
+    _foregroundScheduler?.stop();
+  }
 
   @override
-  void dispose() {}
+  void dispose() {
+    _lowPowerSubscription?.cancel();
+    _foregroundScheduler?.dispose();
+    _lowPowerSubscription = null;
+    _foregroundScheduler = null;
+    _resourcePolicy = null;
+  }
 }

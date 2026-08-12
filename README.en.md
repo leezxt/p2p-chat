@@ -13,6 +13,7 @@
   <img alt="Java" src="https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white">
   <img alt="Spring Boot" src="https://img.shields.io/badge/Spring_Boot-3-6DB33F?logo=springboot&logoColor=white">
   <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white">
+  <a href="https://github.com/leezxt/p2p-chat/actions/workflows/v1-ci.yml"><img alt="V1 CI" src="https://github.com/leezxt/p2p-chat/actions/workflows/v1-ci.yml/badge.svg?branch=main"></a>
   <img alt="Status" src="https://img.shields.io/badge/status-internal_Android_test-8764FF">
 </p>
 
@@ -60,7 +61,45 @@ user value, resource cost, and privacy boundary.
 
 - Flutter provides a mobile-first application with desktop support.
 - Modules implement `init / activate / sleep / dispose` lifecycles.
-- Planned work includes Desktop Link, device revocation, and new-message sync.
+- The Desktop Link host safety core persists an explicit mobile authorization,
+  device fingerprint, and sync cutoff. It selects only messages created after
+  that cutoff and rejects new selections immediately after revocation.
+- The mobile side can review a short-lived, one-time, versioned QR pairing
+  request. It must target this primary device, and a link is created only after
+  an explicit user approval and a two-way authenticated X25519 `crypto_box`
+  challenge-response. The one-time challenge token lives only in phone RAM;
+  SQLite v14 stores one-time handling state while SQLite v15 binds the QR's
+  public key to its fingerprint. Neither stores a raw QR payload or token.
+- On a desktop target, the same entry opens Desktop Companion: it accepts the
+  phone device ID, shows a short-lived QR, and emits an encrypted response to a
+  pasted phone challenge. It has no network, background work, or token persistence.
+- QR content remains **untrusted input**. The private-key-possession protocol,
+  mobile authorization gate, and Desktop Companion host UI are implemented.
+  [GitHub-hosted Windows CI run 31319510492](https://github.com/leezxt/p2p-chat/actions/runs/31319510492)
+  exercised QR rendering, manual challenge-response, and controlled clipboard
+  copy with a real `SodiumMessageBox`. Its
+  `desktop_link_module_route_runtime_test.dart` uses SQLite FFI, native sodium key
+  material, `ModuleRegistry`, `RouteRegistry`, and a `Navigator` test shell to
+  verify that `/desktop-link` selects Desktop Companion instead of the phone pairing
+  page. The new `desktop_link_app_entry_runtime_test.dart` runs the real backendless
+  `bootstrap`, mounts `P2pChatApp`, and selects Desktop Link from the production Chat
+  tools menu. This is a single native Windows test-process App-route proof; it still
+  simulates the primary-device role and does not validate automatic handoff, Desktop
+  transport, per-device encryption, a real phone camera, or deletion of a previously
+  linked device's key material. It does not claim working cross-device sync or full
+  desktop-App identity acceptance.
+
+## App screenshots
+
+These screens were captured from a complete debug APK running on an Android API
+35 emulator, including the real sodium native asset. They are emulator evidence,
+not a substitute for validation on two physical Android devices.
+
+| Dark home | Low Power Mode | App Lock |
+|---|---|---|
+| <img src="docs/images/app-dark-home.png" alt="Simple Communication dark home" width="240"> | <img src="docs/images/app-low-power-mode.png" alt="Low Power Mode settings" width="240"> | <img src="docs/images/app-lock-settings.png" alt="App Lock settings" width="240"> |
+
+[▶ Watch the 34-second Android demo](docs/media/simple-communication-android-demo.mp4)
 
 ## Architecture
 
@@ -100,6 +139,7 @@ recoverable without showing duplicate messages.
 | 2026-07-15–16 | Security and efficiency | Secure key storage, Presence, Push Outbox |
 | 2026-07-17–18 | V1.5 capabilities | Low Power Mode, App Lock, Safety Number |
 | 2026-07-19 | Release engineering | Backup/Restore, Monitor/Alert, RC documentation |
+| 2026-08-09 | V3 safety foundation | Desktop Link authorization, new-message cutoff, revoke gate, one-time QR pairing review, public-key binding, a private-key-possession challenge-response gate, Desktop Companion host UI, and a GitHub-hosted Windows native runtime gate |
 
 Each stage is expected to remain buildable, testable, and reversible.
 
@@ -110,6 +150,28 @@ Each stage is expected to remain buildable, testable, and reversible.
 - Authenticated encrypted P2P and mailbox acknowledgement loop on two Android AVDs.
 - Java tests, Flutter automated tests, and PostgreSQL smoke tests.
 - Core Low Power Mode, App Lock, and Safety Number capabilities.
+- A single-AVD Android gate for V2 built-in stickers: the production `P2pChatApp`
+  selects the bundled `flutter` sticker from the chat picker, renders its PNG,
+  and stores an ID-only SQLite envelope. This is local UI, asset, and database
+  evidence only; it is not two-device P2P/Mailbox sync, offline retry, or
+  physical-device resource validation. A separate two-AVD gate sends the
+  real-sodium-encrypted sticker envelope through an isolated H2 Mailbox and
+  passes ACK-loss, force-stop, and restart recovery. It directly covers the
+  Mailbox service, not complete P2P fallback orchestration or physical-device
+  resource validation.
+- Desktop Link host safety core: SQLite v13 authorization state, SQLite v14
+  one-time pairing-request state, SQLite v15 public-key/fingerprint binding,
+  short-lived RAM challenge state, two-way `crypto_box` private-key-possession
+  proof, explicit mobile approval, strict new-message cutoff, and fail-closed
+  revocation. A QR cannot authorize a link without a valid proof. Desktop
+  Companion can display the QR and manually answer a challenge. The 38 host
+  tests use a test-only fake, while [Windows CI run 31319510492](https://github.com/leezxt/p2p-chat/actions/runs/31319510492)
+  separately verifies this bounded flow with real sodium, QR rendering, a
+  primary-role proof, controlled clipboard copy, the module DI/route
+  registry/Navigator-to-Companion path, and the backendless `bootstrap` →
+  `P2pChatApp` → Chat-tools-menu entry route. It is not a physical-phone,
+  cross-device sync, installed desktop-App user-acceptance, or complete Desktop Link
+  authorization test.
 - Production backup, restore, monitoring, alerting, and off-host export fixtures.
 - GitHub Actions for Java, Flutter, PostgreSQL, and Windows Desktop.
 
@@ -121,6 +183,11 @@ Each stage is expected to remain buildable, testable, and reversible.
 - Production Android application ID, keystore, iOS Bundle ID, and signing.
 - Public HTTPS/WSS, registry digest, scheduled monitoring, external alerts,
   and an off-host restore drill.
+- A local Windows C++-toolchain run and macOS/Linux native runtime; installed
+  Windows desktop-App user acceptance; primary-device discovery and automatic
+  handoff; real camera scan validation; desktop transport; per-device
+  re-encryption; cross-device history/new-message sync; and validation that
+  revocation removes access to new messages on a companion device.
 
 The current build remains an **internal Android test build**. It is not presented
 as a public V1 release candidate until the remaining release gates are complete.
@@ -134,6 +201,9 @@ p2p-chat/
   ├─ cloudflare_worker/    Future low-cost edge implementation
   └─ docs/                 Architecture, protocol, security, and operations
 ```
+
+The current Desktop Link safety boundary and the remaining protocol/runtime work
+are described in [`docs/desktop_link.md`](docs/desktop_link.md).
 
 ## Quick start
 

@@ -61,6 +61,17 @@ void main() {
     pending.complete();
     await tester.pumpAndSettle();
   });
+
+  testWidgets('utility menu exposes Desktop Link without crowding the app bar',
+      (tester) async {
+    await tester.pumpWidget(_app(syncMailbox: () async {}));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('應用工具'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('桌面連結'), findsOneWidget);
+  });
 }
 
 Widget _app({required Future<void> Function() syncMailbox}) {

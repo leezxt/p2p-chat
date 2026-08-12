@@ -48,6 +48,12 @@ jobs:
       - name: Test backup retention safety
         shell: pwsh
         run: ./scripts/test-backup-retention.ps1
+      - name: Test backup off-host export safety
+        shell: pwsh
+        run: ./scripts/test-backup-offhost-export.ps1
+      - name: Test production monitor alerting
+        shell: pwsh
+        run: ./scripts/test-production-monitor-alerting.ps1
       - name: Build and verify isolated containers
         shell: pwsh
         run: ./scripts/smoke.ps1
@@ -71,7 +77,7 @@ jobs:
       - name: Resolve locked dependencies
         run: flutter pub get --enforce-lockfile
       - name: Check Dart formatting
-        run: dart format --output=none --set-exit-if-changed lib test
+        run: dart format --output=none --set-exit-if-changed lib test integration_test
       - name: Run static analysis
         run: flutter analyze
       - name: Run unit and widget tests
@@ -106,6 +112,22 @@ jobs:
           flutter test --no-pub -d windows
           --dart-define=RUNTIME_PLATFORM=Windows
           integration_test/android_crypto_runtime_test.dart
+      - name: Run Windows Desktop Link Companion integration
+        run: >-
+          flutter test --no-pub -d windows
+          --dart-define=RUNTIME_PLATFORM=Windows
+          --dart-define=VERIFY_CLIPBOARD=true
+          integration_test/desktop_link_companion_runtime_test.dart
+      - name: Run Windows Desktop Link module route integration
+        run: >-
+          flutter test --no-pub -d windows
+          --dart-define=RUNTIME_PLATFORM=Windows
+          integration_test/desktop_link_module_route_runtime_test.dart
+      - name: Run Windows Desktop Link app entry integration
+        run: >-
+          flutter test --no-pub -d windows
+          --dart-define=RUNTIME_PLATFORM=Windows
+          integration_test/desktop_link_app_entry_runtime_test.dart
       - name: Verify Windows secure storage across App processes
         shell: pwsh
         run: |

@@ -3,7 +3,13 @@
 本文件是接手開發與驗收進度的單一清單。完整依賴與驗收條件仍以
 [`project_tasks.md`](project_tasks.md) 為準。
 
-目前依使用者指示只實作 v1.2 藍圖的 V1；V1.5～V5 暫停於 backlog。
+目前主要發布目標仍是 v1.2 藍圖的 V1；因剩餘 Gate 受真機與外部環境阻塞，
+使用者已授權先行實作 V1.5 Safety Number、App Lock 與 Low Power Mode 的電腦端
+工作，並於 2026-07-26 授權先行實作可由 Windows 主機／Android AVD 完整驗證的
+V2 工作。V1 真機與 production Gate 不因此降級；使用者已接續授權 V3 Desktop Link
+的主機安全核心、手機端一次性 QR 請求檢閱、公開金鑰 binding、私鑰持有 challenge-response
+授權 gate、Desktop Companion host presentation 與受限的 GitHub-hosted Windows module-route／App-entry
+runtime；完整桌面／跨裝置 runtime 仍保留於 backlog。
 
 ## 接手摘要（2026-07-26）
 
@@ -17,14 +23,84 @@ Android application ID、iOS Bundle ID、Firebase project 與加密 domain strin
 - [x] GitHub README 加入產品動機、應用場景、架構、開發沿革與驗證邊界
 - [x] 加入原創 Logo、架構展示圖、技術棧 badges 與英文 README
 - [x] 統一 Android／iOS／Windows／App UI 顯示名稱
-- [ ] 在可用 Flutter 3.44+ 環境重跑 `gen-l10n`、format、analyze 與完整測試
-- [ ] 處理 Kotlin plugin、`android.builtInKotlin`／`android.newDsl` 與 Gradle 10 警告
-- [ ] 製作一分鐘操作 Demo 與真實 App 截圖
+- [x] Flutter 3.44.6 完成 dependency／l10n generation、format、analyze 與完整自動化測試；
+  [V1 CI run 30207910328](https://github.com/leezxt/p2p-chat/actions/runs/30207910328) 全部成功
+- [ ] 等待 `flutter_webrtc`／`mobile_scanner` 支援 Built-in Kotlin；目前 Flutter template
+  管理的 `android.builtInKotlin=false`／`android.newDsl=false` 必須保留
+- [x] Android API 35 模擬器完整 APK 啟動，並產出深色首頁、Low Power Mode、App Lock 截圖
+- [x] 產出 34 秒 Android API 35 操作 Demo（首頁、Low Power Mode、App Lock、語言選單）
+- [ ] 補充 Android 真機操作影片與截圖
+
+### V2 可由主機先行
+
+- [x] V2-01 Emoji／Reaction 主機範圍：版本化事件、SQLite 冪等、P2P／Mailbox fallback、即時更新與雙語 UI tests
+- [ ] V2-01 外部 Gate：雙真機離線同步、系統通知呈現與實際操作驗收
+- [ ] V2-02 內建貼圖／貼圖包：🚧 只傳 ID、嚴格 manifest、hash／格式／容量／授權、zip-slip 防護、內建資產與雙語 Widget tests，以及單機 Android AVD UI Gate 已完成；離線雙端與真機資源驗收待完成
+  - [x] 完整 sodium Android debug APK 建置成功；APK 內含三個 ABI 的 `libsodium.so`、貼圖 manifest 與 PNG。大小 `243287062` bytes，SHA-256 `20BA98AAFE855DF6E988439E9C60085E3AE2C0E37230FF0B701F4F97173A0C76`
+  - [x] Android AVD UI Gate（2026-08-13）：新增 `integration_test/android_sticker_runtime_test.dart` 與 `tool/verify_android_stickers.ps1`；在 API 35 `emulator-5930` 以正式 `bootstrap`／`P2pChatApp` 建立聊天室、開啟貼圖選擇器、選取 `flutter`、渲染內建 PNG，並回讀 SQLite 確認訊息僅保存 `packId`／`stickerId`。此為單一 AVD 的本機 UI／資產／SQLite 證據，未設定 backend，不能替代離線雙端同步、Mailbox／P2P 傳輸或真機資源驗收。
+  - [x] 雙 Android AVD Mailbox restart Gate（2026-08-13）：`verify_android_mailbox_recovery.ps1 -MessageKind sticker` 在 `emulator-5930`／`emulator-5932` 以隔離 H2 backend 傳遞真實 sodium 加密的貼圖 ID-only envelope；receiver 寫入 SQLite 後模擬 DELIVERED ACK 遺失、`am force-stop`、重啟、冪等重拉與 READ 回傳，sender 與 receiver 均驗證 `sticker`、`packId`、`stickerId`。
+  - [ ] 外部 Gate：完整 `MessageTransportCoordinator` 的 P2P→Mailbox fallback 編排、兩台 Android 真機的離線貼圖同步／重送、真機資源占用與大量貼圖包操作驗收
+- [x] V2-05 Storage Manager 主機核心：SQLite v10 快取索引、資料庫／快取／附件分類、preview-first 清理與關鍵資料保護；目前只清可重建快取，不刪聊天、身份、金鑰或未送 mailbox
+- [ ] V2-05 外部 Gate：真機磁碟壓力、OS 清理、大量資料效能與真實附件驗收
+- [x] V2-06 Smart Notification 主機核心：SQLite v11 per-chat 靜音／預覽偏好、App Lock 雙重隱私判定、provider-neutral 通知決策與聊天室設定 UI
+- [ ] V2-06 外部 Gate：真實 FCM／APNs、系統權限、cold/warm provider routing 與 OEM 通知行為
+- [x] V2-04 單則翻譯主機核心：SQLite v12 cache、provider interface、明確 opt-in、原文不改寫、單則清除與 fake provider tests；預設未設定 provider、不傳送內容
+- [ ] V2-04 外部 Gate：選定本機／雲端 provider、費用、資料處理條款與實際網路失敗驗收
+- [x] V2-03 圖片／語音主機安全核心：Attachment v1 metadata、MIME／大小限制、按需下載／取消／重試與 Low Power policy，模組預設 disabled
+- [ ] V2-03 外部 Gate：真實加密 transfer、相機、麥克風、權限、行動網路、AVD UI 與耗電驗收
+
+詳細主機驗收與外部 Gate 見 [`project_tasks.md`](project_tasks.md#v2-主機可先行範圍)。
+
+### V3 可由主機先行
+
+- [x] V3-01 Desktop Link／Device Sync／Revoke 主機安全核心：獨立 `desktop_link` 模組、
+  SQLite v13 `desktop_link_authorizations`、手機主裝置明確授權、主裝置 ID 拒絕、
+  fingerprint 變更 fail-closed、嚴格只選授權後新訊息，以及撤銷後拒絕新同步選取。
+- [x] V3-02 一次性 QR 配對請求與手機端明確確認：SQLite v14
+  `desktop_link_pairing_requests`、嚴格版本／欄位／目標主裝置／30–600 秒到期、一次性
+  `pending → confirming → confirmed/rejected` 狀態、掃描或貼入後顯示 fingerprint、拒絕後
+  不可重放，以及僅在確認對話框同意後才呼叫 V3-01 授權；首頁入口收進「應用工具」選單，
+  避免窄螢幕 AppBar 擠出。
+- [x] V3-03 QR 公開金鑰 binding 與 canonical request issuer：QR schema v2 必須含 32-byte
+  X25519 `publicKey`，手機端以裝置 ID 與該 key 重算 fingerprint，拒絕不一致內容；
+  `DesktopLinkPairingRequestIssuer` 僅以公開金鑰建立短效 canonical request。SQLite v15
+  安全作廢沒有 key binding 的 v14 暫存 request，不影響既有授權、聊天、身份或金鑰；檢閱頁
+  會明示 key binding 本身不等於桌面端持有私鑰。
+- [x] V3-04 私鑰持有 challenge-response 與手機授權 gate：沿用既有 X25519 `MessageBox`
+  authenticated `crypto_box`，將短效一次性 token 只放在加密 challenge 與手機 RAM；手機嚴格
+  驗證 request／主副裝置／公開金鑰 fingerprint／challenge／token／效期。竄改、錯誤 key、重放、
+  逾期或 app restart 均 fail-closed，沒有有效 proof 時 `confirm` 不會授權，proof 成功後仍需
+  使用者在確認對話框明確同意。
+  `NIX_SKIP_SODIUM_BUILD_HOOKS=1` 下的 proof 測試使用 test-only `MessageBox` fake，不宣稱
+  原生 libsodium、secure storage、實機或桌面 runtime 已通過。
+- [x] V3-05 Desktop Companion QR／手動 challenge presentation：desktop target 的 Desktop Link
+  route 會改為顯示本機公開 X25519 key 產生的短效 pairing QR；使用者手動輸入手機主裝置 ID 與
+  桌面名稱，貼入手機 challenge 後取得可複製的 encrypted response。手機檢閱頁同時顯示 primary
+  device ID，形成無網路、無背景、無 token persistence 的手動流程。service／Widget 與既有 V3
+  專項共 38 項主機測試、`dart analyze` 已於 2026-08-09 通過；
+  [GitHub Windows CI run 31319510492](https://github.com/leezxt/p2p-chat/actions/runs/31319510492)
+  另以真實 `SodiumMessageBox`、QR rendering、主端角色 proof 與受控 clipboard copy 通過受限
+  Windows native flow，並以 SQLite FFI、實際 `ModuleRegistry`、`RouteRegistry` 與 `Navigator`
+  test shell 證明 `/desktop-link` 會選擇 Companion。新增 App-entry integration 以無後端設定跑過正式
+  `bootstrap`、`P2pChatApp` 與聊天室「應用工具」選單，並到達 Companion 而不是手機 pairing 頁。
+  這是單一 Windows native test process 的 App 路由證據，不是實體手機與桌面的真實跨裝置同步。
+- [ ] V3 外部 Gate：macOS／Linux 原生 runner、目前本機 Windows 已安裝桌面 App 的人工使用者驗收、
+  目標主裝置 discovery／自動交付，Android／iOS 真實相機權限與掃碼、實際桌面端 transport、
+  每副端重新加密、真實多裝置同步／網路故障，以及撤銷後副端無法取得或解密新訊息的
+  Windows／Android／iOS runtime 驗收。
+  `mobile_desktop_app/tool/verify_windows_desktop.ps1` 現在統一 Windows preflight、debug build、
+  secure-storage process restart、Desktop Companion、module-route 與 App-entry native integration；
+  native run 一律拒絕 `NIX_SKIP_SODIUM_BUILD_HOOKS`。最後記錄的本機 2026-08-09 preflight 顯示未安裝
+  Visual Studio Desktop development with C++／MSVC／CMake／Windows SDK；CI 已通過受限 native flow，
+  但本機 runner 仍需安裝後執行此入口，且不能以 CI 成功勾選其餘跨裝置 Gate。
+
+詳細安全邊界與未完成 protocol 見 [`desktop_link.md`](desktop_link.md)。
 
 ### 需要 Android API 24+ 真機
 
 - [ ] 兩台真機 encrypted P2P、Mailbox fallback 與 `STORED → DELIVERED → READ`
 - [ ] 實際斷網、OS kill、ACK 遺失恢復與重複訊息驗證
+- [ ] App Lock 生物辨識、Safety Number 相機掃碼與雙機人工核對
 - [ ] 冷啟動、記憶體、背景連線、網路與長時間耗電量測
 
 ### 需要正式憑證或部署環境
@@ -46,7 +122,338 @@ Android application ID、iOS Bundle ID、Firebase project 與加密 domain strin
 - 每完成一項工作，必須在同一次變更中勾選本清單，並更新受影響的 README 或 `docs/` 文件。
 - 不可只因程式碼存在就勾選；需要實機、容器或外部服務的項目，必須完成對應環境驗證。
 
-## 目前交接（2026-07-17 01:53 +08:00）
+## 目前交接（2026-07-19 17:43 +08:00）
+
+目前目標：接續不需要手機與正式 alert credentials 的 V1 發布工作，將既有 production
+monitor 補成可交給排程器安全執行的 stateful failure／recovery webhook runner。
+
+- [x] **已完成**：新增 `run-production-monitor.ps1`；呼叫既有 one-shot monitor，驗證 PASS／FAIL 與 exit code 一致，輸出仍保留非零 health failure 語意
+- [x] **已完成**：同一 state file 使用 OS file lock 阻擋重疊執行；只有取得 lock 的程序可清除 lock，state 以 temporary file 原子替換且拒絕 corrupt／unsupported state
+- [x] **已完成**：第一次 PASS 只建立 baseline；首次／轉換為 FAIL 送 `PRODUCTION_HEALTH_FAILED`，FAIL 轉 PASS 送 `PRODUCTION_HEALTH_RECOVERED`，相同狀態不重複告警
+- [x] **已完成**：正式 webhook 強制 HTTPS、停用 redirect；可選 Bearer token 只進 Authorization header，不寫 state／payload／輸出，payload 不含 monitor error 或 env secrets
+- [x] **已完成**：Webhook 非 2xx／連線失敗時 state 不前進，下次排程會重試 transition；local verification 只允許 loopback HTTP/HTTPS
+- [x] **已完成**：新增 `test-production-monitor-alerting.ps1`，實際 loopback POST 驗證 failure、recovery、重複抑制、HTTP 500 重試、payload 去敏、HTTPS 限制與 overlap lock 全部通過
+- [x] **已完成**：fixture 接入 V1 CI PostgreSQL job；`production.env.example`、backend README、testing、RC 與 project tasks 已同步
+- [x] **已完成**：PowerShell parser、alert／off-host export／retention fixtures、YAML parse、`git diff --check` 與 Java 52 tests 全部通過
+- [x] **已完成**：GitHub run `29682241853` 的 Ubuntu fixture 所有斷言回 `PASS`，但 process 沿用最後一個刻意 FAIL monitor 的 exit 1；fixture 清理後新增明確 `exit 0`，獨立 `pwsh -File` 重跑為 PASS／exit 0
+- [x] **已完成**：commits `e67715d`／`517b871` 已推送；Draft PR #54 V1 CI run `29682331513` 的 Ubuntu alert／backup fixtures、Flutter、Java、PostgreSQL 與 Windows Desktop 全部成功
+- [ ] **已實作未驗證**：正式 systemd timer／Task Scheduler、service-account ACL、真實 alert receiver 與 on-call routing 仍待 deployment environment 驗收
+
+變更範圍：scheduled production monitor／alert fixture、V1 CI、production env example、
+backend 操作說明、testing、release candidate、project tasks 與本交接清單。
+
+驗證：Windows PowerShell fixture 回傳 `PASS`；failureAlertSent、overlapRejected、
+duplicateSuppressed、recoveryAlertSent、insecureWebhookRejected、placeholderRejected、rejectedDeliveryRetried 與
+payloadRedacted 全為 true。Off-host export／retention fixtures PASS；PowerShell parser、YAML、
+diff check 與 Java 52 tests／0 failures／0 errors 通過。
+
+Runtime：本輪 fixture 的 loopback TCP jobs 均已完成並移除，temporary test directory 已由
+finally 安全清除；未啟動 Docker、backend、AVD 或手機，沒有需停止的 managed runtime。
+
+下一步：取得 production host 與 alert receiver 後建立正式 systemd timer／Task Scheduler、
+service-account ACL 與 on-call routing，執行 failure／recovery drill；沒有 credentials 時接續
+其他 release artifact 工作，不因 fixture 成功勾選正式 deployment Gate。
+
+## 上次交接（2026-07-19 17:16 +08:00）
+
+目前目標：接續不需要手機與正式雲端 credentials 的 V1 發布工作，補齊 production
+backup 從 local staging 到獨立掛載 off-host storage 的可驗證 export／receipt 契約。
+
+- [x] **已完成**：新增 `export-production-backup.ps1`，匯出前驗證 regular dump／manifest、schema、filename、size、custom format 與 SHA-256
+- [x] **已完成**：目的地必須為 staging 外的既有 regular directory；dump／manifest 以 temporary file 複製並重讀 hash 後移入，同名相同內容可冪等重跑，不同內容 fail-closed
+- [x] **已完成**：storage reference 必須是無 userinfo/query/fragment 的 absolute URI；目的地兩個 hash 驗證完成後才原子建立 schema 2 receipt，綁定 dump hash／size 與 manifest hash
+- [x] **已完成**：prune 保留 schema 1 receipt 相容，對 schema 2 強制驗 manifest binding；匯出後 local manifest 被替換時備份轉為 protected
+- [x] **已完成**：prune Apply 在刪除前重新驗 manifest schema／filename／size／format／hash，以及 receipt schema／hash／reference／時間與 schema 2 binding，避免掃描後替換
+- [x] **已完成**：新增 `test-backup-offhost-export.ps1`，正向匯出、重跑冪等、retention receipt 相容、manifest binding、來源竄改、目的地衝突與 credential-like reference 拒絕全部通過
+- [x] **已完成**：off-host export fixture 接入 V1 CI PostgreSQL job；backend README、testing、RC 與 project tasks 已同步
+- [x] **已完成**：Windows PowerShell parser、off-host export fixture、既有 retention fixture、YAML parse、`git diff --check` 與 Java 52 tests 全部通過
+- [x] **已完成**：commit `8dc2d58` 已推送；Draft PR #54 V1 CI run `29681462407` 的 Ubuntu off-host fixture、Flutter、Java、PostgreSQL 與 Windows Desktop 全部成功
+- [ ] **已實作未驗證**：正式環境仍需驗證目標確實為加密 off-host storage、provider retention／存取控制與定期 restore drill；本工具不能由掛載路徑自行證明這些外部屬性
+
+變更範圍：production backup off-host export／fixture、V1 CI、backend 操作說明、testing、
+release candidate、project tasks 與本交接清單。
+
+驗證：Windows PowerShell parser 通過；fixture 回傳 `PASS`，exported=1、idempotent、
+retentionCompatible、manifestBindingVerified、schema2ApplyVerified、tamperedSourceRejected、destinationCollisionRejected 與
+credentialReferenceRejected 全為 true。既有 retention fixture PASS；YAML parse、diff check 與
+Java 52 tests／0 failures／0 errors 通過。尚未啟動 Docker、backend、AVD 或手機。
+
+Runtime：本輪只有短命 PowerShell fixture，temporary test directory 已由 finally 安全清除；
+目前沒有需停止的 managed runtime。
+
+下一步：取得正式 storage provider／掛載與 access policy 後執行真實 off-host export、
+provider-side hash／retention 及 restore drill；未取得 credentials 時可接續 production
+排程／外部告警的本機契約，不把 mounted fixture 當成正式 off-host Gate。
+
+## 上次交接（2026-07-19 16:41 +08:00）
+
+目前目標：擴大不使用手機的 App Lock production runtime 驗證，在已 enrollment 的
+Android 15 AVD 自動覆蓋 biometric success／cancel；AVD 結果不得取代真機 Gate。
+
+- [x] **已完成**：integration test 改以 `BIOMETRIC_EXPECTATION` 支援 `skip`、`notEnrolled`、`success`、`cancel`，並保留未指定時跳過 biometric assertion
+- [x] **已完成**：PowerShell runner 保留 `-ExpectUnenrolledBiometrics` 相容入口，新增受控 emulator 專用的 `-BiometricExpectation`；非 emulator 會直接拒絕自動 assertion
+- [x] **已完成**：runner 可等待 production `local_auth` 系統提示；success 自動送入 finger ID `1`，cancel 自動送出 Android 返回鍵，逾時或測試失敗會保留 log 並回傳失敗
+- [x] **已完成**：Android 15 API 35 AVD 設定鎖屏 PIN、完成一枚模擬指紋 enrollment；success 與 cancel 各自重跑 2 項 native integration tests，全部通過
+- [x] **已完成**：163-file format、全專案 `flutter analyze --no-pub` 與 PowerShell parser 通過
+- [ ] **已實作未驗證**：Android/iPhone 真機 enrollment change、真實指紋／Face ID 感測器差異、secure storage 跨 OS restart、備份還原與企業裝置政策仍待真機驗收
+- [x] **已完成**：清除本輪 AVD 鎖屏 PIN 與模擬指紋 enrollment，`emulator-5554` 已以 `adb emu kill` 乾淨停止，`adb devices` 無殘留裝置
+- [x] **已完成**：App Lock 16 項 host tests、163-file format、全專案 analyze、PowerShell parser 與最終 diff check 通過
+- [x] **已完成**：commit `e84d1fd` 已推送；Draft PR #54 V1 CI run `29680341499` 的 Flutter、Java、PostgreSQL 與 Windows Desktop 四項全部成功
+
+變更範圍：Android App Lock runtime integration test、PowerShell runner、testing、
+project tasks 與本交接清單。
+
+驗證：`-BiometricExpectation success` 與 `cancel` 各自於 production SodiumSumo、
+Android encrypted storage、lifecycle coordinator 與 `local_auth 3.0.2` 執行；兩輪皆為
+2 tests、All tests passed。App Lock host tests 首次受本機缺少 Visual Studio `vswhere`
+阻擋於 sodium build hook，依既有方式設定 `NIX_SKIP_SODIUM_BUILD_HOOKS=1` 後 16 tests
+全通過；該跳過只用於 fake／mock host tests，production sodium 已由 AVD native tests
+覆蓋。format 163 files／0 changes、analyze 零問題、PowerShell parser 與 diff check 通過。
+
+Runtime：`emulator-5554`（AVD `p2p_api35`）先以 `locksettings clear --old 246810`
+清除測試 PIN；清除後 fingerprint enrollment count 不再出現，再以 `adb emu kill` 乾淨
+停止，`adb devices` 無殘留裝置。未啟動 Docker、backend 或其他 App。
+
+下一步：真機可用時再補 Android/iPhone enrollment change、感測器差異、secure storage
+跨 OS restart 與系統政策；沒有真機時接續其他不依賴 credentials／production authority
+的 V1.5 backlog，不因 AVD 成功關閉真機 Gate。
+
+## 上次交接（2026-07-18 22:31 +08:00）
+
+目前目標：以 Android 15 AVD 補 App Lock production runtime 驗收，覆蓋真實 Argon2id、
+secure storage、background lock 與未註冊 biometric fail-closed；不得取代真機 Gate。
+
+- [x] **已完成**：盤點 production App Lock、lifecycle 與 integration runner；本機 `p2p_api35` AVD 具 fingerprint HAL，沒有 enrollment
+- [x] **已完成**：新增 `android_app_lock_runtime_test.dart`，使用 production SodiumSumo hasher、Android secure storage、local_auth adapter 與 lifecycle coordinator
+- [x] **已完成**：真實 Argon2id verifier 不含 PIN；同一 Android encrypted storage 重載後預設鎖定，錯誤 PIN 不解鎖、正確 PIN 可解鎖，paused 後立即重新鎖定且 resumed 不自動解鎖
+- [x] **已完成**：具 fingerprint HAL、未 enrollment 的 Android 15 AVD 上，production local_auth adapter 回傳 `notEnrolled` 且不解鎖
+- [x] **已完成**：新增 `verify_android_app_lock.ps1`，驗證裝置、限制 unenrolled assertion 只能用受控 emulator，設定 native build PATH 與低併發後執行測試
+- [x] **已完成**：CI format Gate 擴充至 `lib test integration_test`；163 files／0 changes、全專案 analyze、16 項 App Lock 回歸與 runner native 2 tests 均通過
+- [ ] **已實作未驗證**：Android/iPhone 真機 enrollment change、biometric 成功／取消、secure storage 跨 OS restart 與系統政策仍待實機驗收
+- [x] **已完成**：commit `a74715c` 已推送；Draft PR #54 V1 CI run `29648009386` 的 Flutter、Java、PostgreSQL 與 Windows Desktop 四項全部成功
+
+變更範圍：Android App Lock runtime integration test、PowerShell runner、CI format 範圍、testing、
+project tasks 與本交接清單。
+
+驗證：第一次 native build 因三個閒置 Gradle/Kotlin daemon 占約 4.3 GB，使 sodium hook 無法
+建立 Dart worker；記錄後正常停止 daemon、限制 2 workers 重跑通過。新 runner 再次獨立重跑
+2 tests 通過；163-file format、analyze 與 App Lock 16 tests 通過。GitHub run `29648009386`
+完整四項 Gate 全綠。
+
+Runtime：`emulator-5554`（AVD `p2p_api35`）已以 `adb emu kill` 乾淨停止，`adb devices`
+無殘留裝置；先前 Gradle/Kotlin daemon 已正常退出。未啟動 Docker、backend 或其他 App。
+
+下一步：有真機時再驗 enrollment change、biometric 成功／取消與 secure storage 跨 OS
+restart；沒有實機時接續其他不依賴 credentials／production authority 的項目。AVD 結果
+不得關閉真機 Gate。
+
+## 上次交接（2026-07-18 21:58 +08:00）
+
+目前目標：降低 App Lock 生物辨識套件的 AGP 9／舊 API 維護風險，升級至
+`local_auth 3.x`，並保留 biometric-only、取消不解鎖與 PIN fallback 語意。
+
+- [x] **已完成**：盤點 App Lock production adapter 與 platform fake；確認公開 API 改為 `biometricOnly`／`persistAcrossBackgrounding`，錯誤改用 `LocalAuthExceptionCode`
+- [x] **已完成**：升級 `local_auth 3.0.2`、`local_auth_android 2.0.9`、`local_auth_darwin 2.0.3`、platform interface 1.1.0 與 transitive Windows 2.0.1
+- [x] **已完成**：adapter 改用 structured exception mapping；硬體不可用、未註冊、暫時／永久鎖定、使用者／系統取消及其他裝置失敗維持分流，不會因失敗而解鎖
+- [x] **已完成**：16 項 App Lock adapter/service/widget tests、158-file format check 與 `flutter analyze --no-pub` 通過
+- [x] **已完成**：skip-sodium Android debug APK 建置通過；`local_auth_android` 已不再出現在 KGP future warning，剩餘警告只有既知的 `flutter_webrtc`／`mobile_scanner`
+- [x] **已完成**：README／testing 的實際工具鏈下限同步為 Flutter 3.44／Dart 3.12；根 package metadata 暫不提高，以避免無關 formatter migration
+- [x] **已完成**：GitHub V1 CI run `29646948250` 的 Windows Desktop debug build 通過，`local_auth_windows 2.0.1`、native crypto、secure storage、WebRTC integration 與跨 App process persistence 均無回歸
+- [ ] **已實作未驗證**：Android/iPhone enrollment change、Argon2id、secure storage、background/resume 與 biometric runtime 仍待實機驗收
+
+變更範圍：App Lock `local_auth` adapter／tests、`pubspec.yaml`／lock、README、testing、
+project tasks 與本交接清單。
+
+驗證：App Lock 16 tests 全通過；format 158 files／0 changes；analyze 零問題；Android debug
+APK `243259582` bytes，SHA-256
+`EA964705D52438C82A9DC1BB51FD32FE8E287A2A52A716EE8ED6D5F172DB942A`。Build 使用
+skip-sodium，只驗證 Dart／Android plugin／Gradle 編譯，不取代先前真實 sodium runtime。
+V1 CI run `29646948250` 的 Flutter、Java、PostgreSQL 與 Windows 四項 jobs 全部成功。
+
+Runtime：本機 Flutter／Gradle build 已完成；未啟動 Docker、ADB、AVD、App 或 backend。
+Windows build 未啟動編譯程序，因本機無 Visual Studio C++ toolchain。
+
+下一步：有 Android 或 iPhone 實機時驗證 enrollment change、biometric cancel/success、背景
+鎖定與 PIN fallback；沒有實機時接續其他不依賴 credentials／production authority 的項目。
+
+## 上次交接（2026-07-18 21:33 +08:00）
+
+目前目標：降低 Android AGP 9／Kotlin deprecation 風險，先升級可控的 QR scanner，並驗證
+Flutter 3.44.6 built-in Kotlin migration 邊界；不得破壞既有 crypto／WebRTC build。
+
+- [x] **已完成**：以 Flutter 3.44.6 官方 template 與 CI log 定位警告；`android.builtInKotlin=false`／`android.newDsl=false` 由 Flutter migrator 管理，非可直接刪除的一般專案設定
+- [x] **已完成**：確認 `flutter_webrtc 1.5.2` 已具 AGP 9 conditional KGP 邏輯；`mobile_scanner 6.0.11` 為無條件套用 KGP 的舊版
+- [x] **已完成**：升級至 `mobile_scanner 7.3.0`；同步 Dart ≥3.7／Flutter ≥3.29 下限，並依 breaking API 將 scanner `errorBuilder` 改為兩參數
+- [x] **已完成**：根 package metadata 保持 Dart 3.6／Flutter 3.27，避免觸發 l10n 與 103 個既有檔案的 formatter migration；scanner dependency 仍使實際解析／執行最低版本為 Dart 3.7／Flutter 3.29
+- [x] **已完成**：首次 V1 CI `29645881265` 只有 format step 失敗；根因是提高 root language version 觸發新 formatter，修正後完整 `dart format --output=none --set-exit-if-changed lib test` 為 158 files／0 changes
+- [x] **已完成**：新版 scanner 的 Android script 已能依 AGP 9 built-in Kotlin 狀態條件套用 KGP；最低 Android API 23 低於本專案 API 24 Gate
+- [x] **已完成**：7 項 Safety Number tests、Dart format、`flutter analyze --no-pub` 與 skip-sodium Android debug APK 建置通過
+- [x] **已完成**：debug APK 大小 `218609212` bytes，SHA-256 `CECB076033920B401A2C683E5E6887AAA8286D0C9AC950A09EFA4B7035A95BD7`
+- [x] **已完成**：最終 V1 CI run [29646141895](https://github.com/leezxt/p2p-chat/actions/runs/29646141895) 的 format、analyze、完整 Flutter tests、Java、PostgreSQL 與 Windows native／desktop jobs 全部成功
+- [x] **已完成**：免費 Test Lab run [29645884176](https://github.com/leezxt/p2p-chat/actions/runs/29645884176) 的 scanner Kotlin compile、debug／androidTest APK、OIDC、catalog、bucket 與 artifact upload 通過；submission／monitor skipped，未建立 matrix
+- [ ] **已實作未驗證**：移除 built-in Kotlin 相容旗標的實驗 build 會被 Flutter 3.44.6 migrator 自動重加；已恢復受支援模板設定，完整遷移需等待 Flutter toolchain 開放
+- [ ] **已實作未驗證**：模板仍為 `builtInKotlin=false` 時，`flutter_webrtc` 與 `mobile_scanner` 會依相容邏輯套用 KGP，因此 build summary 仍有未來淘汰警告；目前 build 可用且 Kotlin 2.3.20 版本警告已避免
+- [ ] **已實作未驗證**：真實相機權限允許／拒絕、QR 掃碼與兩台裝置 Safety Number 一致性仍待 Android/iPhone 實機驗收
+
+變更範圍：`mobile_desktop_app/pubspec.yaml`／lock、Safety Number scanner callback、兩處
+generated l10n formatter normalization，以及 README、testing、project tasks 與本交接清單。
+實驗性的 Gradle 設定移除與 103-file formatter churn 均未保留。
+
+驗證：`flutter pub get` 成功；Safety Number 7 tests、158-file format、analyze、Android debug
+APK、GitHub 完整 V1 CI 與 Test Lab instrumentation build 均通過。Artifact ID `8430113821`、
+大小 `111858436` bytes、annotations `[]`。Build 使用 skip-sodium，只驗證 scanner／Gradle
+編譯，不取代先前真實 sodium runtime。
+
+Runtime：兩個 GitHub workflows 與本機 Flutter／Gradle build 均已完成；未啟動 Docker、
+ADB、AVD、App 或 backend，沒有 Test Lab matrix 或需停止的 managed process。
+
+下一步：Flutter toolchain 未移除兩個相容旗標前，不重複嘗試 built-in Kotlin migration。
+真機可用時驗證 camera permission、QR 掃碼與雙裝置 Safety Number；否則改處理其他不依賴
+實機／credentials／production authority 的項目。
+
+## 上次交接（2026-07-18 18:57 +08:00）
+
+目前目標：清除 Test Lab workflow 的 GitHub Actions Node.js 20 deprecation，維持 action
+commit SHA pinning，並以免費 dry-run 驗證 artifact 上傳；本輪未送出付費 matrix。
+
+- [x] **已完成**：以 GitHub 官方 release／tag API 確認 `actions/upload-artifact v7.0.1`，並鎖定 commit `043fb46d1a93c77aae656e7c1c64a875d1fc6a0a`
+- [x] **已完成**：Test Lab workflow 由 `upload-artifact v4` 升級至 pinned `v7.0.1`；現有契約測試加入精確 SHA／版本檢查
+- [x] **已完成**：本機 Test Lab monitor 契約測試、PyYAML workflow parse 與 `git diff --check` 通過
+- [x] **已完成**：V1 CI run [29641319099](https://github.com/leezxt/p2p-chat/actions/runs/29641319099) 的 Java、PostgreSQL、Flutter 與 Windows Desktop 四個 jobs 全部成功
+- [x] **已完成**：免費 Test Lab run [29641323307](https://github.com/leezxt/p2p-chat/actions/runs/29641323307) 通過；artifact `firebase-test-lab-29641323307-1` 成功 finalized，submission／monitor steps 明確 skipped
+- [x] **已完成**：Test Lab check-run annotations 為空，完整 log 不再出現 Node.js 20 deprecation；確認 action 實際載入上述 pinned SHA
+- [ ] **已實作未驗證**：Android build 仍顯示 Kotlin plugin、`android.builtInKotlin`／`android.newDsl` 與 Gradle 10 相容性警告；不影響本項 action runtime 驗收，後續需分開升級 Android toolchain／plugins
+- [ ] **已實作未驗證**：首次成功 Test Lab 實體機 runtime、兩台真機 E2E、實際斷網、OS kill、網路／記憶體／耗電 Gate 仍未完成
+
+變更範圍：`.github/workflows/firebase-test-lab.yml`、
+`mobile_desktop_app/tool/test_monitor_firebase_test_lab.sh`、`docs/project_tasks.md` 與本交接清單。
+
+驗證：本機 monitor 契約、YAML parse、diff check 通過；GitHub V1 CI 與免費 Test Lab
+preflight 均成功。Artifact ID `8428812533`、大小 `110939636` bytes、annotations `[]`；未建立
+`matrix-id.txt` 或執行付費 submission。
+
+Runtime：兩個 GitHub workflows 均已完成；沒有 Test Lab matrix、Docker、ADB、AVD、App
+或 backend 在本輪執行。
+
+下一步：Android toolchain deprecation 可在電腦繼續處理，但需先分辨 app 自有設定與
+`mobile_scanner`／`flutter_webrtc` 等第三方 plugin 警告；不得為消除警告破壞既有 Android
+crypto／WebRTC build。真機可用時仍優先完成 V1-01/03/04。
+
+## 上次交接（2026-07-18 18:06 +08:00）
+
+目前目標：將 V1.5 安全／低功耗與 V1-01 Test Lab lifecycle 修正發布至 Draft PR，
+並以免費 GitHub dry-run 驗證完整 preflight；本輪未送出付費 matrix。
+
+- [x] **已完成**：依 2026-05-27 官方 gcloud／Testing API 文件確認 `run --async`、device capacity、matrix GET 與 `:cancel` 契約
+- [x] **已完成**：workflow job 上限由 45 分鐘調整為 180 分鐘；新增 15～120 分鐘可設定 queue timeout，裝置 instrumentation 仍限制 10 分鐘，開始執行後監控最多 30 分鐘
+- [x] **已完成**：submission 改為 `--async --format=json`，立即驗證並保存 `matrix-submit.json`、`matrix-id.txt` 與 GitHub step output，不再讓同步 gcloud 命令獨占整個 job
+- [x] **已完成**：新增 `monitor_firebase_test_lab.sh`；透過 Testing API 保存最新 JSON／摘要，只有 `FINISHED / SUCCESS` 通過，其他 terminal outcome fail closed
+- [x] **已完成**：監控腳本在 queue/run timeout、連續 API 失敗、SIGINT、SIGTERM 或非 terminal exit 時呼叫 `:cancel`；access token 每次查詢刷新，避免長排隊超過 token 壽命
+- [x] **已完成**：preflight 保存 `list-device-capacities` JSON；付費 submission 預設拒絕 `Low`／`None`／Unknown，只有明確 `allow_low_capacity=true` 才允許 Low；免費 dry-run 仍可檢視 Low／Unknown
+- [x] **已完成**：新增 matrix ID extractor 與本機契約測試；SUCCESS 不取消、PENDING timeout 取消、FINISHED/FAILURE 不誤判成功、非法 matrix ID 拒絕，workflow async／cleanup wiring 與「非 `main` 只能 dry-run」亦有檢查
+- [x] **已完成**：本機 Test Lab monitor tests、3 個 bash scripts syntax、Python compile、workflow YAML parse 與目前 `CPH2449 / API 34 = Low` catalog 查詢通過
+- [x] **已完成**：建立 Draft PR [#54](https://github.com/leezxt/p2p-chat/pull/54)；workflow 允許明確授權分支執行 `submit_test=false`，但任何非 `main` 的付費 submission 仍 fail closed
+- [x] **已完成**：GitHub run [29639354427 attempt 2](https://github.com/leezxt/p2p-chat/actions/runs/29639354427/attempts/2) 免費 dry-run 通過；APK build、OIDC、實體 catalog、capacity 與 bucket 寫入／刪除成功，submission／monitor steps 明確 skipped
+- [x] **已完成**：evidence artifact `firebase-test-lab-29639354427-2` 已下載核對；`CPH2449 / API 34 = Low`、`submit_test=false`，且不存在 `matrix-id.txt` 或 `matrix-submit.json`
+- [x] **已完成**：WIF attribute condition 保留不可變 repository／owner ID，僅由 `main` 額外精確允許 `codex/v15-security-low-power-ftl`；未開放任意功能分支
+- [ ] **已實作未驗證**：首次成功 Test Lab 實體機 runtime、兩台真機 E2E、實際斷網、OS kill、網路／記憶體／耗電 Gate 仍未完成
+
+變更範圍：`.github/workflows/firebase-test-lab.yml`、
+`mobile_desktop_app/tool/monitor_firebase_test_lab.sh`、matrix ID extractor／契約測試，
+V1.5 Safety Number／App Lock／Low Power Mode，以及 Firebase Test Lab、testing、release
+candidate、project tasks 文件。
+
+驗證：本機 monitor 契約測試、YAML parse 與 `git diff --check` 通過。GitHub run
+`29639354427` attempt 2 完整 preflight 成功；artifact 的 APK SHA-256、capacity JSON 與
+bucket preflight log 均存在，且沒有 matrix submission 證據。未建立或送出任何 Test Lab
+matrix，沒有產生本輪實體裝置費用。
+
+Runtime：GitHub workflow 已完成，沒有執行中的 Test Lab matrix。未啟動 Docker、ADB、
+AVD、App 或 backend；本機只保留下載至 `%TEMP%` 的 CI evidence 副本。
+
+下一步：保持 PR #54 為 Draft；選擇 `Medium`／`High` 容量實體 model 後，再由使用者明確
+確認一次 `main` 的付費 submission。單一 Test Lab 裝置仍不取代兩台真機 E2E、實際斷網、
+OS kill 與資源 Gate。PR 合併並刪除功能分支後，將 WIF provider condition 收回只允許
+`refs/heads/main`。
+
+## 上次交接（2026-07-18 14:13 +08:00）
+
+目前目標：完成 V1.5 EPIC-10 Low Power Mode 的電腦端策略、持久化、設定 UI 與
+自動化測試，並保留真機資源量測 Gate。
+
+- [x] **已完成**：新增具 `init / activate / sleep / dispose` 的獨立 `LowPowerModule`；預設關閉，沿用 SQLite `app_settings` 保存，不新增 schema migration
+- [x] **已完成**：新增 `LowPowerModeChanged`；偏好載入與切換後經 Event Bus 發送，Presence／P2P 不直接呼叫 Low Power 內部實作
+- [x] **已完成**：一般／低功耗 Presence heartbeat 為 60／180 秒；前景執行中切換會取消舊 timer 並依新間隔重排，背景仍停止 heartbeat
+- [x] **已完成**：一般／低功耗 P2P 上限為 3／1；超額 outbound 被拒絕、inbound 被關閉，切換後會收斂既有 sessions
+- [x] **已完成**：一般／低功耗 P2P 閒置斷線為 2／1 分鐘；成功連線、傳送或接收密文後重排 timer，背景 P2P 仍永遠關閉
+- [x] **已完成**：低功耗時強制停用圖片自動下載及重型模組自動啟動；一般模式保留既有使用者偏好
+- [x] **已完成**：首頁新增會即時反映狀態的電池圖示，設定頁採 toggle；繁中／英文標題、狀態與說明已由 `gen-l10n` 產生
+- [x] **已完成**：17 項 Low Power／Presence／P2P 專項測試通過；包含預設值、Event Bus、SQLite 跨重啟、動態 interval、P2P 上限／收斂／idle 與繁中 Widget
+- [x] **已完成**：設定 `NIX_SKIP_SODIUM_BUILD_HOOKS=1` 並排除既有 Windows-native `device_key_service_test.dart` 後，125 項 Flutter host tests 全通過；`flutter analyze --no-pub` 零問題
+- [x] **已完成**：同一 skip-hook 環境下 Android debug APK 編譯通過，SHA-256 `E674EBEA5868904906B04755628F8F3ED588EBAC29B3D7CD905988D7278D7E98`；此 APK 不含 sodium native asset，只作編譯驗證
+- [ ] **已實作未驗證**：Low Power 策略與 UI 已完成，但 Android/iPhone 真實前景 heartbeat、連線收斂、背景零 P2P、耗電、網路與記憶體仍待實機量測
+- [ ] **已實作未驗證**：完整 Windows sodium native host test 仍受本機缺少 Visual Studio C++／`vswhere.exe` 阻塞；本輪未修改 device-key 實作
+
+變更範圍：`mobile_desktop_app/lib/modules/low_power/`、`ResourcePolicyService`、
+`PresenceService/Module`、`P2pSessionManager/Module`、Bootstrap、聊天列表設定入口、
+ARB/generated l10n、Low Power／Presence／P2P tests，以及 README／架構／任務文件。
+
+驗證：`flutter gen-l10n` 成功；17 項專項與 125 項 host suite 通過；
+`flutter analyze --no-pub` 零問題；formatter 158 files 零變更；`git diff --check`
+通過（只有既有行尾警告）；Android skip-hook debug build 成功。初次未設定 skip hook
+的測試因找不到 Visual Studio `vswhere.exe` 失敗，改用既有 host-test skip 方式後通過。
+
+Runtime：本輪未啟動 Docker、AVD、App、backend 或其他長時間程序；Flutter 指令均已
+正常結束，沒有需停止的 managed runtime。
+
+下一步：有實機時執行 Low Power 前景／背景資源量測，並接續 App Lock
+notification／biometric lifecycle 與 Safety Number QR。iOS 在 Mac 驗證
+Keychain／Face ID／相機、Low Power 與 OS 通知；沒有實機時接續下一個 V1.5
+電腦端 backlog。
+
+## 上次交接（2026-07-18 14:01 +08:00）
+
+目前目標：在 Safety Number 與生物辨識真機 Gate 等待期間，完成 V1.5 EPIC-11
+App Lock notification privacy 的偏好、Event Bus 狀態、Push 呈現策略與電腦端測試。
+
+- [x] **已完成**：新增獨立 `AppLockModule`，沿用 Crypto module 註冊的 `SecureKeyValueStore`；App Lock 不取代裝置私鑰保護
+- [x] **已完成**：6 位 PIN 使用 libsodium `crypto_pwhash_str` Argon2id interactive profile；encoded verifier 內含 salt／成本參數，secure storage 不保存 PIN 明文，未自行實作 KDF
+- [x] **已完成**：五次錯誤後冷卻 30 秒，錯誤次數與期限可跨重啟保存；設定損壞時 fail-closed，不顯示聊天內容
+- [x] **已完成**：根層 `AppLockGate`、繁中／英文解鎖與設定頁、啟用／停用／立即鎖定完成；App 進入 background 立即鎖定
+- [x] **已完成**：加入可替換 `AppLockBiometricAuthenticator` 與 `local_auth` Android/iOS adapter；只接受 biometric-only 系統驗證，不接觸或保存生物特徵
+- [x] **已完成**：生物辨識啟用前需先成功驗證；opt-in 保存於既有 secure storage，鎖定畫面自動嘗試辨識，取消／失敗／未註冊／系統鎖定不解鎖且 PIN 始終可用
+- [x] **已完成**：Android 改用 `FlutterFragmentActivity`、加入 `USE_BIOMETRIC` 與 AppCompat theme；iOS 加入 `NSFaceIDUsageDescription`；`local_auth` federated packages 維持鎖定，專案目前最低工具鏈為 Flutter 3.29／Dart 3.7
+- [x] **已完成**：App Lock 3 項 adapter、6 項 service 與 6 項 Widget tests 通過；跨重啟 biometric／notification opt-in、成功／取消／錯誤映射、PIN fallback 及移除 enrollment 後仍可停用均有覆蓋
+- [x] **已完成**：新增 `AppLockStateChanged`，只含 enabled／locked／hide flags；Push module 經 Event Bus 訂閱並在 dispose 取消，不直接呼叫 App Lock 內部實作
+- [x] **已完成**：新增 privacy-first `NotificationPresentationPolicy`；狀態未知、App 鎖定、預設隱藏或缺少本機資料時強制通用文字，只有已解鎖且明確 opt-out 才允許本機 sender／preview
+- [x] **已完成**：App Lock 設定頁新增預設開啟的通知隱私開關與繁中／英文 UI；偏好與 verifier 一起保存於 secure storage
+- [x] **已完成**：4 項 notification policy/module wiring tests 通過；排除既有 Windows-native `device_key_service_test.dart` 後，117 項 Flutter host tests 全通過；`flutter analyze --no-pub` 零問題，formatter 151 files 零變更
+- [x] **已完成**：設定 `NIX_SKIP_SODIUM_BUILD_HOOKS=1` 後，含最新 Push/App Lock 啟動順序的 Android debug APK 編譯通過；SHA-256 `D906A452984E2567A7319D191483B0AB896697065E33475E67D2523977294371`。此 APK 不含 sodium native asset，只作編譯驗證，不可作 runtime 測試版
+- [ ] **已實作未驗證**：未跳過 sodium hook 的 Android build 已找到 Git Bash，但現有 NDK 28 libsodium automake C 編譯失敗；未取得可安裝的本輪完整 native APK
+- [ ] **已實作未驗證**：Android/iPhone 生物辨識、enrollment change、App Lock Argon2id／secure storage／background-resume 及 Safety Number 相機掃碼仍待實機驗收
+- [ ] **已實作未驗證**：provider-neutral notification privacy policy 已完成；真實 FCM/APNs notification presentation provider、Android/iOS OS lock-screen 呈現仍需 credentials 與實機驗收
+- [ ] **已實作未驗證**：iOS `local_auth`／Face ID 設定已完成；Xcode build、Keychain／Face ID runtime、iPhone 相機與跨平台 Safety Number 核對仍需 Mac／實機
+
+- [x] **已完成**：新增獨立 `SafetyNumberModule`，沿用現有 `IdentitySession`、`DeviceKeyMaterial` 與 `ContactRepository`，未修改 Core 契約
+- [x] **已完成**：Safety Number 將雙方 user/device ID 與 32-byte 公鑰排序後以版本化 canonical JSON 計算 SHA-512；兩端參與者順序對調仍產生相同 60 位顯示碼
+- [x] **已完成**：QR payload 只含 schema version、類型、雙方裝置識別與 digest，不含私鑰或聊天內容；嚴格拒絕額外欄位、竄改、錯誤參與者與 malformed JSON
+- [x] **已完成**：SQLite schema 升級至 v8，新增 `safety_number_verifications`；驗證 digest 跨重啟保存，聯絡人公鑰改變時舊驗證自動失效
+- [x] **已完成**：聊天室 AppBar 新增安全碼入口；Safety Number 頁支援白底黑碼高對比 QR、12 組五位數、人工確認、貼入 QR 內容比對及繁中／英文介面；深色主題 Widget 測試已鎖定 QR 對比
+- [x] **已完成**：新增 `qr_flutter 4.1.0`；`mobile_scanner` 後續已升級至 7.3.0，專案最低工具鏈同步為 Flutter 3.29／Dart 3.7
+- [x] **已完成**：新增可注入的 `SafetyNumberQrScanner`、QR-only 相機頁、首次成功後停止掃描、相機初始化／權限失敗 UI；Windows 等不支援平台保留人工貼入流程
+- [x] **已完成**：Android manifest 加入 `CAMERA`，iOS `NSCameraUsageDescription` 納入 Safety Number；Android debug APK 建置成功，iOS plist XML 可解析
+- [x] **已完成**：Safety Number 核心、service、widget、scanner adapter、schema 與 v1～v7 migration 共 15 項專項測試通過
+- [x] **已完成**：Safety Number 專項測試維持通過；已納入本輪 104 項 Flutter host suite
+- [ ] **已實作未驗證**：完整 `flutter test` 唯一失敗為本機缺 Visual Studio C++／libsodium native asset 的既有 `device_key_service_test.dart`；先前 Windows CI 已驗證該路徑，本次未修改裝置金鑰實作
+- [ ] **已實作未驗證**：Android/iPhone 真實相機權限允許／拒絕、Safety Number QR 掃碼與錯誤畫面尚未實機驗收；iOS 尚需在 Mac 執行 build
+- [ ] **已實作未驗證**：QR 產生、嚴格 payload 比對、相機／人工貼入流程已完成；兩台 Android/iPhone 實機顯示一致性與交叉核對尚未驗收
+- [ ] **已實作未驗證**：`mobile_scanner 7.3.0` 與 `flutter_webrtc 1.5.2` 均具 AGP 9 conditional KGP 邏輯；Flutter 3.44.6 template 仍強制關閉 built-in Kotlin，因此相容模式下仍會套用 KGP，待 Flutter toolchain 開放完整遷移
+
+Runtime：本輪未啟動 Docker、AVD、App、backend 或其他長時間程序；Flutter test/analyze/formatter 與 Android Gradle build 指令均已正常結束，Gradle/JVM daemon 由建置工具管理。完整 native build 限制仍是 NDK 28 libsodium automake C 編譯失敗。
+
+下一步：沒有 credentials／實機時轉做 EPIC-10 Low Power Mode 的電腦端策略、設定與測試；Android 裝置重新連線後再驗證 App Lock notification／biometric lifecycle 與 Safety Number QR。iOS 在 Mac 驗證 Keychain／Face ID／相機及 OS 通知。
+
+## 上次交接（2026-07-17 01:53 +08:00）
 
 目前目標：完成專用 Firebase Test Lab cloud project、billing、WIF 與 results bucket，並在
 首次可能產生費用的實體裝置 matrix 前加入預設不送測的 dry-run Gate。
@@ -214,7 +621,7 @@ backend。ADB server 已在交接更新後正常停止。
 - [x] **已完成**：PR #36 最終 head run `29410208438` 全通過並合併；Java 21 tests 37 秒、Flutter 3.44.6 完整 checks 1 分 55 秒、PostgreSQL container smoke 1 分 45 秒
 - [x] **已完成**：合併後 `main` run `29410344607` 全通過；Java 21 tests 54 秒、Flutter 3.44.6 完整 checks 2 分 19 秒、PostgreSQL container smoke 1 分 41 秒
 - [ ] **已實作未驗證**：Windows `device_key_service_test.dart` 仍缺 Visual Studio Desktop development with C++，無法載入 sodium native asset；不影響本次純 Dart／SQLite／widget 變更，Android 真實 libsodium 沿用既有雙 AVD 驗收
-- [ ] **未完成**：GitHub Actions 目前將 `checkout`／`setup-java` 的 Node.js 20 runtime 強制改以 Node.js 24 執行並顯示 deprecation annotation；現有 pinned actions 與 CI 仍全綠，後續需升級至明確支援 Node.js 24 的 pinned revisions
+- [x] **已完成**：GitHub Actions Node.js 20 deprecation 已清除；`checkout v7` 原已使用 Node 24，Test Lab 的 `upload-artifact` 已升級至 pinned `v7.0.1`，run `29641323307` annotations 為空且 artifact 成功 finalized
 - [ ] **未完成**：兩台 Android 真機 V1-01/03/04、真實 FCM/APNs、iPhone runtime、正式簽章、公開 production 與最終 release artifacts
 
 Runtime：本輪沒有啟動 Docker、ADB、AVD、App 或常駐 backend；Flutter 測試程序均已正常結束。
@@ -580,7 +987,7 @@ Runtime：隔離 Compose project `p2p_fcm_worker_verify` 已在本文件停止�
 
 ### 環境與基線驗證
 
-- [x] 安裝並記錄 Flutter `>=3.27.0`、Dart `>=3.6.0` 的實際版本
+- [x] 安裝並記錄 Flutter `>=3.29.0`、Dart `>=3.7.0` 的實際版本；CI 使用 Flutter 3.44.6／Dart 3.12.2
 - [x] 在 `mobile_desktop_app` 執行 `flutter pub get`
 - [x] 執行 `dart format --output=none --set-exit-if-changed lib test`
 - [x] 執行 `dart analyze` 並修正所有錯誤

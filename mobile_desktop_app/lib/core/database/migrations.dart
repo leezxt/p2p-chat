@@ -9,7 +9,7 @@ class Migration {
 }
 
 /// 目前 schema 版本。每次新增 migration 時 +1。
-const int kCurrentDbVersion = 7;
+const int kCurrentDbVersion = 15;
 
 /// 依版本排序的 migration 清單。
 const List<Migration> kMigrations = [
@@ -167,5 +167,127 @@ const List<Migration> kMigrations = [
       updated_at INTEGER NOT NULL
     )
     ''',
+  ]),
+  Migration(8, [
+    '''
+    CREATE TABLE safety_number_verifications (
+      remote_device_id TEXT PRIMARY KEY,
+      digest TEXT NOT NULL,
+      verified_at INTEGER NOT NULL
+    )
+    ''',
+  ]),
+  Migration(9, [
+    '''
+    CREATE TABLE message_reactions (
+      target_message_id TEXT NOT NULL,
+      reactor_user_id TEXT NOT NULL,
+      emoji TEXT NOT NULL,
+      active INTEGER NOT NULL CHECK (active IN (0, 1)),
+      event_id TEXT NOT NULL,
+      updated_at INTEGER NOT NULL,
+      schema_version INTEGER NOT NULL,
+      PRIMARY KEY (target_message_id, reactor_user_id, emoji)
+    )
+    ''',
+    'CREATE INDEX idx_message_reactions_target_active '
+        'ON message_reactions (target_message_id, active)',
+  ]),
+  Migration(10, [
+    // 僅保存可安全重建的快取索引；身份、金鑰、聊天與待送 mailbox 不進此表。
+    '''
+    CREATE TABLE storage_cache_entries (
+      cache_key TEXT PRIMARY KEY,
+      byte_size INTEGER NOT NULL CHECK (byte_size >= 0),
+      updated_at INTEGER NOT NULL
+    )
+    ''',
+  ]),
+  Migration(11, [
+    '''
+    CREATE TABLE notification_preferences (
+      conversation_id TEXT PRIMARY KEY,
+      muted INTEGER NOT NULL DEFAULT 0 CHECK (muted IN (0, 1)),
+      allow_preview INTEGER NOT NULL DEFAULT 0 CHECK (allow_preview IN (0, 1)),
+      updated_at INTEGER NOT NULL
+    )
+    ''',
+  ]),
+  Migration(12, [
+    '''
+    CREATE TABLE message_translations (
+      message_id TEXT NOT NULL,
+      provider_id TEXT NOT NULL,
+      target_language TEXT NOT NULL,
+      source_hash TEXT NOT NULL,
+      translated_text TEXT NOT NULL,
+      updated_at INTEGER NOT NULL,
+      PRIMARY KEY (message_id, provider_id, target_language)
+    )
+    ''',
+    'CREATE INDEX idx_message_translations_message ON message_translations (message_id)',
+  ]),
+  Migration(13, [
+    // Desktop Link 只記錄主裝置明確授權的副端與安全同步切點；不保存私鑰或訊息內容。
+    '''
+    CREATE TABLE desktop_link_authorizations (
+      device_id TEXT PRIMARY KEY,
+      display_name TEXT NOT NULL,
+      public_key_fingerprint TEXT NOT NULL,
+      authorized_after INTEGER NOT NULL CHECK (authorized_after >= 0),
+      revoked_at INTEGER,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      CHECK (revoked_at IS NULL OR revoked_at >= created_at)
+    )
+    ''',
+    'CREATE INDEX idx_desktop_link_authorizations_active '
+        'ON desktop_link_authorizations (revoked_at)',
+  ]),
+  Migration(14, [
+    // 一次性 QR 配對請求只保存公開識別與處理狀態；不保存 QR 原文、私鑰或訊息。
+    '''
+    CREATE TABLE desktop_link_pairing_requests (
+      request_id TEXT PRIMARY KEY,
+      target_primary_device_id TEXT NOT NULL,
+      device_id TEXT NOT NULL,
+      display_name TEXT NOT NULL,
+      public_key_fingerprint TEXT NOT NULL,
+      issued_at INTEGER NOT NULL,
+      expires_at INTEGER NOT NULL,
+      state TEXT NOT NULL CHECK (state IN ('pending', 'confirming', 'confirmed', 'rejected')),
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      CHECK (expires_at > issued_at)
+    )
+    ''',
+    'CREATE INDEX idx_desktop_link_pairing_requests_state_expiry '
+        'ON desktop_link_pairing_requests (state, expires_at)',
+  ]),
+  Migration(15, [
+    // v14 的 request 只保存自行宣告的 fingerprint，無法和公開金鑰綁定。一次性
+    // pairing request 本來就短效；升級時刻意作廢尚未完成的 v14 請求，避免把不可
+    // 驗證的舊宣告帶進可授權流程。Desktop Link 授權、聊天與身份資料不受影響。
+    'ALTER TABLE desktop_link_pairing_requests '
+        'RENAME TO desktop_link_pairing_requests_v14',
+    '''
+    CREATE TABLE desktop_link_pairing_requests (
+      request_id TEXT PRIMARY KEY,
+      target_primary_device_id TEXT NOT NULL,
+      device_id TEXT NOT NULL,
+      display_name TEXT NOT NULL,
+      public_key TEXT NOT NULL,
+      public_key_fingerprint TEXT NOT NULL,
+      issued_at INTEGER NOT NULL,
+      expires_at INTEGER NOT NULL,
+      state TEXT NOT NULL CHECK (state IN ('pending', 'confirming', 'confirmed', 'rejected')),
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      CHECK (expires_at > issued_at)
+    )
+    ''',
+    'DROP TABLE desktop_link_pairing_requests_v14',
+    'CREATE INDEX idx_desktop_link_pairing_requests_state_expiry '
+        'ON desktop_link_pairing_requests (state, expires_at)',
   ]),
 ];
